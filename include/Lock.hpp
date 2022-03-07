@@ -96,6 +96,7 @@ namespace Lock {
             @return true if the lock is locked
         */
         bool is_locked() { return lock.is_locked(); }
+        lock_state get_lock_state() { return lock.get_state(); }
         // lock the lock imideately
         //void lock() { lock->lock(); }
     private:
