@@ -23,10 +23,9 @@ namespace RFID
         }
 
         /*
-            !!!!!!!!!!!!!!! ------------ need to find out how the tag-id will be transferd...
             read for a tag id
             @param async true=wait until a tag is present. false=read 1 time and return imidiately
-            @return the tag id if a tag was present else nullptr
+            @return the tag id if a tag was present else an empty string
         */
         String read_Tag_ID(bool async = true);
     private:
