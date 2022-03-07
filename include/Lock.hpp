@@ -77,17 +77,19 @@ intentionally unlock the Lock
 */
 class unlock_token {
 public:
-    unlock_token(Lock* _lock) : lock(_lock) { }
+    unlock_token(Lock& _lock) : lock(_lock) { }
+    unlock_token(const unlock_token&) = delete;
+    unlock_token& operator=(const unlock_token&) = delete;
     virtual ~unlock_token() { }
-    bool request_unlock() { return lock->request_unlock(); }
+    bool request_unlock() { return lock.request_unlock(); }
     /*
         @return true if the lock is locked
     */
-    bool is_locked() { return lock->is_locked(); }
+    bool is_locked() { return lock.is_locked(); }
     // lock the lock imideately
     //void lock() { lock->lock(); }
 private:
-    Lock* lock;
+    Lock& lock;
 };
 
 // ------------- Implementations -------------
