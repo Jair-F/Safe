@@ -5,6 +5,8 @@
 class Unlock_Object {
 public:
     Unlock_Object(Lock::unlock_token* _utoken, bool _enabled = true);
+    Unlock_Object(const Unlock_Object&) = delete;
+    Unlock_Object& operator=(const Unlock_Object&) = delete;
     virtual ~Unlock_Object();
     void enable() { this->enabled = true; }
     void disable() { this->enabled = false; }
