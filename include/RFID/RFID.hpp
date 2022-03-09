@@ -19,7 +19,7 @@ namespace RFID
     class RFID : public Unlock_Object {
     public:
         RFID(byte chipSelectPin, byte resetPowerDownPin, Lock::unlock_token* _utoken, bool _enabled = true);
-        ~RFID() { this->rfid.PCD_SoftPowerDown(); }
+        virtual ~RFID() { this->rfid.PCD_SoftPowerDown(); }
 
         void begin() {
             SPI.begin(); // Arduino interface which is necessarily for RFID(SPI is a global variable from Arduino)
@@ -33,11 +33,11 @@ namespace RFID
             func to call in a loop - it reads for a tag and if there is a card present it searches in
             allowed tags for a match. If a match was found it makes a unlock_request to the lock
         */
-        void loop();
+        virtual void loop() override;
 
         /*
             read for a tag id
-            @param async true=wait until a tag is present. false=read 1 time and return imidiately
+            @param async false=wait until a tag is present. true=read 1 time and return imidiately
             @return the tag id if a tag was present else an empty string
         */
         String read_Tag_ID(bool async = true);
@@ -89,11 +89,13 @@ RFID::RFID::RFID(byte chipSelectPin, byte resetPowerDownPin, Lock::unlock_token*
 }
 
 void RFID::RFID::loop() {
-    String tag_uid = this->read_Tag_ID();
-    if (tag_uid.length() > 0) {
-        for (unsigned short i = 0; i < NUM_OF_TAGS; ++i) {
-            if (this->allowed_tags[i] == tag_uid) {
-                this->utoken->request_unlock();
+    if (this->is_enabled()) {
+        String tag_uid = this->read_Tag_ID();
+        if (tag_uid.length() > 0) {
+            for (unsigned short i = 0; i < NUM_OF_TAGS; ++i) {
+                if (this->allowed_tags[i] == tag_uid) {
+                    this->utoken->request_unlock();
+                }
             }
         }
     }
@@ -154,17 +156,25 @@ String RFID::RFID::get_tag_uid(unsigned short id) const {
 }
 
 String RFID::RFID::read_Tag_ID(bool async) {
-    String uid_str;
-    if (this->rfid.PICC_IsNewCardPresent()) {   // if a card is "online"
-        if (rfid.PICC_ReadCardSerial()) {       // starting read the card
-
-            for (unsigned short i = 0; i < rfid.uid.size; ++i) {
-                unsigned short dec_num = bin_to_dec(rfid.uid.uidByte[i]);
-                String tmp(dec_num, HEX);  // convert to hex-string
-                uid_str += tmp + ' ';
-            }
-            uid_str.remove(uid_str.length() - 1); // remove last char - its a ' '
+    String uid_str("");
+    if (!async) {
+        // if we dont run in async mode wait until an new card is present
+        while (!this->rfid.PICC_IsNewCardPresent()); // returns true if a card is present
+    }
+    else {
+        if (!this->rfid.PICC_IsNewCardPresent()) {   // if no card is "online"
+            return uid_str; // return a empty string
         }
+    }
+
+    // a new card is present...
+    if (rfid.PICC_ReadCardSerial()) {       // starting read the card
+        for (unsigned short i = 0; i < rfid.uid.size; ++i) {
+            unsigned short dec_num = bin_to_dec(rfid.uid.uidByte[i]);
+            String tmp(dec_num, HEX);  // convert to hex-string
+            uid_str += tmp + ' ';
+        }
+        uid_str.remove(uid_str.length() - 1); // remove last char - its a ' '
     }
     rfid.PICC_HaltA();  // halt the reader in order to not read the same card again and again
 

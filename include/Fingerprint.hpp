@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Arduino.h>
 #include <Adafruit_Fingerprint.h>
 #include "Unlock_Object.hpp"
 #include "Lock.hpp"
@@ -23,6 +24,7 @@ namespace Fingerprint {
         Fingerprint(SoftwareSerial* my_serial, Lock::unlock_token* utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) { }
         Fingerprint(HardwareSerial* my_serial, Lock::unlock_token* utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) { }
         Fingerprint(Stream* my_serial, Lock::unlock_token* utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) { }
+        virtual ~Fingerprint() { }
 
         void begin();
 
@@ -40,7 +42,6 @@ namespace Fingerprint {
             @return true if a fingerprint is saved on this id otherwise false
         */
         bool check_id_used(uint16_t id);
-        ~Fingerprint() { }
     private:
 
     };

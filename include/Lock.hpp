@@ -8,10 +8,15 @@ namespace Lock {
     enum lock_state {
         LOCKED = 0, UNLOCKED
     };
+
+    /*
+        - Handles the connection between the lock and the unlock_objects
+        - Locks the lock automatically when its unlocked after a specific timer
+    */
     class Lock {
     public:
         /*
-            @param _lock_timer after how much seconds the lock will lock itself if it is being unlocked
+            @param _lock_timer timer in seconds after how many secons the lock should be locked automatically after its unlocked
             @param lock_state initial state of the lock if true(lock unlocked) the lock will be locked after the timer is passed
             @param _allow_unlocking whether to allow unlock_requests or not
         */
@@ -69,9 +74,9 @@ namespace Lock {
         unsigned long unlock_time_point;
 
         // function which will be called when lock will be locked
-        bool (*on_locking)(void);
+        bool (*on_locking)(void) = []() {Serial.println("locking the lock"); return true;};
         // function which will be called when lock will be unlocked
-        bool (*on_unlocking)(void);
+        bool (*on_unlocking)(void) = []() {Serial.println("unlocking the lock"); return true;};
     };
 
 
@@ -87,7 +92,7 @@ namespace Lock {
         unlock_token(Lock& _lock) : lock(_lock) { }
         unlock_token(const unlock_token&) = delete;
         unlock_token& operator=(const unlock_token&) = delete;
-        virtual ~unlock_token() { }
+        ~unlock_token() { }
         /*
             @return true if the lock was unlocked false if forbidden
         */
@@ -106,6 +111,7 @@ namespace Lock {
     // ------------- Implementations -------------
 
     // Lock
+
     unlock_token* Lock::create_unlock_token() {
         return new unlock_token(*this);
     }
