@@ -36,6 +36,14 @@ namespace RFID
         String read_Tag_ID(bool async = true);
 
         /*
+            reads from the RFID_module for a tag and adds it to database at id id
+            !!! this function reads only one time - if there was no tag it will return without doing nothing !!!
+            Maybe you want to call this function in a loop to ensure that a tag was added
+            @param id id where to store in the database - it overwrites if there exists already a tag
+            @return true if a tag was added else false
+        */
+        bool read_add_tag(unsigned short id);
+        /*
             adds a tag to the allowed_tags list
         */
         void add_tag(unsigned short id, String tag_uid);
@@ -103,6 +111,17 @@ bool RFID::RFID::id_used(unsigned short id) {
         // throw an error
     }
     return this->allowed_tags[id].get_tag_uid() == "";
+}
+bool RFID::RFID::read_add_tag(unsigned short id) {
+    if (id > NUM_OF_TAGS - 1) {
+        // throw an error
+    }
+    String tag_uid = this->read_Tag_ID();
+    if (tag_uid.length() > 0) {
+        this->allowed_tags[id].set_tag_uid(tag_uid);
+        return true;
+    }
+    return false;
 }
 void RFID::RFID::add_tag(unsigned short id, String tag_uid) {
     if (id > NUM_OF_TAGS - 1) {
