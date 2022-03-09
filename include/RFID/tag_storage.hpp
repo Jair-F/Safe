@@ -37,7 +37,7 @@ namespace RFID
 // -------------------- Implementations --------------------
 
 bool RFID::tag_storage::operator==(const char* _tag_uid) const {
-    return this->tag_uid == tag_uid;
+    return this->tag_uid == _tag_uid;
 }
 bool RFID::tag_storage::operator==(const String& _tag_uid) const {
     return *this == _tag_uid.c_str();
