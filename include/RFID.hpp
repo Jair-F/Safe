@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Arduino.h>
 #include <MFRC522.h>
 #include "Helper.hpp"
 
@@ -10,6 +11,8 @@ RFID:
 
 namespace RFID
 {
+    class RFID;
+    class RFID_tag_storage;
     class RFID {
     public:
         RFID(byte chipSelectPin, byte resetPowerDownPin) : rfid(chipSelectPin, resetPowerDownPin) { }
@@ -49,6 +52,39 @@ namespace RFID
 
         return uid_str;
     }
+
+
+
+
+
+
+
+
+    class RFID_tag_storage {
+    public:
+        RFID_tag_storage(unsigned short _id, String _tag_uid) :id(_id), tag_uid(_tag_uid) { }
+        RFID_tag_storage(unsigned short _id) :id(_id), tag_uid(String()) { }
+        ~RFID_tag_storage() { }
+
+        RFID_tag_storage(const RFID_tag_storage&) = delete;
+        RFID_tag_storage& operator=(const RFID_tag_storage&) = delete;
+
+        /*
+            set the rfid_tag_uid - the id from the rfid-tag
+        */
+        void set_tag_uid(String _tag_uid) { tag_uid = _tag_uid; }
+        /*
+            get the rfid_tag_uid - the id from the rfid-tag
+        */
+        String get_tag_uid() { return tag_uid; }
+        /*
+            get the id in the config/database
+        */
+        unsigned short get_id() { return id; }
+    private:
+        String tag_uid;     // unique id from the rfid_tag
+        unsigned short id;  // id in the database/config-fiel only for identification in the database/config
+    };
 
 } // namespace RFID
 
