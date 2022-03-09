@@ -74,7 +74,7 @@ namespace RFID
         //bool in_database(String uid);
     private:
         MFRC522 rfid;
-        RFID_tag_storage allowed_tags[NUM_OF_TAGS];
+        tag_storage allowed_tags[NUM_OF_TAGS];
     };
 
 } // namespace RFID

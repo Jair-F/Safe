@@ -2,21 +2,21 @@
 
 namespace RFID
 {
-    class RFID_tag_storage {
+    class tag_storage {
         /*
             class for storing and handeling rfid_tag_uids and checking :|
         */
     public:
-        RFID_tag_storage(String _tag_uid = "") : tag_uid(_tag_uid) { }
-        ~RFID_tag_storage() { }
+        tag_storage(String _tag_uid = "") : tag_uid(_tag_uid) { }
+        ~tag_storage() { }
 
-        RFID_tag_storage(const RFID_tag_storage&) = delete;
-        RFID_tag_storage& operator=(const RFID_tag_storage&) = delete;
+        tag_storage(const tag_storage&) = delete;
+        tag_storage& operator=(const tag_storage&) = delete;
 
-        bool operator==(const RFID_tag_storage& tag)const;
+        bool operator==(const tag_storage& tag)const;
         bool operator==(const String& _tag_uid)const;
         bool operator==(const char* _tag_uid)const;
-        bool operator!=(const RFID_tag_storage& tag)const;
+        bool operator!=(const tag_storage& tag)const;
         bool operator!=(const String& _tag_uid)const;
         bool operator!=(const char* _tag_uid)const;
 
@@ -36,22 +36,22 @@ namespace RFID
 
 // -------------------- Implementations --------------------
 
-bool RFID::RFID_tag_storage::operator==(const char* _tag_uid) const {
+bool RFID::tag_storage::operator==(const char* _tag_uid) const {
     return this->tag_uid == tag_uid;
 }
-bool RFID::RFID_tag_storage::operator==(const String& _tag_uid) const {
+bool RFID::tag_storage::operator==(const String& _tag_uid) const {
     return *this == _tag_uid.c_str();
 }
-bool RFID::RFID_tag_storage::operator==(const RFID_tag_storage& tag) const {
+bool RFID::tag_storage::operator==(const tag_storage& tag) const {
     return *this == tag.get_tag_uid();
 }
-bool RFID::RFID_tag_storage::operator!=(const char* _tag_uid) const {
+bool RFID::tag_storage::operator!=(const char* _tag_uid) const {
     return !(*this == _tag_uid);
 }
-bool RFID::RFID_tag_storage::operator!=(const String& _tag_uid) const {
+bool RFID::tag_storage::operator!=(const String& _tag_uid) const {
     return *this != _tag_uid.c_str();
 }
-bool RFID::RFID_tag_storage::operator!=(const RFID_tag_storage& tag) const {
+bool RFID::tag_storage::operator!=(const tag_storage& tag) const {
     return *this != tag.get_tag_uid();
 }
 
