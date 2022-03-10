@@ -13,18 +13,20 @@ Fingerprint:
     Library class reference: https://adafruit.github.io/Adafruit-Fingerprint-Sensor-Library/html/index.html
 */
 
-namespace Fingerprint {
+namespace Fingerprint
+{
     String error_code_message(uint8_t error_code);
     class Fingerprint;
     // the default baudrate for our communication between the arduino and the fingerprint-sensor
     constexpr uint32_t default_baudrate = 57600;
 
-    class Fingerprint : public Adafruit_Fingerprint, public Unlock_Object {
+    class Fingerprint : public Adafruit_Fingerprint, public Unlock_Object
+    {
     public:
-        Fingerprint(SoftwareSerial* my_serial, Lock::unlock_token* utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) { }
-        Fingerprint(HardwareSerial* my_serial, Lock::unlock_token* utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) { }
-        Fingerprint(Stream* my_serial, Lock::unlock_token* utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) { }
-        virtual ~Fingerprint() { }
+        Fingerprint(SoftwareSerial *my_serial, Lock::unlock_token *utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) {}
+        Fingerprint(HardwareSerial *my_serial, Lock::unlock_token *utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) {}
+        Fingerprint(Stream *my_serial, Lock::unlock_token *utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) {}
+        virtual ~Fingerprint() {}
 
         void begin();
 
@@ -42,8 +44,8 @@ namespace Fingerprint {
             @return true if a fingerprint is saved on this id otherwise false
         */
         bool check_id_used(uint16_t id);
-    private:
 
+    private:
     };
 
     String error_code_message(uint8_t error_code);
@@ -52,22 +54,29 @@ namespace Fingerprint {
 
 // ------------- Implementation -------------
 
-void Fingerprint::Fingerprint::begin() {
+void Fingerprint::Fingerprint::begin()
+{
     Adafruit_Fingerprint::begin(default_baudrate);
-    if (this->verifyPassword()) {
+    if (this->verifyPassword())
+    {
         Serial.println("Found fingerprint");
     }
-    else {
+    else
+    {
         Serial.println("Didnt found fingerprint");
-        while (true) delay(1000);
-        //exit(-1);
+        while (true)
+            delay(1000);
+        // exit(-1);
     }
 }
 
-void Fingerprint::Fingerprint::loop() {
-    if (this->is_enabled()) {
+void Fingerprint::Fingerprint::loop()
+{
+    if (this->is_enabled())
+    {
         uint8_t err_code = this->getImage();
-        if (err_code == FINGERPRINT_NOFINGER) { // if no finger is on the sensor exit func
+        if (err_code == FINGERPRINT_NOFINGER)
+        { // if no finger is on the sensor exit func
             return;
         }
 
@@ -79,22 +88,27 @@ void Fingerprint::Fingerprint::loop() {
 
         // convert the image to a feature template to compare it afterwards with fingers in the database
         err_code = this->image2Tz(finger_template_slot);
-        if (err_code); // error_handling - maybe output on display...
+        if (err_code)
+            ; // error_handling - maybe output on display...
 
         err_code = this->fingerSearch(finger_template_slot);
-        if (err_code == FINGERPRINT_OK) { // found a match
+        if (err_code == FINGERPRINT_OK)
+        { // found a match
             this->utoken->request_unlock();
         }
-        else if (err_code == FINGERPRINT_NOMATCH) {
+        else if (err_code == FINGERPRINT_NOMATCH)
+        {
             // maybe set a timer for locking the lock?
         }
-        else {
+        else
+        {
             // print the err_message on the display
         }
     }
 }
 
-bool Fingerprint::Fingerprint::check_id_used(uint16_t id) {
+bool Fingerprint::Fingerprint::check_id_used(uint16_t id)
+{
     // source: https://forum.arduino.cc/t/adafruit-fingerprint-sensor-library-detecting-empty-id/535181
     uint8_t err_code = this->loadModel(id);
     Serial.println(error_code_message(err_code));
@@ -104,31 +118,35 @@ bool Fingerprint::Fingerprint::check_id_used(uint16_t id) {
         return true;
 }
 
-uint8_t Fingerprint::Fingerprint::add_finger(uint16_t id) {
+uint8_t Fingerprint::Fingerprint::add_finger(uint16_t id)
+{
     uint8_t err_code = FINGERPRINT_NOFINGER;
     Serial.println("place finger");
-    while (err_code != FINGERPRINT_OK) {
+    while (err_code != FINGERPRINT_OK)
+    {
         err_code = this->getImage();
     }
     Serial.println(error_code_message(err_code));
-    err_code = this->image2Tz(1);    // param slot for the image(exist 1 and 2) second is for verification...
+    err_code = this->image2Tz(1); // param slot for the image(exist 1 and 2) second is for verification...
     Serial.println(error_code_message(err_code));
 
     // waiting until user removes the finger
-    while (err_code != FINGERPRINT_NOFINGER) {
+    while (err_code != FINGERPRINT_NOFINGER)
+    {
         err_code = this->getImage();
     }
 
     Serial.println("place same finger again");
-    do {
+    do
+    {
         err_code = this->getImage();
     } while (err_code != FINGERPRINT_OK);
     Serial.println(error_code_message(err_code));
-    err_code = this->image2Tz(2);    // second slot for verification
+    err_code = this->image2Tz(2); // second slot for verification
     Serial.println(error_code_message(err_code));
 
     Serial.println("Creating model of finger...");
-    err_code = this->createModel();      // creating model of the two feature templates which are created from the images
+    err_code = this->createModel(); // creating model of the two feature templates which are created from the images
     Serial.println(error_code_message(err_code));
 
     Serial.println("Storing model in Database...");
@@ -138,10 +156,8 @@ uint8_t Fingerprint::Fingerprint::add_finger(uint16_t id) {
     return err_code;
 }
 
-
-
-
-String Fingerprint::error_code_message(uint8_t error_code) {
+String Fingerprint::error_code_message(uint8_t error_code)
+{
     /*
         https://adafruit.github.io/Adafruit-Fingerprint-Sensor-Library/html/_adafruit___fingerprint_8h.html
     */

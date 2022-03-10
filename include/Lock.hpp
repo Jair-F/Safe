@@ -1,19 +1,23 @@
 #pragma once
 
-namespace Lock {
+namespace Lock
+{
 
     class Lock;
     class unlock_token;
 
-    enum lock_state {
-        LOCKED = 0, UNLOCKED
+    enum lock_state
+    {
+        LOCKED = 0,
+        UNLOCKED
     };
 
     /*
         - Handles the connection between the lock and the unlock_objects
         - Locks the lock automatically when its unlocked after a specific timer
     */
-    class Lock {
+    class Lock
+    {
     public:
         /*
             @param _lock_timer timer in seconds after how many secons the lock should be locked automatically after its unlocked
@@ -21,19 +25,20 @@ namespace Lock {
             @param _allow_unlocking whether to allow unlock_requests or not
         */
         Lock(const unsigned short _lock_timer, lock_state _lock_state = lock_state::LOCKED, bool _allow_unlocking = true) : unlocking_allowed(_allow_unlocking),
-            state(_lock_state), lock_timer(_lock_timer), unlock_time_point(0) { }
+                                                                                                                            state(_lock_state), lock_timer(_lock_timer),
+                                                                                                                            unlock_time_point(0) {}
 
         /*
             @return a new generated unlock_token !!! You are responsible to delete
                     this object afterwards !!!
         */
-        unlock_token* create_unlock_token();
+        unlock_token *create_unlock_token();
 
         // ignoring unlocking_allowed and unlock the lock
         void force_unlock();
 
         // lock the lock imidieately
-        //void lock();
+        // void lock();
 
         /*
             @return true if the lock is locked
@@ -64,6 +69,7 @@ namespace Lock {
         void _lock();
         // switches the state and calls the requred functions to perform the state-switch !!! doesnt check if unlocking is alowed !!!
         void _unlock();
+
     private:
         lock_state state;
         bool unlocking_allowed;
@@ -74,11 +80,12 @@ namespace Lock {
         unsigned long unlock_time_point;
 
         // function which will be called when lock will be locked
-        bool (*on_locking)(void) = []() {Serial.println("locking the lock"); return true;};
+        bool (*on_locking)(void) = []()
+        {Serial.println("locking the lock"); return true; };
         // function which will be called when lock will be unlocked
-        bool (*on_unlocking)(void) = []() {Serial.println("unlocking the lock"); return true;};
+        bool (*on_unlocking)(void) = []()
+        {Serial.println("unlocking the lock"); return true; };
     };
-
 
     /*
         - a wrapper for "clients" due safety reasons
@@ -87,12 +94,13 @@ namespace Lock {
     intentionally unlock the Lock
         or do something else with the lock
     */
-    class unlock_token {
+    class unlock_token
+    {
     public:
-        unlock_token(Lock& _lock) : lock(_lock) { }
-        unlock_token(const unlock_token&) = delete;
-        unlock_token& operator=(const unlock_token&) = delete;
-        ~unlock_token() { }
+        unlock_token(Lock &_lock) : lock(_lock) {}
+        unlock_token(const unlock_token &) = delete;
+        unlock_token &operator=(const unlock_token &) = delete;
+        ~unlock_token() {}
         /*
             @return true if the lock was unlocked false if forbidden
         */
@@ -103,54 +111,66 @@ namespace Lock {
         bool is_locked() { return lock.is_locked(); }
         lock_state get_lock_state() { return lock.get_state(); }
         // lock the lock imideately
-        //void lock() { lock->lock(); }
+        // void lock() { lock->lock(); }
     private:
-        Lock& lock;
+        Lock &lock;
     };
 
     // ------------- Implementations -------------
 
     // Lock
 
-    unlock_token* Lock::create_unlock_token() {
+    unlock_token *Lock::create_unlock_token()
+    {
         return new unlock_token(*this);
     }
 
-    void Lock::_lock() {
+    void Lock::_lock()
+    {
         bool success = on_locking(); // calling the "switch_state" function which will lock the physical lock
-        if (!success) {
+        if (!success)
+        {
             Serial.println("Error locking the physical Lock!!");
         }
         this->state = lock_state::LOCKED;
     }
-    void Lock::_unlock() {
+    void Lock::_unlock()
+    {
         bool success = on_unlocking(); // calling the "switch_state" function which will unlock the physical lock
-        if (!success) {
+        if (!success)
+        {
             Serial.println("Error unlocking the physical Lock!!");
         }
         this->unlock_time_point = millis();
         this->state = lock_state::UNLOCKED;
     }
 
-    bool Lock::request_unlock() {
-        if (unlocking_allowed) {
+    bool Lock::request_unlock()
+    {
+        if (unlocking_allowed)
+        {
             this->_unlock();
             return true;
         }
         return false;
     }
 
-    void Lock::force_unlock() {
+    void Lock::force_unlock()
+    {
         this->_unlock();
     }
 
-    enum lock_state Lock::get_state() {
+    enum lock_state Lock::get_state()
+    {
         return this->state;
     }
 
-    void Lock::loop() {
-        if (state == lock_state::UNLOCKED) {
-            if (millis() > (this->lock_timer * 1000 + unlock_time_point)) { // if the timer is passed
+    void Lock::loop()
+    {
+        if (state == lock_state::UNLOCKED)
+        {
+            if (millis() > (this->lock_timer * 1000 + unlock_time_point))
+            { // if the timer is passed
                 this->_lock();
             }
         }
