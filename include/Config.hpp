@@ -19,7 +19,7 @@ namespace Config
                 has to be smaller than(EEPROM_SIZE-1)
         @return error if storing was successfully
     */
-    error save_config(String data)
+    error write_config(String data)
     {
         if (data.length() > EEPROM_SIZE - 1)
         {
