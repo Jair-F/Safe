@@ -69,6 +69,12 @@ namespace RFID
             @return the tag uid if the tag is set else it throws an error
         */
         String get_tag_uid(unsigned short id) const;
+        /*
+            @param the tag_uid to get the id from - has to be with whitespaces removed from left
+                    and right and has to be in the format like the get_tag_uid() returns("xx xx xx xx")
+            @return if a matching tag was found the tag_uid(>0). if no tag was found -1
+        */
+        int get_tag_id(String tag_uid);
         // get_used_ids
         bool id_used(unsigned short id) const;
         // bool in_database(String uid);
@@ -174,6 +180,18 @@ String RFID::RFID::get_tag_uid(unsigned short id) const
         // throw error tag isnt set...
     }
     return this->allowed_tags[id].get_tag_uid();
+}
+
+int RFID::RFID::get_tag_id(String tag_uid)
+{
+    for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
+    {
+        if (this->allowed_tags[i] == tag_uid)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 String RFID::RFID::read_Tag_ID(bool async)
