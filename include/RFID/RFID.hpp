@@ -64,6 +64,10 @@ namespace RFID
             @return true if one or more tags where removed - else false
         */
         bool remove_tag(String tag_uid);
+        /*
+            removes all saved tags from the allowed_tags_database
+        */
+        void clear_database();
 
         /*
             @return the tag uid if the tag is set else it throws an error
@@ -160,13 +164,21 @@ bool RFID::RFID::remove_tag(String tag_uid)
     bool least_one_tag_removed = false;
     for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
     {
-        if (this->allowed_tags[i].get_tag_uid() == tag_uid)
+        if (this->allowed_tags[i] == tag_uid)
         {
             this->allowed_tags[i].set_tag_uid("");
             least_one_tag_removed = true;
         }
     }
     return least_one_tag_removed;
+}
+
+void RFID::RFID::clear_database()
+{
+    for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
+    {
+        this->allowed_tags[i].set_tag_uid("");
+    }
 }
 
 String RFID::RFID::get_tag_uid(unsigned short id) const
