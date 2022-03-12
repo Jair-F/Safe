@@ -54,6 +54,13 @@ namespace Lock
         void loop();
 
         /*
+            if it was tried to unlock the lock with a unlock_method/unlock_object and the fingerprint/RFID_tag
+            wasnt in the allowed_tags... the object will report a report_unathorized_unlock_try. a text will be
+            displayed on the display and maybe after a number of tries the lock will be locked.
+        */
+        void report_unathorized_unlock_try();
+
+        /*
             @return true if the lock was unlocked false if forbidden
         */
         bool request_unlock();
@@ -106,6 +113,12 @@ namespace Lock
         */
         bool request_unlock() { return lock.request_unlock(); }
         /*
+            if it was tried to unlock the lock with a unlock_method/unlock_object and the fingerprint/RFID_tag
+            wasnt in the allowed_tags... the object will report a report_unathorized_unlock_try. a text will be
+            displayed on the display and maybe after a number of tries the lock will be locked.
+        */
+        void report_unathorized_unlock_try() { this->lock.report_unathorized_unlock_try(); }
+        /*
             @return true if the lock is locked
         */
         bool is_locked() { return lock.is_locked(); }
@@ -115,65 +128,69 @@ namespace Lock
     private:
         Lock &lock;
     };
+}
 
-    // ------------- Implementations -------------
+// ------------- Implementations -------------
 
-    // Lock
+// Lock
 
-    unlock_token *Lock::create_unlock_token()
+Lock::unlock_token *Lock::Lock::create_unlock_token()
+{
+    return new unlock_token(*this);
+}
+
+void Lock::Lock::report_unathorized_unlock_try()
+{
+    Serial.println("Unauthorized unlock_object...");
+}
+
+void Lock::Lock::_lock()
+{
+    bool success = on_locking(); // calling the "switch_state" function which will lock the physical lock
+    if (!success)
     {
-        return new unlock_token(*this);
+        Serial.println("Error locking the physical Lock!!");
     }
-
-    void Lock::_lock()
+    this->state = lock_state::LOCKED;
+}
+void Lock::Lock::_unlock()
+{
+    bool success = on_unlocking(); // calling the "switch_state" function which will unlock the physical lock
+    if (!success)
     {
-        bool success = on_locking(); // calling the "switch_state" function which will lock the physical lock
-        if (!success)
-        {
-            Serial.println("Error locking the physical Lock!!");
-        }
-        this->state = lock_state::LOCKED;
+        Serial.println("Error unlocking the physical Lock!!");
     }
-    void Lock::_unlock()
-    {
-        bool success = on_unlocking(); // calling the "switch_state" function which will unlock the physical lock
-        if (!success)
-        {
-            Serial.println("Error unlocking the physical Lock!!");
-        }
-        this->unlock_time_point = millis();
-        this->state = lock_state::UNLOCKED;
-    }
+    this->unlock_time_point = millis();
+    this->state = lock_state::UNLOCKED;
+}
 
-    bool Lock::request_unlock()
-    {
-        if (unlocking_allowed)
-        {
-            this->_unlock();
-            return true;
-        }
-        return false;
-    }
-
-    void Lock::force_unlock()
+bool Lock::Lock::request_unlock()
+{
+    if (unlocking_allowed)
     {
         this->_unlock();
+        return true;
     }
+    return false;
+}
 
-    enum lock_state Lock::get_state()
-    {
-        return this->state;
-    }
+void Lock::Lock::force_unlock()
+{
+    this->_unlock();
+}
 
-    void Lock::loop()
+enum Lock::lock_state Lock::Lock::get_state()
+{
+    return this->state;
+}
+
+void Lock::Lock::loop()
+{
+    if (state == lock_state::UNLOCKED)
     {
-        if (state == lock_state::UNLOCKED)
+        if (millis() > (this->lock_timer * 1000 + unlock_time_point)) // if the timer is passed
         {
-            if (millis() > (this->lock_timer * 1000 + unlock_time_point))
-            { // if the timer is passed
-                this->_lock();
-            }
+            this->_lock();
         }
     }
-
 }
