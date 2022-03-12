@@ -47,7 +47,7 @@ namespace Fase
         void read_config();
         void reset_config();
 
-        void add_fingerprint();
+        void add_fingerprint(unsigned short id);
         void delete_fingerprint();
         void change_pin();
         /*
@@ -116,8 +116,11 @@ void Fase::Fase::loop()
 
     case Mode::FINGERPRINT_ADD_FINGER:
     {
-        Serial.println("Add-Finger...");
-        this->add_fingerprint();
+        Serial.println("Add-Finger - insert id...");
+        while (!Serial.available() > 0)
+            delay(100);
+        unsigned short id = Serial.parseInt();
+        this->add_fingerprint(id);
         mode = Mode::NORMAL;
         break;
     }
@@ -127,12 +130,13 @@ void Fase::Fase::loop()
         // delete finger
         Serial.println("remove finger with scan(type 1) - remove finger with id(type 0): ");
         Serial.println("INPUT: ");
-        while (Serial.available() > 0)
-            ;
+        while (!(Serial.available() > 0))
+            delay(100);
         String input = Serial.readString();
         input.remove(input.length() - 1);
         if (input == "1") /*remove with read_finger*/
         {
+            Serial.println("Place finger");
             uint8_t err_code;
             while (err_code != FINGERPRINT_OK)
                 err_code = this->fingerprint.getImage();
@@ -158,15 +162,15 @@ void Fase::Fase::loop()
                 Serial.println("Didnt found a match - didnt removed anything");
                 Serial.println(Fingerprint::error_code_message(err_code));
             }
+            mode = Mode::NORMAL;
         }
         else
         {
             Serial.println("please enter id");
-            while (Serial.available() > 0) // wait until there is sometihing in serial monitor
-                ;
-            String id = Serial.readString();
-            id.remove(id.length() - 1);
-            uint8_t err_code = this->fingerprint.deleteModel(id.toInt());
+            while (!(Serial.available() > 0)) // wait until there is sometihing in serial monitor
+                delay(100);
+            unsigned short id = Serial.parseInt();
+            uint8_t err_code = this->fingerprint.deleteModel(id);
             if (err_code != FINGERPRINT_OK)
             {
                 Serial.print("ERROR: ");
@@ -180,7 +184,11 @@ void Fase::Fase::loop()
     {
         // delte database
         uint8_t err_code = this->fingerprint.emptyDatabase();
-        if (err_code != FINGERPRINT_OK)
+        if (err_code == FINGERPRINT_OK)
+        {
+            Serial.println("cleared database...");
+        }
+        else
         {
             Serial.print("ERROR: ");
             Serial.println(Fingerprint::error_code_message(err_code));
@@ -195,12 +203,12 @@ void Fase::Fase::loop()
     case Mode::RFID_ADD_TAG:
     {
         Serial.println("please enter id");
-        while (Serial.available() > 0)
-            ;
-        String id = Serial.readString();
-        id.remove(id.length() - 1);
+        while (!(Serial.available() > 0))
+            delay(100);
+        Serial.flush();
+        unsigned short id = Serial.parseInt();
         Serial.println("Add tag...");
-        while (!this->add_RFID_tag(id.toInt(), true)) // wait until user added tag
+        while (!this->add_RFID_tag(id, true)) // wait until user added tag
         {
             Serial.print(".");
             delay(500);
@@ -214,31 +222,43 @@ void Fase::Fase::loop()
     {
         Serial.println("remove tag with scan(type 1) - remove tag with id(type 0): ");
         Serial.println("INPUT: ");
-        while (Serial.available() > 0)
-            ;
+        while (!(Serial.available() > 0))
+            delay(100);
+        Serial.flush();
         String input = Serial.readString();
         input.remove(input.length() - 1);
-        if (input == "1") /*remove with read_tag*/
+
+        if (input == "1") /*remove with tag_scan*/
         {
-            String tag_uid = this->rfid.read_Tag_UID();
-            while (tag_uid.length() > 0)
-                tag_uid = this->rfid.read_Tag_UID();
-            this->rfid.remove_tag(tag_uid);
+            Serial.println("Add tag");
+            String tag_uid;
+            tag_uid = this->rfid.read_Tag_UID(false);
+            if (this->rfid.remove_tag(tag_uid))
+            {
+                Serial.println("Tag removed");
+            }
+            else
+            {
+                Serial.println("tag was not in allowed_tags - didnt removed something...");
+            }
         }
         else
         {
             Serial.println("please enter id");
-            while (Serial.available() > 0)
-                ;
-            String id = Serial.readString();
-            id.remove(id.length() - 1);
-            this->rfid.remove_tag(id);
+            while (!(Serial.available() > 0))
+                delay(100);
+            unsigned short tag_id = Serial.parseInt();
+            this->rfid.remove_tag(tag_id);
+            Serial.println("Tag removed");
         }
+        mode = Mode::NORMAL;
         break;
     }
     case Mode::RFID_EMPTY_DATABASE:
     {
         this->rfid.clear_database();
+        Serial.println("cleared database");
+        mode = Mode::NORMAL;
         break;
     }
     default:
@@ -250,53 +270,56 @@ void Fase::Fase::loop()
     // Serial.print("Lock-State: ");
     // Serial.println(this->lock.is_locked() == true ? "locked" : "unlocked");
 
-    if (Serial.available())
+    if (Serial.available() > 0)
     {
-        if (Serial.peek() == '$')
+        Serial.flush(); // wait till the stream finished
+        if (Serial.read() == '$')
         {
             Serial.println("Command send...");
             String read = Serial.readString();
             read.remove(read.length() - 1); // remove last newline
-            Serial.print('\"');
-            Serial.print(read);
-            Serial.println('\"');
-            if (read == "$help")
+            if (read == "help")
             {
                 Serial.print("Commands: ");
-                Serial.println("$add_finger, $normal, $rfid_remove_tag, rfid_add_tag, $rfid_empty_database, $finger_empty_database, $remove_finger");
+                Serial.println("$add_finger, $normal, $rfid_remove_tag, $rfid_add_tag, $rfid_empty_database, $finger_empty_database, $remove_finger");
                 Serial.println();
             }
-            else if (read == "$remove_finger")
+            else if (read == "remove_finger")
             {
                 this->mode = Mode::FINGERPRINT_REMOVE_FINGER;
             }
-            else if (read == "$add_finger")
+            else if (read == "add_finger")
             {
                 Serial.println("Setting mode to addfinger");
                 this->mode = Mode::FINGERPRINT_ADD_FINGER;
             }
-            else if (read == "$finger_empty_database")
+            else if (read == "finger_empty_database")
             {
                 this->mode = Mode::FINGERPRINT_EMPTY_DATABASE;
             }
-            else if (read == "$normal")
+            else if (read == "normal")
             {
                 Serial.println("Setting mode to normal");
                 this->mode = Mode::NORMAL;
             }
-            else if (read == "$rfid_add_tag")
+            else if (read == "rfid_add_tag")
             {
                 Serial.println("Setting mode to add_rfid_tag");
                 this->mode = Mode::RFID_ADD_TAG;
             }
-            else if (read == "$rfid_remove_tag")
+            else if (read == "rfid_remove_tag")
             {
                 this->mode = Mode::RFID_REMOVE_TAG;
             }
-            else if (read == "$rfid_empty_database")
+            else if (read == "rfid_empty_database")
             {
                 Serial.println("Setting mode to empty_database");
                 this->mode = Mode::RFID_EMPTY_DATABASE;
+            }
+            else
+            {
+                Serial.print("Unknown command ");
+                Serial.println(read);
             }
         }
     }
@@ -324,7 +347,7 @@ bool Fase::Fase::delete_RFID_tag_by_scan()
     return this->rfid.remove_tag(tag_uid);
 }
 
-void Fase::Fase::add_fingerprint()
+void Fase::Fase::add_fingerprint(unsigned short id)
 {
     uint8_t err_code = FINGERPRINT_NOFINGER;
     Serial.println("Add-Finger: ");
@@ -373,7 +396,7 @@ void Fase::Fase::add_fingerprint()
         delay(200);
         // exit the add-finger mode
     }
-    err_code = this->fingerprint.storeModel(0);
+    err_code = this->fingerprint.storeModel(id);
     if (err_code != FINGERPRINT_OK)
     {
         Serial.print("ERROR at storing the fingerprint model: ");
