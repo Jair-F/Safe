@@ -10,7 +10,7 @@ namespace Pin
         Pin(Lock::unlock_token *_utoken, bool enabled = true) : Unlock_Object(_utoken, enabled) {}
         ~Pin() {}
 
-        virtual void loop() override;
+        virtual void loop() override {}
 
         /*
 
