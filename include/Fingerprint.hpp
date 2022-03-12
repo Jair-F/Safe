@@ -75,8 +75,8 @@ void Fingerprint::Fingerprint::loop()
     if (this->is_enabled())
     {
         uint8_t err_code = this->getImage();
-        if (err_code == FINGERPRINT_NOFINGER)
-        { // if no finger is on the sensor exit func
+        if (err_code != FINGERPRINT_OK) // if a error occourd on scanning
+        {
             return;
         }
 
@@ -88,12 +88,15 @@ void Fingerprint::Fingerprint::loop()
 
         // convert the image to a feature template to compare it afterwards with fingers in the database
         err_code = this->image2Tz(finger_template_slot);
-        if (err_code)
-            ; // error_handling - maybe output on display...
+        if (err_code) // error_handling - maybe output on display...
+        {
+            Serial.println("Error");
+            return;
+        }
 
         err_code = this->fingerSearch(finger_template_slot);
-        if (err_code == FINGERPRINT_OK)
-        { // found a match
+        if (err_code == FINGERPRINT_OK) // found a match
+        {
             this->utoken->request_unlock();
         }
         else if (err_code == FINGERPRINT_NOMATCH)
@@ -102,6 +105,9 @@ void Fingerprint::Fingerprint::loop()
         }
         else
         {
+            // Serial.println("prints didnt matched");
+            Serial.println(err_code, HEX);
+            this->utoken->report_unathorized_unlock_try();
             // print the err_message on the display
         }
     }
