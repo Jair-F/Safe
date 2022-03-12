@@ -40,7 +40,7 @@ namespace RFID
             @param async false=wait until a tag is present. true=read 1 time and return imidiately
             @return the tag id if a tag was present else an empty string
         */
-        String read_Tag_ID(bool async = true);
+        String read_Tag_UID(bool async = true);
 
         /*
             reads from the RFID_module for a tag and adds it to database at id id
@@ -103,15 +103,21 @@ void RFID::RFID::loop()
 {
     if (this->is_enabled())
     {
-        String tag_uid = this->read_Tag_ID();
+        String tag_uid = this->read_Tag_UID(true);
         if (tag_uid.length() > 0)
         {
+            bool matching_tag_found = false; // if the tag is authorized
             for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
             {
                 if (this->allowed_tags[i] == tag_uid)
                 {
+                    matching_tag_found = true;
                     this->utoken->request_unlock();
                 }
+            }
+            if (!matching_tag_found)
+            {
+                this->utoken->report_unathorized_unlock_try();
             }
         }
     }
@@ -132,7 +138,7 @@ bool RFID::RFID::read_add_tag(unsigned short id)
     {
         // throw an error
     }
-    String tag_uid = this->read_Tag_ID();
+    String tag_uid = this->read_Tag_UID();
     if (tag_uid.length() > 0)
     {
         this->allowed_tags[id].set_tag_uid(tag_uid);
@@ -206,20 +212,24 @@ int RFID::RFID::get_tag_id(String tag_uid)
     return -1;
 }
 
-String RFID::RFID::read_Tag_ID(bool async)
+String RFID::RFID::read_Tag_UID(bool async)
 {
-    String uid_str("");
-    if (!async)
+    String uid_str = "";
+    if (!async) // if we dont run in async mode wait until an new card is present
     {
-        // if we dont run in async mode wait until an new card is present
-        while (!this->rfid.PICC_IsNewCardPresent())
-            ; // returns true if a card is present
+        while (!this->rfid.PICC_IsNewCardPresent()) // returns true if a card is present
+            ;
     }
     else
     {
-        if (!this->rfid.PICC_IsNewCardPresent())
-        {                   // if no card is "online"
-            return uid_str; // return a empty string
+        if (!this->rfid.PICC_IsNewCardPresent()) // if no card is "online"
+        {
+            auto err_code = rfid.PICC_HaltA(); // halt the reader in order to not read the same card again and again
+            if (err_code != MFRC522::StatusCode::STATUS_OK)
+            {
+                Serial.println("Error halting");
+            }
+            return ""; // return a empty string
         }
     }
 
