@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Arduino.h>
 #include <ArduinoJson.h>
 #include <OSFS.h>
 #include "GlobalConstants.hpp"
@@ -13,13 +14,23 @@
 namespace Fase
 {
     // Name of Safe: fase
+
+    /*
+        the windows on the display - the different modes to make changes in the settings
+    */
     enum Mode
     {
-        Normal = 0, // Normal - check if there is nothing a unlock request/a user wants to open...
-        Global_Settings,
-        Fingerprint_Settings,
-        RFID_Settings,
-        Pin_Settings
+        NORMAL = 0, // Normal - check if there is nothing a unlock request/a user wants to open...
+        GLOBAL_SETTINGS,
+        FINGERPRINT_ROOT_SETTINGS,
+        FINGERPRINT_ADD_FINGER,
+        FINGERPRINT_REMOVE_FINGER,
+        FINGERPRINT_EMPTY_DATABASE,
+        RFID_ROOT_SETTINGS,
+        RFID_ADD_TAG,
+        RFID_REMOVE_TAG,
+        RFID_EMPTY_DATABASE,
+        PIN_ROOT_SETTINGS
     };
 
     class Fase
@@ -28,6 +39,8 @@ namespace Fase
         Fase();
         ~Fase();
         void loop();
+        // begin all the devices
+        void begin();
 
     protected:
         void save_config();
@@ -40,7 +53,7 @@ namespace Fase
         /*
             @return true if a tag was read and added - false if no tag was read
         */
-        bool add_RFID_tag(unsigned short id);
+        bool add_RFID_tag(unsigned short id, bool force_overwrite = false);
 
         /*
             @return true if a tag was scanned and the tag was removed - false if
@@ -51,8 +64,9 @@ namespace Fase
     private:
         const unsigned short lock_timer = 5; // timer in seconds the lock should lock again after its unlocked
 
-        // !!!!!! Myserial is for Fingerprint-Sensor !!!!!!
-        SoftwareSerial mySerial;
+// !!!!!! Myserial is for Fingerprint-Sensor !!!!!!
+// SoftwareSerial mySerial;
+#define mySerial Serial1
 
         Mode mode;
         Lock::Lock lock;
@@ -66,174 +80,243 @@ namespace Fase
 
 // ---------------- Implementations ----------------
 
-Fase::Fase::Fase() : mySerial(SERIAL_RECEIVE_PIN, SERIAL_TRANSMIT_PIN), lock(this->lock_timer),
+Fase::Fase::Fase() : /*mySerial(SERIAL_RECEIVE_PIN, SERIAL_TRANSMIT_PIN),*/ lock(this->lock_timer),
                      fingerprint(&mySerial, this->lock.create_unlock_token()),
                      rfid(MFRC522_SS_PIN, MFRC522_RST_PIN, lock.create_unlock_token()),
                      pin(lock.create_unlock_token())
 {
-    mode = Mode::Normal;
+    mode = Mode::NORMAL;
+}
+
+Fase::Fase::~Fase() {}
+
+void Fase::Fase::begin()
+{
+    this->rfid.begin();
+    this->fingerprint.begin();
 }
 
 void Fase::Fase::loop()
 {
     switch (mode)
     {
-    case Mode::Normal:
+    case Mode::NORMAL:
     {
         fingerprint.loop();
         rfid.loop();
-        pin.loop();
+
+        // pin.loop();
         lock.loop();
         break;
     }
-    case Mode::Fingerprint_Settings:
+    case Mode::FINGERPRINT_ROOT_SETTINGS:
     {
-        enum
-        {
-            FINGERPRINT_ROOT_SETTINGS_PAGE,
-            ADD_FINGER,
-            DELETE_FINGER,
-            EMPTY_DATABASE
-        } FINGERPRINT_SETTINGS_STATE = FINGERPRINT_ROOT_SETTINGS_PAGE;
+        break;
+    }
 
-        switch (FINGERPRINT_SETTINGS_STATE)
-        {
-        /*
-            The root page where we select wether to add a finger or delete or to enable or disable the sensor...
-         */
-        case FINGERPRINT_ROOT_SETTINGS_PAGE:
-        {
-            break;
-        }
+    case Mode::FINGERPRINT_ADD_FINGER:
+    {
+        Serial.println("Add-Finger...");
+        this->add_fingerprint();
+        mode = Mode::NORMAL;
+        break;
+    }
 
-        case ADD_FINGER:
+    case Mode::FINGERPRINT_REMOVE_FINGER:
+    {
+        // delete finger
+        Serial.println("remove finger with scan(type 1) - remove finger with id(type 0): ");
+        Serial.println("INPUT: ");
+        while (Serial.available() > 0)
+            ;
+        String input = Serial.readString();
+        input.remove(input.length() - 1);
+        if (input == "1") /*remove with read_finger*/
         {
-            this->add_fingerprint();
-            break;
-        }
+            uint8_t err_code;
+            while (err_code != FINGERPRINT_OK)
+                err_code = this->fingerprint.getImage();
 
-        case DELETE_FINGER:
-        {
-            // delete finger
-            if (false /*remove with read_finger*/)
+            err_code = this->fingerprint.image2Tz(1); // converting to a template in order to search for matches
+            err_code = this->fingerprint.fingerFastSearch();
+
+            if (err_code == FINGERPRINT_OK) // found a match - got id
             {
-                uint8_t err_code;
-                while (err_code != FINGERPRINT_OK)
-                    err_code = this->fingerprint.getImage();
-
-                err_code = this->fingerprint.fingerFastSearch();
-                if (err_code == FINGERPRINT_OK) // found a match - got id
-                {
-                    err_code = this->fingerprint.deleteModel(this->fingerprint.fingerID);
-                    if (err_code != FINGERPRINT_OK)
-                    {
-                        Serial.print("ERROR: ");
-                        Serial.println(Fingerprint::error_code_message(err_code));
-                    }
-                    else
-                    {
-                        Serial.println("Found a match - fingeprint removed");
-                    }
-                }
-                else
-                {
-                    Serial.println("Didnt found a match - didnt removed anything");
-                    Serial.println(Fingerprint::error_code_message(err_code));
-                }
-            }
-            else
-            {
-                unsigned short id = Serial.parseInt();
-                Serial.read();
-                uint8_t err_code = this->fingerprint.deleteModel(id);
+                err_code = this->fingerprint.deleteModel(this->fingerprint.fingerID);
                 if (err_code != FINGERPRINT_OK)
                 {
                     Serial.print("ERROR: ");
                     Serial.println(Fingerprint::error_code_message(err_code));
                 }
-            }
-            break;
-        }
-
-        case EMPTY_DATABASE:
-        {
-            // delte database
-            break;
-        }
-
-        default: // if none
-            break;
-        }
-    }
-    case Mode::RFID_Settings:
-    {
-        enum
-        {
-            RFID_ROOT_SETTINGS_PAGE,
-            ADD_TAG,
-            DELETE_TAG,
-            EMPTY_DATABASE
-        } RFID_SETTINGS_STATE = RFID_ROOT_SETTINGS_PAGE;
-        switch (RFID_SETTINGS_STATE)
-        {
-        case ADD_TAG:
-        {
-            Serial.println("please enter id");
-            unsigned short id = Serial.parseInt();
-            Serial.read();
-            Serial.println("Add tag...");
-            while (!this->add_RFID_tag(id)) // wait until user added tag
-            {
-            }
-            break;
-        }
-        case DELETE_TAG:
-        {
-            if (false /*delte tag by scan*/)
-            {
-                while (delete_RFID_tag_by_scan()) // wait until user added tag
-                    ;
+                else
+                {
+                    Serial.println("Found a match - fingeprint removed");
+                }
             }
             else
             {
-                Serial.println("Enter id");
-                unsigned short id = Serial.parseInt();
-                Serial.read();
-                this->rfid.remove_tag(id);
+                Serial.println("Didnt found a match - didnt removed anything");
+                Serial.println(Fingerprint::error_code_message(err_code));
             }
-            break;
         }
-        case EMPTY_DATABASE:
+        else
         {
-            this->rfid.clear_database();
-            break;
-        }
-        default:
-            break;
+            Serial.println("please enter id");
+            while (Serial.available() > 0) // wait until there is sometihing in serial monitor
+                ;
+            String id = Serial.readString();
+            id.remove(id.length() - 1);
+            uint8_t err_code = this->fingerprint.deleteModel(id.toInt());
+            if (err_code != FINGERPRINT_OK)
+            {
+                Serial.print("ERROR: ");
+                Serial.println(Fingerprint::error_code_message(err_code));
+            }
         }
         break;
     }
 
-    default:
+    case Mode::FINGERPRINT_EMPTY_DATABASE:
+    {
+        // delte database
+        uint8_t err_code = this->fingerprint.emptyDatabase();
+        if (err_code != FINGERPRINT_OK)
+        {
+            Serial.print("ERROR: ");
+            Serial.println(Fingerprint::error_code_message(err_code));
+        }
+        this->mode = Mode::NORMAL;
         break;
+    }
+    case Mode::RFID_ROOT_SETTINGS:
+    {
+        break;
+    }
+    case Mode::RFID_ADD_TAG:
+    {
+        Serial.println("please enter id");
+        while (Serial.available() > 0)
+            ;
+        String id = Serial.readString();
+        id.remove(id.length() - 1);
+        Serial.println("Add tag...");
+        while (!this->add_RFID_tag(id.toInt(), true)) // wait until user added tag
+        {
+            Serial.print(".");
+            delay(500);
+        }
+        Serial.println();
+        Serial.println("Tag added...");
+        this->mode = Mode::NORMAL;
+        break;
+    }
+    case Mode::RFID_REMOVE_TAG:
+    {
+        Serial.println("remove tag with scan(type 1) - remove tag with id(type 0): ");
+        Serial.println("INPUT: ");
+        while (Serial.available() > 0)
+            ;
+        String input = Serial.readString();
+        input.remove(input.length() - 1);
+        if (input == "1") /*remove with read_tag*/
+        {
+            String tag_uid = this->rfid.read_Tag_UID();
+            while (tag_uid.length() > 0)
+                tag_uid = this->rfid.read_Tag_UID();
+            this->rfid.remove_tag(tag_uid);
+        }
+        else
+        {
+            Serial.println("please enter id");
+            while (Serial.available() > 0)
+                ;
+            String id = Serial.readString();
+            id.remove(id.length() - 1);
+            this->rfid.remove_tag(id);
+        }
+        break;
+    }
+    case Mode::RFID_EMPTY_DATABASE:
+    {
+        this->rfid.clear_database();
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+
+    // Serial.print("Lock-State: ");
+    // Serial.println(this->lock.is_locked() == true ? "locked" : "unlocked");
+
+    if (Serial.available())
+    {
+        if (Serial.peek() == '$')
+        {
+            Serial.println("Command send...");
+            String read = Serial.readString();
+            read.remove(read.length() - 1); // remove last newline
+            Serial.print('\"');
+            Serial.print(read);
+            Serial.println('\"');
+            if (read == "$help")
+            {
+                Serial.print("Commands: ");
+                Serial.println("$add_finger, $normal, $rfid_remove_tag, rfid_add_tag, $rfid_empty_database, $finger_empty_database, $remove_finger");
+                Serial.println();
+            }
+            else if (read == "$remove_finger")
+            {
+                this->mode = Mode::FINGERPRINT_REMOVE_FINGER;
+            }
+            else if (read == "$add_finger")
+            {
+                Serial.println("Setting mode to addfinger");
+                this->mode = Mode::FINGERPRINT_ADD_FINGER;
+            }
+            else if (read == "$finger_empty_database")
+            {
+                this->mode = Mode::FINGERPRINT_EMPTY_DATABASE;
+            }
+            else if (read == "$normal")
+            {
+                Serial.println("Setting mode to normal");
+                this->mode = Mode::NORMAL;
+            }
+            else if (read == "$rfid_add_tag")
+            {
+                Serial.println("Setting mode to add_rfid_tag");
+                this->mode = Mode::RFID_ADD_TAG;
+            }
+            else if (read == "$rfid_remove_tag")
+            {
+                this->mode = Mode::RFID_REMOVE_TAG;
+            }
+            else if (read == "$rfid_empty_database")
+            {
+                Serial.println("Setting mode to empty_database");
+                this->mode = Mode::RFID_EMPTY_DATABASE;
+            }
+        }
     }
 }
 
-bool Fase::Fase::add_RFID_tag(unsigned short id)
+bool Fase::Fase::add_RFID_tag(unsigned short id, bool force_overwrite)
 {
-    if (!this->rfid.id_used(id))
+    if (!this->rfid.id_used(id) || force_overwrite)
     {
         return this->rfid.read_add_tag(id);
     }
     Serial.print("ID ");
     Serial.print(id);
-    Serial.println("is already used...");
+    Serial.println(" is already used...");
     return false;
 }
 
 bool Fase::Fase::delete_RFID_tag_by_scan()
 {
-    String tag_uid = this->rfid.read_Tag_ID();
+    String tag_uid = this->rfid.read_Tag_UID();
     if (tag_uid.length() == 0) // no tag was read
     {
         return false;
@@ -250,9 +333,9 @@ void Fase::Fase::add_fingerprint()
     {
         err_code = this->fingerprint.getImage();
         Serial.println(Fingerprint::error_code_message(err_code));
-        delay(200);
+        // delay(200);
     }
-    Serial.print("image taken");
+    Serial.println("image taken");
 
     // converting image to template-model in slot 1
     err_code = this->fingerprint.image2Tz(1);
@@ -260,8 +343,8 @@ void Fase::Fase::add_fingerprint()
     {
         Serial.print("ERROR at converting image to template model: ");
         Serial.println(Fingerprint::error_code_message(err_code));
-        delay(200);
-        // exit the add-finger mode
+        // delay(200);
+        //  exit the add-finger mode
     }
 
     Serial.println("Take finger off....");
@@ -298,6 +381,7 @@ void Fase::Fase::add_fingerprint()
         delay(200);
         // exit the add-finger mode
     }
+    Serial.println("Stored Fingerprint-Model");
 }
 
 void Fase::Fase::reset_config()
