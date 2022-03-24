@@ -3,7 +3,6 @@
 #include <SPI.h>
 #include <MFRC522.h>
 #include <stdlib.h>
-#include <OSFS.h>
 #include <ArduinoJson.h>
 #include <EEPROM.h>
 

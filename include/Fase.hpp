@@ -2,7 +2,6 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <OSFS.h>
 #include "GlobalConstants.hpp"
 #include "Fingerprint.hpp"
 #include "RFID/RFID.hpp"
