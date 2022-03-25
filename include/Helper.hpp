@@ -16,6 +16,7 @@ unsigned int power(unsigned short num, unsigned short exp)
     }
 }
 
+// converts the binary-data b to the decimal equivalent
 unsigned int bin_to_dec(byte b)
 {
     constexpr unsigned short LEN_OF_BYTE = sizeof(byte) * 8;
