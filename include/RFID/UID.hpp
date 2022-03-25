@@ -105,7 +105,7 @@ String RFID::UID::to_string() const
     return ret;
 }
 
-bool RFID::UID::operator==(const RFID::UID &_uid) const
+bool RFID::UID::operator==(const UID &_uid) const
 {
     return this->to_string() == _uid.to_string();
 }
