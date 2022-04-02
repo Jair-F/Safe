@@ -4,7 +4,7 @@
 #include <MFRC522.h>
 #include "../Unlock_Object.hpp"
 #include "../Helper.hpp"
-#include "tag_storage.hpp"
+#include "UID.hpp"
 
 /*
 RFID:
@@ -13,7 +13,7 @@ RFID:
 
 namespace RFID
 {
-    constexpr unsigned short NUM_OF_TAGS = 127;
+    constexpr unsigned short NUM_OF_TAGS = 10;
 
     class RFID : public Unlock_Object
     {
@@ -23,10 +23,18 @@ namespace RFID
 
         void begin()
         {
-            SPI.begin();           // Arduino interface which is necessarily for RFID(SPI is a global variable from Arduino)
-            this->rfid.PCD_Init(); // starting and initialising rfid
-            this->rfid.PCD_DumpVersionToSerial();
-            // this->rfid.PCD_PerformSelfTest();
+            SPI.begin();                          // Arduino interface which is necessarily for RFID(SPI is a global variable from Arduino)
+            this->rfid.PCD_Init();                // starting and initialising rfid
+            this->rfid.PCD_DumpVersionToSerial(); // printing RFID_Version to serial
+            if (this->rfid.PCD_PerformSelfTest())
+            {
+                Serial.println("passed self test");
+            }
+            else
+            {
+                Serial.println("Self test failed");
+            }
+            Serial.println("ready...");
         }
 
         /*
@@ -40,7 +48,7 @@ namespace RFID
             @param async false=wait until a tag is present. true=read 1 time and return imidiately
             @return the tag id if a tag was present else an empty string
         */
-        String read_Tag_UID(bool async = true);
+        UID read_Tag_UID(bool async = true);
 
         /*
             reads from the RFID_module for a tag and adds it to database at id id
@@ -53,7 +61,7 @@ namespace RFID
         /*
             adds a tag to the allowed_tags list
         */
-        void add_tag(unsigned short id, String tag_uid);
+        void add_tag(unsigned short id, UID tag_uid);
         /*
             removes tag from the tag with id id from the allowed_tags
             throws an error if the id id is out of range
@@ -63,7 +71,7 @@ namespace RFID
             removes tag from the tag with uidid tag_uid from the allowed_tags
             @return true if one or more tags where removed - else false
         */
-        bool remove_tag(String tag_uid);
+        bool remove_tag(UID tag_uid);
         /*
             removes all saved tags from the allowed_tags_database
         */
@@ -72,30 +80,32 @@ namespace RFID
         /*
             @return the tag uid if the tag is set else it throws an error
         */
-        String get_tag_uid(unsigned short id) const;
+        UID get_tag_uid(unsigned short id) const;
         /*
             @param the tag_uid to get the id from - has to be with whitespaces removed from left
                     and right and has to be in the format like the get_tag_uid() returns("xx xx xx xx")
             @return if a matching tag was found the tag_uid(>0). if no tag was found -1
         */
-        int get_tag_id(String tag_uid);
+        int get_tag_id(UID tag_uid);
         // get_used_ids
         bool id_used(unsigned short id) const;
         // bool in_database(String uid);
     private:
         MFRC522 rfid;
-        tag_storage allowed_tags[NUM_OF_TAGS];
+        UID allowed_tags[NUM_OF_TAGS];
     };
 
 } // namespace RFID
 
 // ------------ Implementations ------------
 
-RFID::RFID::RFID(byte chipSelectPin, byte resetPowerDownPin, Lock::unlock_token *_utoken, bool _enabled = true) : rfid(chipSelectPin, resetPowerDownPin), Unlock_Object(_utoken, _enabled)
+RFID::RFID::RFID(byte chipSelectPin, byte resetPowerDownPin,
+                 Lock::unlock_token *_utoken, bool _enabled = true) : rfid(chipSelectPin, resetPowerDownPin),
+                                                                      Unlock_Object(_utoken, _enabled)
 {
     for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
     {
-        this->allowed_tags[i].set_tag_uid("");
+        this->allowed_tags[i].clear();
     }
 }
 
@@ -103,9 +113,11 @@ void RFID::RFID::loop()
 {
     if (this->is_enabled())
     {
-        String tag_uid = this->read_Tag_UID(true);
-        if (tag_uid.length() > 0)
+        UID tag_uid = this->read_Tag_UID(true);
+        if (tag_uid)
         {
+            Serial.print("Read tag with UID: ");
+            Serial.println(tag_uid.to_string());
             bool matching_tag_found = false; // if the tag is authorized
             for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
             {
@@ -120,6 +132,7 @@ void RFID::RFID::loop()
                 this->utoken->report_unathorized_unlock_try();
             }
         }
+        delay(500);
     }
 }
 
@@ -127,52 +140,55 @@ bool RFID::RFID::id_used(unsigned short id) const
 {
     if (id > NUM_OF_TAGS - 1)
     {
+        Serial.println("id is out of range");
         // throw an error
     }
-    return this->allowed_tags[id].get_tag_uid() == "";
+    return this->allowed_tags;
 }
 
 bool RFID::RFID::read_add_tag(unsigned short id)
 {
     if (id > NUM_OF_TAGS - 1)
     {
+        Serial.println("id is out of range");
         // throw an error
     }
-    String tag_uid = this->read_Tag_UID();
-    if (tag_uid.length() > 0)
+    UID tag_uid = this->read_Tag_UID();
+    if (tag_uid)
     {
-        this->allowed_tags[id].set_tag_uid(tag_uid);
+        this->allowed_tags[id] = tag_uid;
         return true;
     }
     return false;
 }
 
-void RFID::RFID::add_tag(unsigned short id, String tag_uid)
+void RFID::RFID::add_tag(unsigned short id, UID tag_uid)
 {
     if (id > NUM_OF_TAGS - 1)
     {
         // throw an error
     }
-    this->allowed_tags[id].set_tag_uid(tag_uid);
+    this->allowed_tags[id] = tag_uid;
 }
 
 void RFID::RFID::remove_tag(unsigned short id)
 {
     if (id > NUM_OF_TAGS - 1)
     {
+        Serial.println("id is out of range");
         // throw an error
     }
-    this->allowed_tags[id].set_tag_uid("");
+    this->allowed_tags[id].clear();
 }
 
-bool RFID::RFID::remove_tag(String tag_uid)
+bool RFID::RFID::remove_tag(UID tag_uid)
 {
     bool least_one_tag_removed = false;
     for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
     {
         if (this->allowed_tags[i] == tag_uid)
         {
-            this->allowed_tags[i].set_tag_uid("");
+            this->allowed_tags[i].clear();
             least_one_tag_removed = true;
         }
     }
@@ -183,24 +199,28 @@ void RFID::RFID::clear_database()
 {
     for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
     {
-        this->allowed_tags[i].set_tag_uid("");
+        this->allowed_tags[i].clear();
     }
 }
 
-String RFID::RFID::get_tag_uid(unsigned short id) const
+RFID::UID RFID::RFID::get_tag_uid(unsigned short id) const
 {
     if (id > NUM_OF_TAGS - 1)
     {
+        Serial.println("id is out of range");
+        return;
         // throw an error
     }
-    if (this->allowed_tags[id].get_tag_uid() == "")
+    if (this->allowed_tags[id])
     {
+        Serial.println("tag isnt set");
+        return;
         // throw error tag isnt set...
     }
-    return this->allowed_tags[id].get_tag_uid();
+    return this->allowed_tags[id];
 }
 
-int RFID::RFID::get_tag_id(String tag_uid)
+int RFID::RFID::get_tag_id(UID tag_uid)
 {
     for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
     {
@@ -212,13 +232,14 @@ int RFID::RFID::get_tag_id(String tag_uid)
     return -1;
 }
 
-String RFID::RFID::read_Tag_UID(bool async)
+RFID::UID RFID::RFID::read_Tag_UID(bool async)
 {
-    String uid_str = "";
+    UID uid;
+    String uid_str;
     if (!async) // if we dont run in async mode wait until an new card is present
     {
         while (!this->rfid.PICC_IsNewCardPresent()) // returns true if a card is present
-            ;
+            delay(10);
     }
     else
     {
@@ -229,22 +250,15 @@ String RFID::RFID::read_Tag_UID(bool async)
             {
                 Serial.println("Error halting");
             }
-            return ""; // return a empty string
+            return UID(); // return a empty uid
         }
     }
 
     // a new card is present...
     if (rfid.PICC_ReadCardSerial())
     { // starting read the card
-        for (unsigned short i = 0; i < rfid.uid.size; ++i)
-        {
-            unsigned short dec_num = bin_to_dec(rfid.uid.uidByte[i]);
-            String tmp(dec_num, HEX); // convert to hex-string
-            uid_str += tmp + ' ';
-        }
-        uid_str.remove(uid_str.length() - 1); // remove last char - its a ' '
+        uid = this->rfid.uid;
     }
     rfid.PICC_HaltA(); // halt the reader in order to not read the same card again and again
-
-    return uid_str;
+    return uid;
 }
