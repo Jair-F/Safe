@@ -144,12 +144,12 @@ bool RFID::UID::_check_adjust_format(String &_uid) const
     // remove whitespaces at the beginning and end
     while (_uid[0] == ' ' || _uid[0] == '\t')
     {
-        Serial.println("removing whitespaces at beginning...");
+        // Serial.println("removing whitespaces at beginning...");
         _uid.remove(0);
     }
     while (_uid[_uid.length() - 1] == ' ' || _uid[_uid.length() - 1] == '\t')
     {
-        Serial.println("removing whitespaces at end...");
+        // Serial.println("removing whitespaces at end...");
         _uid.remove(_uid.length() - 1);
     }
 
@@ -193,7 +193,6 @@ RFID::UID::operator bool()
                 return true;
         }
     }
-    Serial.println();
     return false;
 }
 
