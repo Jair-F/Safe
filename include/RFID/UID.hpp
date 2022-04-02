@@ -14,10 +14,12 @@ namespace RFID
     {
     public:
         UID();
-        //  UID(MFRC522::Uid &_uid);
+        UID(MFRC522::Uid &_uid);
         UID(String _uid);
         UID(const UID &_uid);
         ~UID() {}
+
+        void operator=(String uid);
 
         bool operator==(const UID &_uid) const;
         bool operator==(String &_uid) const;
@@ -49,20 +51,20 @@ namespace RFID
     };
 } // namespace RFID
 
-/*
 RFID::UID::UID(MFRC522::Uid &_uid)
 {
     for (unsigned short i = 0; i < _uid.size; ++i)
     {
         unsigned short dec_num = bin_to_dec(_uid.uidByte[i]);
-        String tmp = String(dec_num, HEX);
+        String hex_block = String(dec_num, HEX);
+        hex_block.toUpperCase();
         for (unsigned short a = 0; a < UID_HEX_BLOCK_SIZE; ++a)
         {
-            this->uid[i][a] = tmp[a];
+            this->uid[i][a] = hex_block[a];
         }
     }
 }
-*/
+
 RFID::UID::UID()
 {
     this->clear();
@@ -103,6 +105,11 @@ String RFID::UID::to_string() const
         ret += ' ';
     }
     return ret;
+}
+
+void RFID::UID::operator=(String uid)
+{
+    *this = UID(uid);
 }
 
 bool RFID::UID::operator==(const UID &_uid) const
