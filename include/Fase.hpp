@@ -230,7 +230,7 @@ void Fase::Fase::loop()
         if (input == "1") /*remove with tag_scan*/
         {
             Serial.println("Add tag");
-            String tag_uid;
+            RFID::UID tag_uid;
             tag_uid = this->rfid.read_Tag_UID(false);
             if (this->rfid.remove_tag(tag_uid))
             {
@@ -338,8 +338,8 @@ bool Fase::Fase::add_RFID_tag(unsigned short id, bool force_overwrite)
 
 bool Fase::Fase::delete_RFID_tag_by_scan()
 {
-    String tag_uid = this->rfid.read_Tag_UID();
-    if (tag_uid.length() == 0) // no tag was read
+    RFID::UID tag_uid = this->rfid.read_Tag_UID();
+    if (tag_uid) // no tag was read
     {
         return false;
     }
@@ -433,7 +433,7 @@ void Fase::Fase::save_config()
         {
             RFID_tags_ref.add(JsonObject());
             RFID_tags_ref[RFID_tags_ref.size() - 1]["id"] = i;
-            RFID_tags_ref[RFID_tags_ref.size() - 1]["tag_uid"] = this->rfid.get_tag_uid(i);
+            RFID_tags_ref[RFID_tags_ref.size() - 1]["tag_uid"] = this->rfid.get_tag_uid(i).to_string();
         }
     }
     // deleting the tags from the config - save memory
@@ -495,7 +495,9 @@ void Fase::Fase::read_config()
     auto RFID_tags_ref = config["RFID"]["RFID_tags"];
     for (unsigned short i = 0; i < RFID_tags_ref.size(); ++i)
     {
-        this->rfid.add_tag(RFID_tags_ref[i]["id"], RFID_tags_ref[i]["tag_uid"]);
+        String tag_uid_str = RFID_tags_ref[i]["tag_uid"];
+        RFID::UID uid(tag_uid_str);
+        this->rfid.add_tag(RFID_tags_ref[i]["id"], uid);
     }
     // deleting the tags from the config - save memory
     RFID_tags_ref.clear();
