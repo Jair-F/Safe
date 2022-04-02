@@ -10,12 +10,13 @@
 #include "include/Fingerprint.hpp"
 #include "include/RFID/RFID.hpp"
 #include "include/GlobalConstants.hpp"
+#include "include/Fase.hpp"
 
 // Touch-Display: https://www.youtube.com/watch?v=9Ms59ofSJIY
 
 // MFRC522 rfid(MFRC522_SS_PIN, MFRC522_RST_PIN);
-Lock::Lock lock(5, Lock::UNLOCKED, true);
-RFID::RFID rfid(MFRC522_SS_PIN, MFRC522_RST_PIN, lock.create_unlock_token());
+// Lock::Lock lock(5, Lock::UNLOCKED, true);
+// RFID::RFID rfid(MFRC522_SS_PIN, MFRC522_RST_PIN, lock.create_unlock_token());
 
 // !!!!!! Myserial is for Fingerprint-Sensor !!!!!!
 #if (defined(__AVR__) || defined(ESP8266)) && !defined(__AVR_ATmega2560__)
@@ -23,19 +24,26 @@ RFID::RFID rfid(MFRC522_SS_PIN, MFRC522_RST_PIN, lock.create_unlock_token());
 // pin #2 is IN from sensor (GREEN wire)
 // pin #3 is OUT from arduino  (WHITE wire)
 // Set up the serial port to use softwareserial..
-SoftwareSerial mySerial(2, 3);
+// SoftwareSerial mySerial(2, 3);
 #else
 // On Leonardo/M0/etc, others with hardware serial, use hardware serial!
 // #0 is green wire, #1 is white
 #define mySerial Serial1
 #endif
-
-//                      Serial-connection   default-password for database
-// Fingerprint::Fingerprint finger(&mySerial);
+Fase::Fase fase;
+//                       Serial-connection   default-password for database
+//  Fingerprint::Fingerprint finger(&mySerial);
 void setup()
 {
     Serial.begin(9600);
     EEPROM.begin();
+    Serial.println("Started startup...");
+
+    // rfid.begin();
+
+    fase.begin();
+
+    /*
     Serial.println("reading config...");
     unsigned int iterator = 0;
     char c = ' ';
@@ -71,27 +79,26 @@ void setup()
     }
     EEPROM.update(i, '\0');
     Serial.println("Ready...");
+
     while (true)
         delay(1000);
-    // SPI.begin();
-    // rfid.PCD_Init();    // init rfid
-    // rfid.PCD_DumpVersionToSerial();
-    rfid.begin();
-    while (!Serial)
-        ;
+    */
 
-    Serial.println("Add tag");
-    while (!rfid.read_add_tag(0))
-    {
-        Serial.println("Add tag to reader...");
-        delay(250);
-    }
-    for (unsigned short i = 0; i < RFID::NUM_OF_TAGS; ++i)
-    {
-        Serial.print(i);
-        Serial.print(": ");
-        Serial.println(rfid.get_tag_uid(i));
-    }
+    // while (!Serial)
+    //    ;
+    //
+    // Serial.println("Add tag");
+    // while (!rfid.read_add_tag(0))
+    //{
+    //    Serial.println("Add tag to reader...");
+    //    delay(250);
+    //}
+    // for (unsigned short i = 0; i < RFID::NUM_OF_TAGS; ++i)
+    //{
+    //    Serial.print(i);
+    //    Serial.print(": ");
+    //    Serial.println(rfid.get_tag_uid(i));
+    //}
 
     // finger.begin();
     // finger.emptyDatabase();
@@ -110,10 +117,8 @@ void setup()
 
 void loop()
 {
-    rfid.loop();
-    lock.loop();
-    Serial.println(lock.is_locked() == true ? "Lock is locked" : "Lock is unlocked");
-    delay(1000);
+    fase.loop();
+    // rfid.loop();
 
     // Serial.println("ID_Check: ");
     // while (!Serial.available());
@@ -129,8 +134,8 @@ void loop()
 
     // byte b = 123;
     // Serial.println(b, BIN);
-    ////b = Serial.parseInt();
-    ////Serial.read();
+    // b = Serial.parseInt();
+    // Serial.read();
     // Serial.println(b);
     // Serial.println(bin_to_dec(b));
     // Serial.println();
