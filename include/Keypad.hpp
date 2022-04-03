@@ -60,11 +60,11 @@ namespace Keypad
 } // namespace Keypad
 
 Keypad::Keypad::Keypad(char **userKeymap, byte *rows,
-                       byte *columns, int numRows, int numColumns) : keypad(makeKeymap(userKeymap), rows, columns, numRows, numColumns), key_buffer('')
+                       byte *columns, int numRows, int numColumns) : keypad(makeKeymap(userKeymap), rows, columns, numRows, numColumns), key_buffer("")
 {
 }
 
-Keypad::Keypad::Keypad() : keypad(makeKeymap(KEYS), ROW_PINS, COLUMN_PINS, ROWS, COLUMNS), key_buffer('')
+Keypad::Keypad::Keypad() : keypad(makeKeymap(KEYS), ROW_PINS, COLUMN_PINS, ROWS, COLUMNS), key_buffer("")
 {
 }
 
