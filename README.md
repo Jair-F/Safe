@@ -1,10 +1,11 @@
 
 
 ## Library's
-- Adafruit Keypad
-- Adafruit Fingerprint
-- MFRC522
-- ArduinoJson
+- Adafruit Keypad       - `tested version: xx.xx`
+- Adafruit Fingerprint  - `tested version: xx.xx`
+- MFRC522               - `tested version: xx.xx`
+- ArduinoJson           - `tested version: xx.xx`
+- RtcDS1302             - `tested version: xx.xx`
 
 
 ## Debugging the Arduino Code
