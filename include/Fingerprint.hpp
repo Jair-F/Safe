@@ -106,7 +106,7 @@ void Fingerprint::Fingerprint::loop()
         else
         {
             // Serial.println("prints didnt matched");
-            Serial.println(err_code, HEX);
+            // Serial.println(err_code, HEX);
             this->utoken->report_unathorized_unlock_try();
             // print the err_message on the display
         }
