@@ -1,21 +1,13 @@
 #pragma once
 #include <Arduino.h>
 #include <Adafruit_Keypad.h>
+#include "GlobalConstants.hpp"
 
 /*
     Library Reference: https://adafruit.github.io/Adafruit_Keypad/html/class_adafruit___keypad.html
 */
 namespace Keypad
 {
-#define PIN_R1 1
-#define PIN_R2 1
-#define PIN_R3 1
-#define PIN_R4 1
-#define PIN_C1 1
-#define PIN_C2 1
-#define PIN_C3 1
-#define PIN_C4 1
-
 #define ROWS 4
 #define COLUMNS 4
     /*
@@ -44,7 +36,32 @@ namespace Keypad
         /*
             for reading the keyboard in a loop and filling the buffer...
         */
-        void read_keyboard();
+        void read();
+        String get_buffer()
+        {
+            String tmp = this->key_buffer;
+            this->clear_buffer();
+            return tmp;
+        }
+
+        void clear_buffer() { this->key_buffer = ""; }
+
+        /*
+            read the buffer without clearing him - !! you'l get a pointer dont modify the buffer !!
+        */
+        const String *const peek_buffer() { return &key_buffer; }
+
+        /*
+            read a key without adding it to the buffer
+            @return if no key was pressed '\0' else the key_value
+        */
+        char get();
+
+        /*
+            @return true if buffer is empty
+        */
+        bool is_buffer_empty() { return this->key_buffer.length() == 0; }
+
         void begin();
 
         void (*buffer_changed)();
@@ -73,19 +90,32 @@ void Keypad::Keypad::begin()
     this->keypad.begin();
 }
 
-void Keypad::Keypad::read_keyboard()
+char Keypad::Keypad::get()
 {
     keypadEvent key_event;
+
+    key_event = this->keypad.read();
+    if (key_event.bit.EVENT = 1) // a key was pressed - at releasing it is 0
+    {
+        return key_event.bit.KEY; // value of the pressed key
+    }
+    else
+    {
+        return '\0';
+    }
+}
+
+void Keypad::Keypad::read()
+{
     if (this->last_read_timepoint + this->reading_loop < millis())
     {
         this->keypad.tick(); // read the keypad
         last_read_timepoint = millis();
     }
 
-    key_event = this->keypad.read();
-    if (key_event.bit.EVENT = 1) // a key was pressed - at releasing it is 0
+    char key_value = this->get();
+    if (key_value != '\0') // a key was pressed - at releasing it is 0
     {
-        char key_value = key_event.bit.KEY; // value of the pressed key
         switch (key_value)
         {
         case CANCEL_KEY:
