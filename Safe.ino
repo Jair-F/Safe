@@ -49,7 +49,7 @@ void setup()
     EEPROM.begin();
     if (system_clock.lost_power())
     {
-        Serial.println("RTC-Module lost power...");
+        Serial.println("RTC-Module lost power - change battery...");
     }
     Serial.println("Started startup...");
 
