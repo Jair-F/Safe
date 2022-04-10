@@ -5,14 +5,24 @@
 #include <stdlib.h>
 #include <ArduinoJson.h>
 #include <EEPROM.h>
+#include <ThreeWire.h>
+#include <RtcDS1302.h>
 
 #include "include/Helper.hpp"
 #include "include/Fingerprint.hpp"
 #include "include/RFID/RFID.hpp"
 #include "include/GlobalConstants.hpp"
 #include "include/Fase.hpp"
+#include "include/Keypad.hpp"
+#include "include/system_clock.hpp"
 
-// Touch-Display: https://www.youtube.com/watch?v=9Ms59ofSJIY
+/*
+    Touch-Display:  https://www.youtube.com/watch?v=9Ms59ofSJIY
+                    https://www.youtube.com/watch?v=R_V_lzAbnb8
+
+    RTC:
+        Library: RTC by Makuna
+*/
 
 // MFRC522 rfid(MFRC522_SS_PIN, MFRC522_RST_PIN);
 // Lock::Lock lock(5, Lock::UNLOCKED, true);
@@ -37,6 +47,10 @@ void setup()
 {
     Serial.begin(9600);
     EEPROM.begin();
+    if (system_clock.lost_power())
+    {
+        Serial.println("RTC-Module lost power...");
+    }
     Serial.println("Started startup...");
 
     // rfid.begin();
