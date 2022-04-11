@@ -21,21 +21,7 @@ namespace RFID
         RFID(byte chipSelectPin, byte resetPowerDownPin, Lock::unlock_token *_utoken, bool _enabled = true);
         virtual ~RFID() { this->rfid.PCD_SoftPowerDown(); }
 
-        void begin()
-        {
-            SPI.begin();                          // Arduino interface which is necessarily for RFID(SPI is a global variable from Arduino)
-            this->rfid.PCD_Init();                // starting and initialising rfid
-            this->rfid.PCD_DumpVersionToSerial(); // printing RFID_Version to serial
-            if (this->rfid.PCD_PerformSelfTest())
-            {
-                Serial.println("passed self test");
-            }
-            else
-            {
-                Serial.println("Self test failed");
-            }
-            Serial.println("ready...");
-        }
+        void begin();
 
         /*
             func to call in a loop - it reads for a tag and if there is a card present it searches in
@@ -80,7 +66,7 @@ namespace RFID
         /*
             @return the tag uid if the tag is set else it throws an error
         */
-        UID get_tag_uid(unsigned short id) const;
+        UID &get_tag_uid(unsigned short id);
         /*
             @param the tag_uid to get the id from - has to be with whitespaces removed from left
                     and right and has to be in the format like the get_tag_uid() returns("xx xx xx xx")
@@ -107,6 +93,22 @@ RFID::RFID::RFID(byte chipSelectPin, byte resetPowerDownPin,
     {
         this->allowed_tags[i].clear();
     }
+}
+
+void RFID::RFID::begin()
+{
+    SPI.begin();                          // Arduino interface which is necessarily for RFID(SPI is a global variable from Arduino)
+    this->rfid.PCD_Init();                // starting and initialising rfid
+    this->rfid.PCD_DumpVersionToSerial(); // printing RFID_Version to serial
+    if (this->rfid.PCD_PerformSelfTest())
+    {
+        Serial.println("passed self test");
+    }
+    else
+    {
+        Serial.println("Self test failed");
+    }
+    Serial.println("ready...");
 }
 
 void RFID::RFID::loop()
@@ -140,10 +142,10 @@ bool RFID::RFID::id_used(unsigned short id) const
 {
     if (id > NUM_OF_TAGS - 1)
     {
-        Serial.println("id is out of range");
+        DEBUG_PRINT("id is out of range")
         // throw an error
     }
-    return this->allowed_tags;
+    return this->allowed_tags[id].operator bool();
 }
 
 bool RFID::RFID::read_add_tag(unsigned short id)
@@ -203,7 +205,7 @@ void RFID::RFID::clear_database()
     }
 }
 
-RFID::UID RFID::RFID::get_tag_uid(unsigned short id) const
+RFID::UID &RFID::RFID::get_tag_uid(unsigned short id)
 {
     if (id > NUM_OF_TAGS - 1)
     {
@@ -211,7 +213,7 @@ RFID::UID RFID::RFID::get_tag_uid(unsigned short id) const
         return;
         // throw an error
     }
-    if (this->allowed_tags[id])
+    if (!this->allowed_tags[id])
     {
         Serial.println("tag isnt set");
         return;
