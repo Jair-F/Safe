@@ -8,6 +8,17 @@
 #include <ThreeWire.h>
 #include <RtcDS1302.h>
 
+// Allow Debug-Outputs on the Debug-Output
+#define DEBUG
+
+// Outputs the given Data on the Debug-Output if DEBUG is defined
+#if defined DEBUG
+#define DEBUG_PRINT(X) \
+    Serial.println((X));
+#else
+#define DEBUG_PRINT(X)
+#endif
+
 #include "include/Helper.hpp"
 #include "include/Fingerprint.hpp"
 #include "include/RFID/RFID.hpp"
@@ -49,7 +60,7 @@ void setup()
     EEPROM.begin();
     if (system_clock.lost_power())
     {
-        Serial.println("RTC-Module lost power - change battery...");
+        DEBUG_PRINT("RTC-Module lost power - change battery...");
     }
     Serial.println("Started startup...");
 
