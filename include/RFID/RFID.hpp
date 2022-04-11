@@ -127,6 +127,7 @@ void RFID::RFID::loop()
                 {
                     matching_tag_found = true;
                     this->utoken->request_unlock();
+                    break;
                 }
             }
             if (!matching_tag_found)
