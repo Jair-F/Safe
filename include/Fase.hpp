@@ -2,12 +2,14 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
+
 #include "GlobalConstants.hpp"
 #include "Fingerprint.hpp"
 #include "RFID/RFID.hpp"
 #include "Config.hpp"
 #include "Lock.hpp"
 #include "Pin.hpp"
+#include "system_clock.hpp"
 #include "../lib/exception.hpp"
 
 namespace Fase
@@ -93,6 +95,18 @@ void Fase::Fase::begin()
 {
     this->rfid.begin();
     this->fingerprint.begin();
+    for (unsigned short i = 0; i < RFID::NUM_OF_TAGS; ++i)
+    {
+        if (this->rfid.id_used(i)) // id is used
+        {
+            String msg = "Tag ";
+            msg += i;
+            msg += " is used: ";
+            msg += rfid.get_tag_uid(i).to_string();
+            DEBUG_PRINT(msg)
+        }
+    }
+    this->read_config();
 }
 
 void Fase::Fase::loop()
@@ -214,6 +228,7 @@ void Fase::Fase::loop()
         }
         Serial.println();
         Serial.println("Tag added...");
+        save_config();
         this->mode = Mode::NORMAL;
         break;
     }
@@ -250,6 +265,7 @@ void Fase::Fase::loop()
             this->rfid.remove_tag(tag_id);
             Serial.println("Tag removed");
         }
+        save_config();
         mode = Mode::NORMAL;
         break;
     }
@@ -257,6 +273,7 @@ void Fase::Fase::loop()
     {
         this->rfid.clear_database();
         Serial.println("cleared database");
+        save_config();
         mode = Mode::NORMAL;
         break;
     }
@@ -280,7 +297,7 @@ void Fase::Fase::loop()
             if (read == "help")
             {
                 Serial.print("Commands: ");
-                Serial.println("$add_finger, $normal, $rfid_remove_tag, $rfid_add_tag, $rfid_empty_database, $finger_empty_database, $remove_finger");
+                Serial.println("$add_finger, $normal, $rfid_remove_tag, $rfid_add_tag, $rfid_empty_database, $finger_empty_database, $remove_finger, $reset_config");
                 Serial.println();
             }
             else if (read == "remove_finger")
@@ -314,6 +331,11 @@ void Fase::Fase::loop()
             {
                 Serial.println("Setting mode to empty_database");
                 this->mode = Mode::RFID_EMPTY_DATABASE;
+            }
+            else if (read == "reset_config")
+            {
+                reset_config();
+                Serial.println("config reseted");
             }
             else
             {
@@ -408,7 +430,7 @@ void Fase::Fase::add_fingerprint(unsigned short id)
 
 void Fase::Fase::reset_config()
 {
-    const char *default_config = "{\"Keyboard\":{\"PIN\":\"\",\"enabled\":false},\"RFID\":{\"enabled\":false,\"RFID_tags\":[]},\"Fingerprint\":{\"enabled\":false}}";
+    const char *default_config = "{\"Keyboard\":{\"PIN\":\"\",\"enabled\":false},\"RFID\":{\"enabled\":true,\"RFID_tags\":[]},\"Fingerprint\":{\"enabled\":false}}";
     config.clear();
     DeserializationError error = deserializeJson(config, default_config);
     if (error)
@@ -419,6 +441,14 @@ void Fase::Fase::reset_config()
         Serial.println(error.c_str());
     }
     serializeJsonPretty(config, Serial);
+
+    String config_str;
+    serializeJson(config, config_str);
+    Config::error err = Config::write_config(config_str);
+    if (!err == Config::error::NO_ERROR)
+    {
+        Serial.println("An error occoured while saving the config...");
+    }
 }
 
 void Fase::Fase::save_config()
@@ -427,20 +457,24 @@ void Fase::Fase::save_config()
     // clearing all rfid_tags from the config
     RFID_tags_ref.clear();
     // saving rfid_tags in the config...
+    DEBUG_PRINT("Reading tags...")
     for (unsigned short i = 0; i < RFID::NUM_OF_TAGS; ++i)
     {
+        String msg = "Tag num: ";
+        msg += i;
         if (this->rfid.id_used(i))
         {
+            DEBUG_PRINT(this->rfid.get_tag_uid(i).to_string())
+            msg += " -- is used...";
             RFID_tags_ref.add(JsonObject());
             RFID_tags_ref[RFID_tags_ref.size() - 1]["id"] = i;
             RFID_tags_ref[RFID_tags_ref.size() - 1]["tag_uid"] = this->rfid.get_tag_uid(i).to_string();
         }
+        DEBUG_PRINT(msg)
     }
-    // deleting the tags from the config - save memory
-    RFID_tags_ref.clear();
 
+    // printing tags to serial
     serializeJsonPretty(config, Serial);
-    return;
 
     String config_str = "";
     serializeJson(config, config_str);
@@ -449,6 +483,8 @@ void Fase::Fase::save_config()
     {
         Serial.println("An error occoured while saving the config...");
     }
+    // deleting the tags from the config - save memory
+    RFID_tags_ref.clear();
 }
 
 void Fase::Fase::read_config()
@@ -462,6 +498,11 @@ void Fase::Fase::read_config()
         Serial.print(" Message: ");
         Serial.println(error.c_str());
     }
+
+    config_str = "";
+    serializeJsonPretty(config, config_str);
+    DEBUG_PRINT(config_str)
+    config_str = "";
 
     // initializing pin-keyboard
     if (config["Keyboard"]["enabled"])
@@ -495,9 +536,16 @@ void Fase::Fase::read_config()
     auto RFID_tags_ref = config["RFID"]["RFID_tags"];
     for (unsigned short i = 0; i < RFID_tags_ref.size(); ++i)
     {
-        String tag_uid_str = RFID_tags_ref[i]["tag_uid"];
-        RFID::UID uid(tag_uid_str);
-        this->rfid.add_tag(RFID_tags_ref[i]["id"], uid);
+        if (i < RFID::NUM_OF_TAGS)
+        {
+            String tag_uid_str = RFID_tags_ref[i]["tag_uid"];
+            DEBUG_PRINT(tag_uid_str)
+            RFID::UID uid(tag_uid_str);
+            if (uid) // if uid is a valid uid
+            {
+                this->rfid.add_tag(RFID_tags_ref[i]["id"], uid);
+            }
+        }
     }
     // deleting the tags from the config - save memory
     RFID_tags_ref.clear();
