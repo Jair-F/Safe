@@ -58,3 +58,10 @@ private:
     to ensure the battery of the clock is not empty check the lost_power method in the setup.
 */
 Clock<ThreeWire> system_clock(RTC_DATA, RTC_CLK, RTC_RST);
+
+/*
+    - The RTC-Module has a "RAM" where we can store data while the battery in the clock module isnt empty.
+    if the battery is removed the data will be lost.
+    - the indexes of the memory are 0-30 each a uint8_t=char
+*/
+#define SYSTEM_CLOCK_MEMORY_LENGTH 30
