@@ -1,5 +1,7 @@
 #pragma once
 
+#include "system_clock.hpp"
+
 namespace Lock
 {
 
@@ -58,7 +60,7 @@ namespace Lock
             wasnt in the allowed_tags... the object will report a report_unathorized_unlock_try. a text will be
             displayed on the display and maybe after a number of tries the lock will be locked.
         */
-        void report_unathorized_unlock_try();
+        void report_unauthorized_unlock_try();
 
         /*
             @return true if the lock was unlocked false if forbidden
@@ -80,7 +82,7 @@ namespace Lock
     private:
         lock_state state;
         bool unlocking_allowed;
-        // after how much seconds the lock will lock itself if it is being unlocked
+        // after how much time the lock will lock itself if it is being unlocked - in seconds
         const unsigned short lock_timer;
 
         // time point when the lock was unlocked the last time - for the timer
@@ -117,7 +119,7 @@ namespace Lock
             wasnt in the allowed_tags... the object will report a report_unathorized_unlock_try. a text will be
             displayed on the display and maybe after a number of tries the lock will be locked.
         */
-        void report_unathorized_unlock_try() { this->lock.report_unathorized_unlock_try(); }
+        void report_unauthorized_unlock_try() { this->lock.report_unauthorized_unlock_try(); }
         /*
             @return true if the lock is locked
         */
@@ -139,8 +141,9 @@ Lock::unlock_token *Lock::Lock::create_unlock_token()
     return new unlock_token(*this);
 }
 
-void Lock::Lock::report_unathorized_unlock_try()
+void Lock::Lock::report_unauthorized_unlock_try()
 {
+    // count the unauthorized unlock tries and after a defined amount of tries lock the lock for a specific time
     Serial.println("Unauthorized unlock_object...");
 }
 
@@ -186,6 +189,7 @@ enum Lock::lock_state Lock::Lock::get_state()
 
 void Lock::Lock::loop()
 {
+    RtcDateTime now = system_clock.GetDateTime();
     if (state == lock_state::UNLOCKED)
     {
         if (millis() > (this->lock_timer * 1000 + unlock_time_point)) // if the timer is passed
