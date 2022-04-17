@@ -21,6 +21,9 @@ public:
         this->start_clock();
     }
 
+    /*
+        @return true if the clock lost power
+    */
     bool lost_power() { return lostPower; }
 
     virtual ~Clock() {}
@@ -38,7 +41,6 @@ protected:
         if (!this->IsDateTimeValid())
         {
             this->lostPower = true;
-            Serial.println("lost power");
         }
     }
 
