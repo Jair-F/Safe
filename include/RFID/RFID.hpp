@@ -132,7 +132,7 @@ void RFID::RFID::loop()
             }
             if (!matching_tag_found)
             {
-                this->utoken->report_unathorized_unlock_try();
+                this->utoken->report_unauthorized_unlock_try();
             }
         }
         delay(500);
