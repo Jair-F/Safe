@@ -107,7 +107,7 @@ namespace Lock
             @return true if unlocking was successful
         */
         bool (*on_unlocking)(void) = []()
-        {Serial.println("unlocking the lock"); Serial.println(system_clock.GetDateTime()); return true; };
+        {Serial.println("unlocking the lock"); DEBUG_PRINT(system_clock.GetDateTime()); return true; };
     };
 
     /*
@@ -229,7 +229,7 @@ void Lock::Lock::loop()
     {
         RtcDateTime lock_time_point(this->unlock_time_point); // when this timepoint is passed the lock has to be locked (lock_time_point+lock_timer)
         lock_time_point += this->lock_timer;                  // add seconds to the time stamp
-        Serial.println(now);
+        DEBUG_PRINT(now);
 
         if (now > lock_time_point)
         {
