@@ -39,7 +39,7 @@ namespace Lock
         void force_unlock();
 
         // lock the lock imidieately
-        // void lock();
+        void lock();
 
         /*
             @return true if the lock is locked
@@ -78,12 +78,37 @@ namespace Lock
         // switches the state and calls the requred functions to perform the state-switch !!! doesnt check if unlocking is alowed !!!
         void _unlock();
 
+        /*
+            save the locked_until_time_point on the system_clock memory
+            @return true on success
+        */
+        bool _save_locked_until_time_point();
+        /*
+            delete the locked_until_time_point from the system_clock memory
+            @return true on successful
+        */
+        bool _delete_locked_until_time_point();
+
     private:
         lock_state state;
         // true if unlocking is allowed
         bool unlocking_allowed;
+
+        byte unauthorized_unlock_try_counter;
+
         // after how much time the lock will lock itself if it is being unlocked - in seconds
         const unsigned short lock_timer;
+
+        /*
+            allowed num of unlock_tries until the lock locks itself for a specific time
+        */
+        const byte allowed_num_of_unauthorized_unlock_tries = 2;
+        /*
+            - if there were "allowed_num_of_unauthorized_unlock_tries" unauthorized_unlock_try-reports the lock locks
+                itself for this time_period
+            - locking_period is in seconds
+        */
+        const unsigned short locking_period = 60;
 
         // time point when the lock was unlocked the last time - for the timer
         RtcDateTime unlock_time_point;
@@ -101,13 +126,13 @@ namespace Lock
             @return true if locking was successful
         */
         bool (*on_locking)(void) = []()
-        {Serial.println("locking the lock"); return true; };
+        {DEBUG_PRINT("locking the lock"); return true; };
         /*
             function which will be called when lock will be unlocked
             @return true if unlocking was successful
         */
         bool (*on_unlocking)(void) = []()
-        {Serial.println("unlocking the lock"); DEBUG_PRINT(system_clock.GetDateTime()); return true; };
+        {DEBUG_PRINT("unlocking the lock"); DEBUG_PRINT(system_clock.GetDateTime()); return true; };
     };
 
     /*
@@ -140,7 +165,6 @@ namespace Lock
         bool is_locked();
         lock_state get_lock_state();
         // lock the lock imideately
-        // void lock() { lock->lock(); }
     private:
         Lock *lock;
     };
@@ -151,15 +175,44 @@ namespace Lock
 // Lock implementations
 Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state = lock_state::LOCKED, bool _allow_unlocking = true) : unlocking_allowed(_allow_unlocking),
                                                                                                                                 state(_lock_state), lock_timer(_lock_timer),
-                                                                                                                                unlock_time_point(0)
+                                                                                                                                unlock_time_point(0), unauthorized_unlock_try_counter(0)
 {
-    // reading the last memory-sector of the RTC to look up if a lock-time-point is stored in the memory
-    if (static_cast<bool>(system_clock.GetMemory(SYSTEM_CLOCK_MEMORY_LENGTH)))
+    if (!system_clock.lost_power()) // if system_clock lost power the data we will read isnt valid - skipp
     {
-        uint8_t *buffer = new uint8_t[sizeof(RtcDateTime)];
-        // we save the timepoint from pos 0
-        system_clock.GetMemory(buffer, sizeof(RtcDateTime));
-        delete[] buffer;
+        // reading the last memory-sector of the RTC to look up if a lock-time-point is stored in the memory
+        if (static_cast<bool>(system_clock.GetMemory(SYSTEM_CLOCK_MEMORY_LENGTH)))
+        {
+            uint8_t *buffer = new uint8_t[sizeof(RtcDateTime)];
+            // we save the timepoint from pos 0
+            uint8_t num_read_bytes = system_clock.GetMemory(buffer, sizeof(RtcDateTime));
+            if (num_read_bytes < sizeof(RtcDateTime))
+            {
+                DEBUG_PRINT(F("Failed to read locked_until_timepoint from the system_clock"))
+            }
+            locked_until_time_point = reinterpret_cast<RtcDateTime *>(buffer); // RtcDateTime is exactly 6*sizeof(uint8_t)=48 bits
+
+            RtcDateTime now = system_clock.GetDateTime();
+
+            if ((*locked_until_time_point) > now)
+            {
+                DEBUG_PRINT(F("still locked"))
+                this->unlocking_allowed = false;
+                _lock();
+            }
+            else
+            {
+                DEBUG_PRINT(F("unlocking is allowed"))
+            }
+            DEBUG_PRINT(F("read locked_until_time_point"))
+        }
+        else
+        {
+            DEBUG_PRINT(F("no locked_until_time_point saved in system_clock"))
+        }
+    }
+    else
+    {
+        DEBUG_PRINT(F("RTC-Module lost power - we dont read locked_until_time_point"))
     }
 }
 
@@ -168,6 +221,7 @@ Lock::Lock::~Lock()
     if (this->locked_until_time_point != nullptr)
     {
         delete this->locked_until_time_point;
+        this->locked_until_time_point = nullptr;
     }
 }
 
@@ -178,36 +232,95 @@ Lock::unlock_token *Lock::Lock::create_unlock_token()
 
 void Lock::Lock::report_unauthorized_unlock_try()
 {
-    // count the unauthorized unlock tries and after a defined amount of tries lock the lock for a specific time
-    Serial.println("Unauthorized unlock_object...");
+    if (this->unlocking_allowed)
+    {
+        DEBUG_PRINT(F("Unauthorized unlock_object..."))
+        // count the unauthorized unlock tries and after a defined amount of tries lock the lock for a specific time
+        ++this->unauthorized_unlock_try_counter;
+        if (this->unauthorized_unlock_try_counter >= allowed_num_of_unauthorized_unlock_tries)
+        {
+            String msg = F("Locking the lock for ");
+            msg += locking_period;
+            msg += F(" seconds due to to often tried to unlock");
+            DEBUG_PRINT(msg)
+            if (locked_until_time_point == nullptr)
+            {
+                locked_until_time_point = new RtcDateTime(0);
+            }
+            *locked_until_time_point = (system_clock.GetDateTime());
+            *locked_until_time_point += locking_period;
+
+            if (!_save_locked_until_time_point())
+            {
+                DEBUG_PRINT(F("[ERROR] Failed to write locked_until_time_point to the system_clock"))
+            }
+
+            this->unlocking_allowed = false;
+            _lock();
+            this->unauthorized_unlock_try_counter = 0;
+        }
+    }
+    else
+    {
+        DEBUG_PRINT(F("unlocking is currently forbidden"))
+    }
 }
 
 void Lock::Lock::_lock()
 {
-    bool success = on_locking(); // calling the "switch_state" function which will lock the physical lock
-    if (!success)
+    if (this->state != lock_state::LOCKED)
     {
-        Serial.println("Error locking the physical Lock!!");
+        bool success = on_locking(); // calling the "switch_state" function which will lock the physical lock
+        if (!success)
+        {
+            DEBUG_PRINT(F("Error locking the physical Lock!!"))
+        }
+        this->state = lock_state::LOCKED;
     }
-    this->state = lock_state::LOCKED;
 }
 void Lock::Lock::_unlock()
 {
-    bool success = on_unlocking(); // calling the "switch_state" function which will unlock the physical lock
-    if (!success)
+    if (this->state != lock_state::UNLOCKED)
     {
-        Serial.println("Error unlocking the physical Lock!!");
+        bool success = on_unlocking(); // calling the "switch_state" function which will unlock the physical lock
+        if (!success)
+        {
+            DEBUG_PRINT(F("Error unlocking the physical Lock!!"))
+        }
+        this->unlock_time_point = system_clock.GetDateTime();
+        this->state = lock_state::UNLOCKED;
     }
-    this->unlock_time_point = system_clock.GetDateTime();
-    this->state = lock_state::UNLOCKED;
+}
+
+bool Lock::Lock::_save_locked_until_time_point()
+{
+    if (locked_until_time_point == nullptr)
+        return false;
+
+    system_clock.SetMemory(SYSTEM_CLOCK_MEMORY_LENGTH, static_cast<uint8_t>(true)); // setting the flag that we have saved a time_point in the memory
+    uint8_t num_written_bytes = system_clock.SetMemory(reinterpret_cast<uint8_t *>(locked_until_time_point), sizeof(RtcDateTime));
+    if (num_written_bytes < sizeof(RtcDateTime))
+    {
+        return false;
+    }
+    return true;
+}
+bool Lock::Lock::_delete_locked_until_time_point()
+{
+    system_clock.SetMemory(SYSTEM_CLOCK_MEMORY_LENGTH, static_cast<uint8_t>(false));
 }
 
 bool Lock::Lock::request_unlock()
 {
-    if (unlocking_allowed)
+    if (this->unlocking_allowed)
     {
+        this->unauthorized_unlock_try_counter = 0; // reset the unauthorized_unlock_tries
         this->_unlock();
         return true;
+    }
+    else
+    {
+        DEBUG_PRINT(F("unloking currently not allowed - disableds"))
     }
     return false;
 }
@@ -215,6 +328,11 @@ bool Lock::Lock::request_unlock()
 void Lock::Lock::force_unlock()
 {
     this->_unlock();
+}
+
+void Lock::Lock::lock()
+{
+    _lock();
 }
 
 enum Lock::lock_state Lock::Lock::get_state()
@@ -228,12 +346,25 @@ void Lock::Lock::loop()
     if (state == lock_state::UNLOCKED)
     {
         RtcDateTime lock_time_point(this->unlock_time_point); // when this timepoint is passed the lock has to be locked (lock_time_point+lock_timer)
-        lock_time_point += this->lock_timer;                  // add seconds to the time stamp
+        lock_time_point += this->lock_timer;                  // addition is in seconds
         DEBUG_PRINT(now);
 
         if (now > lock_time_point)
         {
             this->_lock();
+        }
+    }
+
+    // unlocking not allowed due to too many tries
+    if (this->locked_until_time_point != nullptr)
+    {
+        if (now > *locked_until_time_point)
+        {
+            DEBUG_PRINT(F("unlocking is now allowed"))
+            this->unlocking_allowed = true;
+            _delete_locked_until_time_point();
+            delete locked_until_time_point;
+            locked_until_time_point = nullptr;
         }
     }
 }
