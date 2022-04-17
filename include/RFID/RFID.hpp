@@ -102,13 +102,13 @@ void RFID::RFID::begin()
     this->rfid.PCD_DumpVersionToSerial(); // printing RFID_Version to serial
     if (this->rfid.PCD_PerformSelfTest())
     {
-        Serial.println("passed self test");
+        Serial.println(F("passed self test"));
     }
     else
     {
-        Serial.println("Self test failed");
+        Serial.println(F("Self test failed"));
     }
-    Serial.println("ready...");
+    Serial.println(F("ready..."));
 }
 
 void RFID::RFID::loop()
@@ -118,7 +118,7 @@ void RFID::RFID::loop()
         UID tag_uid = this->read_Tag_UID(true);
         if (tag_uid)
         {
-            Serial.print("Read tag with UID: ");
+            Serial.print(F("Read tag with UID: "));
             Serial.println(tag_uid.to_string());
             bool matching_tag_found = false; // if the tag is authorized
             for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
@@ -143,7 +143,7 @@ bool RFID::RFID::id_used(unsigned short id) const
 {
     if (id > NUM_OF_TAGS - 1)
     {
-        DEBUG_PRINT("id is out of range")
+        DEBUG_PRINT(F("id is out of range"))
         // throw an error
     }
     return this->allowed_tags[id].operator bool();
@@ -153,7 +153,7 @@ bool RFID::RFID::read_add_tag(unsigned short id)
 {
     if (id > NUM_OF_TAGS - 1)
     {
-        Serial.println("id is out of range");
+        Serial.println(F("id is out of range"));
         // throw an error
     }
     UID tag_uid = this->read_Tag_UID();
@@ -178,7 +178,7 @@ void RFID::RFID::remove_tag(unsigned short id)
 {
     if (id > NUM_OF_TAGS - 1)
     {
-        Serial.println("id is out of range");
+        Serial.println(F("id is out of range"));
         // throw an error
     }
     this->allowed_tags[id].clear();
@@ -210,13 +210,13 @@ RFID::UID &RFID::RFID::get_tag_uid(unsigned short id)
 {
     if (id > NUM_OF_TAGS - 1)
     {
-        Serial.println("id is out of range");
+        Serial.println(F("id is out of range"));
         return;
         // throw an error
     }
     if (!this->allowed_tags[id])
     {
-        Serial.println("tag isnt set");
+        Serial.println(F("tag isnt set"));
         return;
         // throw error tag isnt set...
     }
@@ -251,7 +251,7 @@ RFID::UID RFID::RFID::read_Tag_UID(bool async)
             auto err_code = rfid.PICC_HaltA(); // halt the reader in order to not read the same card again and again
             if (err_code != MFRC522::StatusCode::STATUS_OK)
             {
-                Serial.println("Error halting");
+                Serial.println(F("Error halting"));
             }
             return UID(); // return a empty uid
         }

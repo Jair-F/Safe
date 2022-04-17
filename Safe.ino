@@ -13,7 +13,9 @@
 
 // Outputs the given Data on the Debug-Output if DEBUG is defined
 #if defined DEBUG
-#define DEBUG_PRINT(X) \
+#define DEBUG_PRINT(X)      \
+    if (!Serial)            \
+        Serial.begin(9600); \
     Serial.println((X));
 #else
 #define DEBUG_PRINT(X)
@@ -56,10 +58,38 @@ void setup()
     EEPROM.begin();
     if (system_clock.lost_power())
     {
-        DEBUG_PRINT("RTC-Module lost power - change battery...");
+        DEBUG_PRINT(F("RTC-Module lost power - change battery..."))
+        RtcDateTime now(2022, 4, 17, 15, 21, 00);
+        system_clock.SetDateTime(now);
         // add warning to msg-log to print on the display
     }
-    Serial.println("Started startup...");
+    else
+    {
+        DEBUG_PRINT(F("RTC-Module doesnt lost power"))
+    }
+    Serial.println((int)(sizeof(RtcDateTime) % sizeof(uint8_t)));
+    Serial.println((int)(sizeof(RtcDateTime) / sizeof(uint8_t)));
+    Serial.println((int)(sizeof(RtcDateTime)) * 8);
+    Serial.println((int)sizeof(unsigned short));
+    Serial.println(sizeof(byte));
+
+    Serial.print("Time: ");
+    RtcDateTime now = system_clock.GetDateTime();
+    Serial.print(now.Day());
+    Serial.print('/');
+    Serial.print(now.Month());
+    Serial.print('/');
+    Serial.print(now.Year());
+    Serial.print(' ');
+    Serial.print(now.Hour());
+    Serial.print(':');
+    Serial.print(now.Minute());
+    Serial.print(':');
+    Serial.print(now.Second());
+    Serial.print(F("   Weekday: "));
+    Serial.println(now.DayOfWeek());
+
+    Serial.println(F("Started startup..."));
 
     fase.begin();
 }

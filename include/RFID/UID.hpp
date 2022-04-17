@@ -77,7 +77,7 @@ RFID::UID::UID(String _uid)
 {
     if (!this->_check_adjust_format(_uid))
     {
-        Serial.println("format-ERROR...");
+        Serial.println(F("format-ERROR..."));
         return; // format-error
     }
     // format is correct...
@@ -156,7 +156,7 @@ bool RFID::UID::_check_adjust_format(String &_uid) const
     // check the length of the string - could be bigger than exactly formated UID - could contain whitespaces...
     if (!(_uid.length() == UID_HEX_BLOCK_SIZE * UID_BLOCKS + UID_BLOCKS - 1))
     {
-        Serial.println("UID_ERROR: Length not correct...");
+        Serial.println(F("UID_ERROR: Length not correct..."));
         return false; // uid_str_length_err
     }
 
@@ -167,7 +167,7 @@ bool RFID::UID::_check_adjust_format(String &_uid) const
         {
             if (_uid[i - 1] != ' ')
             {
-                Serial.println("whitespace-ERROR");
+                Serial.println(F("whitespace-ERROR"));
                 return false;
             }
         }
@@ -175,7 +175,7 @@ bool RFID::UID::_check_adjust_format(String &_uid) const
         {
             if (!isHexadecimalDigit(_uid[i - 1]))
             {
-                Serial.println("HEX-ERROR");
+                Serial.println(F("HEX-ERROR"));
                 return false;
             }
         }

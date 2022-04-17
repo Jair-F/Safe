@@ -59,11 +59,11 @@ void Fingerprint::Fingerprint::begin()
     Adafruit_Fingerprint::begin(default_baudrate);
     if (this->verifyPassword())
     {
-        Serial.println("Found fingerprint");
+        Serial.println(F("Found fingerprint"));
     }
     else
     {
-        Serial.println("Didnt found fingerprint");
+        Serial.println(F("Didnt found fingerprint"));
         while (true)
             delay(1000);
         // exit(-1);
@@ -90,7 +90,7 @@ void Fingerprint::Fingerprint::loop()
         err_code = this->image2Tz(finger_template_slot);
         if (err_code) // error_handling - maybe output on display...
         {
-            Serial.println("Error");
+            Serial.println(F("Error"));
             return;
         }
 
@@ -127,7 +127,7 @@ bool Fingerprint::Fingerprint::check_id_used(uint16_t id)
 uint8_t Fingerprint::Fingerprint::add_finger(uint16_t id)
 {
     uint8_t err_code = FINGERPRINT_NOFINGER;
-    Serial.println("place finger");
+    Serial.println(F("place finger"));
     while (err_code != FINGERPRINT_OK)
     {
         err_code = this->getImage();
@@ -142,7 +142,7 @@ uint8_t Fingerprint::Fingerprint::add_finger(uint16_t id)
         err_code = this->getImage();
     }
 
-    Serial.println("place same finger again");
+    Serial.println(F("place same finger again"));
     do
     {
         err_code = this->getImage();
@@ -151,11 +151,11 @@ uint8_t Fingerprint::Fingerprint::add_finger(uint16_t id)
     err_code = this->image2Tz(2); // second slot for verification
     Serial.println(error_code_message(err_code));
 
-    Serial.println("Creating model of finger...");
+    Serial.println(F("Creating model of finger..."));
     err_code = this->createModel(); // creating model of the two feature templates which are created from the images
     Serial.println(error_code_message(err_code));
 
-    Serial.println("Storing model in Database...");
+    Serial.println(F("Storing model in Database..."));
     err_code = this->storeModel(id);
     Serial.println(error_code_message(err_code));
 
@@ -174,79 +174,80 @@ String Fingerprint::error_code_message(uint8_t error_code)
         // do nothing
         break;
     case FINGERPRINT_PACKETRECIEVEERR:
-        ret = "Error receiving data package";
+        ret = F("Error receiving data package");
         break;
     case FINGERPRINT_NOFINGER:
-        ret = "No finger on the sensor";
+        ret = F("No finger on the sensor");
         break;
     case FINGERPRINT_IMAGEFAIL:
-        ret = "Failed to enroll the finger";
+        ret = F("Failed to enroll the finger");
         break;
     case FINGERPRINT_IMAGEMESS:
-        ret = "Image to messy";
+        ret = F("Image to messy");
         break;
     case FINGERPRINT_FEATUREFAIL:
-        ret = "Image to small";
+        ret = F("Image to small");
         break;
     case FINGERPRINT_NOMATCH:
-        ret = "Finger doesn't match";
+        ret = F("Finger doesn't match");
         break;
     case FINGERPRINT_NOTFOUND:
-        ret = "Failed to find matching finger";
+        ret = F("Failed to find matching finger");
         break;
     case FINGERPRINT_ENROLLMISMATCH:
-        ret = "failed to combine character/finger files";
+        ret = F("failed to combine character/finger files");
         break;
     case FINGERPRINT_BADLOCATION:
-        ret = "Addressed PageID is beyond the finger library";
+        ret = F("Addressed PageID is beyond the finger library");
         break;
     case FINGERPRINT_DBRANGEFAIL:
-        ret = "Error reading template from library or invalid template";
+        ret = F("Error reading template from library or invalid template");
         break;
     case FINGERPRINT_UPLOADFEATUREFAIL:
-        ret = "error uploading template";
+        ret = F("error uploading template");
         break;
     case FINGERPRINT_PACKETRESPONSEFAIL:
-        ret = "Module failed to receive the following data packages";
+        ret = F("Module failed to receive the following data packages");
         break;
     case FINGERPRINT_UPLOADFAIL:
-        ret = "error uploading the image";
+        ret = F("error uploading the image");
         break;
     case FINGERPRINT_DELETEFAIL:
-        ret = "failed to delete template";
+        ret = F("failed to delete template");
         break;
     case FINGERPRINT_DBCLEARFAIL:
-        ret = "failed to clear finger library";
+        ret = F("failed to clear finger library");
         break;
     case FINGERPRINT_PASSFAIL:
-        ret = "find whether the fingerprint passed or failed";
+        ret = F("find whether the fingerprint passed or failed");
         break;
     case FINGERPRINT_INVALIDIMAGE:
-        ret = "failed to generate image because lac of valid primary image";
+        ret = F("failed to generate image because lac of valid primary image");
         break;
     case FINGERPRINT_FLASHERR:
-        ret = "error writing flash";
+        ret = F("error writing flash");
         break;
     case FINGERPRINT_INVALIDREG:
-        ret = "invalid register number";
+        ret = F("invalid register number");
         break;
     case FINGERPRINT_ADDRCODE:
-        ret = "Address code";
+        ret = F("Address code");
         break;
     case FINGERPRINT_PASSVERIFY:
-        ret = "verify the fingerprint passed";
+        ret = F("verify the fingerprint passed");
         break;
     case FINGERPRINT_STARTCODE:
-        ret = "Fixed falue of EF01H; High byte transferred first";
+        ret = F("Fixed falue of EF01H; High byte transferred first");
         break;
     case FINGERPRINT_TIMEOUT:
-        ret = "Timeout was reached";
+        ret = F("Timeout was reached");
         break;
     case FINGERPRINT_BADPACKET:
-        ret = "bad packet was sent";
+        ret = F("bad packet was sent");
         break;
     default:
-        ret = "Unknow error: " + error_code;
+        ret = F("Unknow error: ");
+        ret += error_code;
         break;
     }
     return ret;
