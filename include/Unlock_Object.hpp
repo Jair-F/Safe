@@ -9,14 +9,14 @@ public:
     Unlock_Object(const Unlock_Object &) = delete;
     Unlock_Object &operator=(const Unlock_Object &) = delete;
     virtual ~Unlock_Object();
+    /*
+        enable this unlock method
+    */
     void enable() { this->enabled = true; }
     /*
         Disable this unlock method
     */
     void disable() { this->enabled = false; }
-    /*
-        enable this unlock method
-    */
     bool is_enabled() { return this->enabled; }
 
     /*
