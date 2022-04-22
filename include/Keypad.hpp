@@ -95,7 +95,7 @@ char Keypad::Keypad::get()
     keypadEvent key_event;
 
     key_event = this->keypad.read();
-    if (key_event.bit.EVENT = 1) // a key was pressed - at releasing it is 0
+    if (key_event.bit.EVENT == 1) // a key was pressed - at releasing it is 0
     {
         return key_event.bit.KEY; // value of the pressed key
     }
