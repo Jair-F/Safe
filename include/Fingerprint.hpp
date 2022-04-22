@@ -265,9 +265,6 @@ String Fingerprint::error_code_message(uint8_t error_code)
     case FINGERPRINT_PASSVERIFY:
         ret = F("verify the fingerprint passed");
         break;
-    case FINGERPRINT_STARTCODE:
-        ret = F("Fixed falue of EF01H; High byte transferred first");
-        break;
     case FINGERPRINT_TIMEOUT:
         ret = F("Timeout was reached");
         break;
