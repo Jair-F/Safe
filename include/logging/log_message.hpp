@@ -1,17 +1,9 @@
 #pragma once
 #include <Arduino.h>
+#include "log_level_type.hpp"
 
 namespace Log
 {
-    enum class log_level
-    {
-        DEBUG = 1,
-        INFO = 2,
-        WARNING = 3,
-        ERROR = 4,
-        CRITICAL = 5
-    };
-
     class log_message
     {
     public:
@@ -28,8 +20,8 @@ namespace Log
         log_message(log_message &lm);
         ~log_message();
 
-        const char *get_message() { return msg; }
-        log_level get_log_level() { return logLevel; }
+        const char *message() { return msg; }
+        log_level log_level() { return logLevel; }
 
     private:
         log_level logLevel;

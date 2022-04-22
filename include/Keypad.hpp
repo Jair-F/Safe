@@ -69,10 +69,10 @@ namespace Keypad
     private:
         Adafruit_Keypad keypad;
         String key_buffer; // buffer which fills until the user presses "Enter"
-        const unsigned short max_bufer_length = 50;
+        const byte max_bufer_length = 50;
 
-        unsigned long last_read_timepoint = 0; // this is the last timepoint of keyboard reading
-        const unsigned int reading_loop = 300; // the keypad reads only every 300 milliseconds to prevent continiously reading of the same key by pressing it only once
+        unsigned long last_read_timepoint = 0;   // this is the last timepoint of keyboard reading
+        const unsigned short reading_loop = 300; // the keypad reads only every 300 milliseconds to prevent continiously reading of the same key by pressing it only once
     };
 } // namespace Keypad
 
@@ -81,7 +81,7 @@ Keypad::Keypad::Keypad(char **userKeymap, byte *rows,
 {
 }
 
-Keypad::Keypad::Keypad() : keypad(makeKeymap(KEYS), ROW_PINS, COLUMN_PINS, ROWS, COLUMNS), key_buffer("")
+Keypad::Keypad::Keypad() : keypad(makeKeymap(KEYS), ROW_PINS, COLUMN_PINS, ROWS, COLUMNS), key_buffer(F(""))
 {
 }
 

@@ -12,11 +12,11 @@ public:
     /*
         enable this unlock method
     */
-    void enable() { this->enabled = true; }
+    virtual void enable() { this->enabled = true; }
     /*
         Disable this unlock method
     */
-    void disable() { this->enabled = false; }
+    virtual void disable() { this->enabled = false; }
     bool is_enabled() { return this->enabled; }
 
     /*

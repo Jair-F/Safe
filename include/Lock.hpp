@@ -1,6 +1,7 @@
 #pragma once
 
 #include "system_clock.hpp"
+#include "Helper.hpp"
 
 namespace Lock
 {
@@ -195,7 +196,6 @@ Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state = lock
 
             if ((*locked_until_time_point) > now)
             {
-                DEBUG_PRINT(F("still locked"))
                 this->unlocking_allowed = false;
                 _lock();
             }
@@ -213,6 +213,22 @@ Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state = lock
     else
     {
         DEBUG_PRINT(F("RTC-Module lost power - we dont read locked_until_time_point"))
+    }
+    if (!this->unlocking_allowed)
+    {
+        String msg = F("unlocking is forbidden until ");
+        msg += this->locked_until_time_point->Day();
+        msg += '/';
+        msg += this->locked_until_time_point->Month();
+        msg += '/';
+        msg += this->locked_until_time_point->Year();
+        msg += ' ';
+        msg += this->locked_until_time_point->Hour();
+        msg += ':';
+        msg += this->locked_until_time_point->Minute();
+        msg += ':';
+        msg += this->locked_until_time_point->Second();
+        DEBUG_PRINT(msg)
     }
 }
 
@@ -262,7 +278,19 @@ void Lock::Lock::report_unauthorized_unlock_try()
     }
     else
     {
-        DEBUG_PRINT(F("unlocking is currently forbidden"))
+        String msg = F("unlocking is forbidden until ");
+        msg += this->locked_until_time_point->Day();
+        msg += '/';
+        msg += this->locked_until_time_point->Month();
+        msg += '/';
+        msg += this->locked_until_time_point->Year();
+        msg += ' ';
+        msg += this->locked_until_time_point->Hour();
+        msg += ':';
+        msg += this->locked_until_time_point->Minute();
+        msg += ':';
+        msg += this->locked_until_time_point->Second();
+        DEBUG_PRINT(msg)
     }
 }
 
@@ -320,7 +348,7 @@ bool Lock::Lock::request_unlock()
     }
     else
     {
-        DEBUG_PRINT(F("unloking currently not allowed - disableds"))
+        DEBUG_PRINT(F("unloking currently not allowed - disabled"))
     }
     return false;
 }

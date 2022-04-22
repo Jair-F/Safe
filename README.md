@@ -8,13 +8,11 @@
 - RtcDS1302             - `tested version: xx.xx`
 
 
-## Debugging the Arduino Code
-install arduino ide
-install arduino extention
+## Installing required Software
+- To upload the code to the Arduino install [Visual Studio Code](https://code.visualstudio.com/download). Inside Visual Studio Code install the Extention [PlatformIO](https://docs.platformio.org/en/stable/integration/ide/vscode.html#installation)
+- Open the project through the [PlatformIO Homescreen](https://docs.platformio.org/en/stable/integration/ide/vscode.html#quick-start). PlatformIO will download all required librarys to upload the code which are defined in the [platformio.ini file](https://docs.platformio.org/en/latest/projectconf/index.html)
+- Upload the code by clicking the upload/arrow button in the [Toolbar](https://docs.platformio.org/en/stable/integration/ide/vscode.html#platformio-toolbar)
 
-install openocd
-
-press F5 and select "Arduino envirement"
 
 
 ## Wiring for Arduino Mega with this Code

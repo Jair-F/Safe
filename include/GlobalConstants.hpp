@@ -1,9 +1,15 @@
 #pragma once
+#include <Arduino.h>
+
+// Allow Debug-Outputs on the Debug-Output
+#define DEBUG
+
 // Hardware_Pinouts
 
 // Serial-Object (for fingerprint)
 #define SERIAL_RECEIVE_PIN 2
 #define SERIAL_TRANSMIT_PIN 3
+#define FINGERPRINT_POWER_PIN A0
 
 // RFID
 #define MFRC522_RST_PIN 49 // RST_PIN

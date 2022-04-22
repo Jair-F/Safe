@@ -10,7 +10,8 @@
 #include "Lock.hpp"
 #include "Pin.hpp"
 #include "system_clock.hpp"
-#include "../lib/exception.hpp"
+#include "Helper.hpp"
+//#include "logging/Log.hpp"
 
 namespace Fase
 {
@@ -297,7 +298,7 @@ void Fase::Fase::loop()
             if (read == F("help"))
             {
                 Serial.print(F("Commands: "));
-                Serial.println(F("$add_finger, $normal, $rfid_remove_tag, $rfid_add_tag, $rfid_empty_database, $finger_empty_database, $remove_finger, $reset_config"));
+                Serial.println(F("$add_finger, $normal, $rfid_remove_tag, $rfid_add_tag, $rfid_empty_database, $finger_empty_database, $remove_finger, $reset_config, $reset_time"));
                 Serial.println();
             }
             else if (read == F("remove_finger"))
@@ -336,6 +337,16 @@ void Fase::Fase::loop()
             {
                 reset_config();
                 Serial.println(F("config reseted"));
+            }
+            else if (read == F("reset_time"))
+            {
+                RtcDateTime now(__DATE__, __TIME__);
+                system_clock.SetDateTime(now);
+                String msg = F("Time-Date reseted to: ");
+                msg += __DATE__;
+                msg += ' ';
+                msg += __TIME__;
+                Serial.println(msg);
             }
             else
             {

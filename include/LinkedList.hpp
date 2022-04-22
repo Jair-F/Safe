@@ -28,11 +28,23 @@ class SinglyListNodeIterator
 {
 public:
     SinglyListNodeIterator(SinglyListNode<T> *ln) : node(_ln) {}
-    SinglyListNode<T> *operator++() const
+    /*
+        post increment-operator(a++) - return the current data - before the switch
+    */
+    SinglyListNode<T> *operator++(int)
     {
-        SinglyListNode<T> tmp = node;
-        node = node->next;
+        SinglyListNode<T> *tmp = this->node;
+        this->node = this->node->next;
         return tmp;
+    }
+
+    /*
+        pre increment-operator(++a) - return the data after the switch
+    */
+    SinglyListNode<T> &operator++()
+    {
+        this->node = this->node->next;
+        return *(this->node);
     }
 
     // consider only the data
@@ -45,9 +57,9 @@ public:
     bool operator>=(const SinglyListNodeIterator &_list_iterator) const { return (*this > _list_iterator || *this == _list_iterator); }
     bool operator<=(const SinglyListNodeIterator &_list_iterator) const { return (*this < _list_iterator || *this == _list_iterator); }
 
-    T &data() { return node->data; }
+    T &data() { return this->node->data; }
     T &operator*() { return this->data(); }
-    SinglyListNode<T> *next() { return node->next(); }
+    SinglyListNode<T> *next() { return this->node->next(); }
 
 private:
     SinglyListNode<T> *node;

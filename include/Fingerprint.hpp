@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <Adafruit_Fingerprint.h>
+#include "GlobalConstants.hpp"
 #include "Unlock_Object.hpp"
 #include "Lock.hpp"
 
@@ -23,20 +24,39 @@ namespace Fingerprint
     class Fingerprint : public Adafruit_Fingerprint, public Unlock_Object
     {
     public:
-        Fingerprint(SoftwareSerial *my_serial, Lock::unlock_token *utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) {}
-        Fingerprint(HardwareSerial *my_serial, Lock::unlock_token *utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) {}
-        Fingerprint(Stream *my_serial, Lock::unlock_token *utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) {}
+        Fingerprint(SoftwareSerial *my_serial, Lock::unlock_token *utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }
+        Fingerprint(HardwareSerial *my_serial, Lock::unlock_token *utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }
+        Fingerprint(Stream *my_serial, Lock::unlock_token *utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }
         virtual ~Fingerprint() {}
 
         void begin();
 
         virtual void loop() override;
+        void wake_up()
+        {
+            digitalWrite(FINGERPRINT_POWER_PIN, HIGH);
+            this->begin();
+        }
+        /*
+            disable the sensor - save power and dont burn the LED
+        */
+        void send_sleep() { digitalWrite(FINGERPRINT_POWER_PIN, LOW); }
+
+        /*
+            enable the sensor and wake him up
+        */
+        virtual void enable() override;
+        /*
+            disable the sensor and send him to sleep
+        */
+        virtual void disable() override;
 
         /*
             @param id The id to store the fingerprint in the database(1-127)
             @return error_code from this-> - message can be shown with Fingerprint::error_code_message
         */
-        uint8_t add_finger(uint16_t id);
+        uint8_t
+        add_finger(uint16_t id);
 
         /*
             Checks if a fingerprint is stored on this id in the Database
@@ -64,10 +84,19 @@ void Fingerprint::Fingerprint::begin()
     else
     {
         Serial.println(F("Didnt found fingerprint"));
-        while (true)
-            delay(1000);
         // exit(-1);
     }
+}
+
+void Fingerprint::Fingerprint::enable()
+{
+    Unlock_Object::enable();
+    this->wake_up();
+}
+void Fingerprint::Fingerprint::disable()
+{
+    Unlock_Object::disable();
+    this->send_sleep();
 }
 
 void Fingerprint::Fingerprint::loop()
