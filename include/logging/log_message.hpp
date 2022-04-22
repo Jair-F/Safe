@@ -55,6 +55,7 @@ Log::log_message &Log::log_message::operator=(const log_message &_lm)
     this->msg = const_cast<char *>(_lm.message());
     this->level = _lm.Level();
     this->msg_deep_copy = _lm._msg_is_deep_copy();
+    return *this;
 }
 Log::log_message::~log_message()
 {
