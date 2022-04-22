@@ -174,9 +174,9 @@ namespace Lock
 // ------------- Implementations -------------
 
 // Lock implementations
-Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state = lock_state::LOCKED, bool _allow_unlocking = true) : unlocking_allowed(_allow_unlocking),
-                                                                                                                                state(_lock_state), lock_timer(_lock_timer),
-                                                                                                                                unlock_time_point(0), unauthorized_unlock_try_counter(0)
+Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool _allow_unlocking) : state(_lock_state), unlocking_allowed(_allow_unlocking),
+                                                                                                    unauthorized_unlock_try_counter(0), lock_timer(_lock_timer),
+                                                                                                    unlock_time_point(0)
 {
     if (!system_clock.lost_power()) // if system_clock lost power the data we will read isnt valid - skipp
     {
@@ -336,6 +336,7 @@ bool Lock::Lock::_save_locked_until_time_point()
 bool Lock::Lock::_delete_locked_until_time_point()
 {
     system_clock.SetMemory(SYSTEM_CLOCK_MEMORY_LENGTH, static_cast<uint8_t>(false));
+    return true;
 }
 
 bool Lock::Lock::request_unlock()
