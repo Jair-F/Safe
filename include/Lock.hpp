@@ -213,6 +213,12 @@ Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool 
     else
     {
         DEBUG_PRINT(F("RTC-Module lost power - we dont read locked_until_time_point"))
+        /*
+            writing to the clock module that there is no locked_unitl time_point - could be that now the random data
+            is true and if we change the battary it could lock the lock to a random time_point
+        */
+        uint8_t buffer = static_cast<uint8_t>(false);
+        system_clock.SetMemory(&buffer, SYSTEM_CLOCK_MEMORY_LENGTH);
     }
     if (!this->unlocking_allowed)
     {
