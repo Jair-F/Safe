@@ -131,7 +131,7 @@ void Fase::Fase::loop()
     case Mode::FINGERPRINT_ADD_FINGER:
     {
         Serial.println(F("Add-Finger - insert id..."));
-        while (!Serial.available() > 0)
+        while (!(Serial.available() > 0))
             delay(100);
         unsigned short id = Serial.parseInt();
         this->add_fingerprint(id);
