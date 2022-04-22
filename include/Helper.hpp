@@ -98,5 +98,5 @@ String to_bin(byte b)
 */
 bool is_hex_char(char c)
 {
-    return ((c <= '9' && c >= '0') && (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'));
+    return ((c <= '9' && c >= '0') && ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')));
 }
