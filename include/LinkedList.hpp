@@ -27,7 +27,7 @@ template <typename T>
 class SinglyListNodeIterator
 {
 public:
-    SinglyListNodeIterator(SinglyListNode<T> *ln) : node(_ln) {}
+    SinglyListNodeIterator(SinglyListNode<T> *_ln) : node(_ln) {}
     /*
         post increment-operator(a++) - return the current data - before the switch
     */
@@ -98,6 +98,9 @@ public:
         @return the deleted element - standard-constructor of T if there isn't any more elements in the list
     */
     T pop_back();
+    /*
+        @return the deleted element - standard-constructor of T if there isn't any more elements in the list
+    */
     T pop_front();
     T erase(unsigned long _position);
     /*
@@ -105,13 +108,20 @@ public:
     */
     void clear();
 
-    unsigned long length();
+    unsigned long length() const;
+    // same as length()
+    unsigned long size() const;
 
-    SinglyListNodeIterator<T> begin() { return this->begin; }
-    SinglyListNodeIterator<T> end() { return this->end; }
+    SinglyListNode<T> &operator[](unsigned long _index) { return this->at(_index); }
+    const SinglyListNode<T> &operator[](unsigned long _index) const { return this->at(_index); }
+    SinglyListNode<T> &at(unsigned long _index);
+    const SinglyListNode<T> &at(unsigned long _index) const;
+
+    SinglyListNodeIterator<T> begin() { return this->_begin; }
+    SinglyListNodeIterator<T> end() { return this->_end; }
 
 private:
-    SinglyListNode<T> *begin;
-    SinglyListNode<T> *end;
-    unsigned long size;
+    SinglyListNode<T> *_end;
+    SinglyListNode<T> *_begin;
+    unsigned long _size;
 };
