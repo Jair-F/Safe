@@ -27,14 +27,15 @@ template <typename T>
 class SinglyListNodeIterator
 {
 public:
-    SinglyListNodeIterator(SinglyListNode<T> *_ln) : node(_ln) {}
+    SinglyListNodeIterator(SinglyListNode<T> *_ln) : _node(_ln) {}
+    SinglyListNodeIterator(SinglyListNode<T> &_ln) : _node(&_ln) {}
     /*
         post increment-operator(a++) - return the current data - before the switch
     */
     SinglyListNode<T> *operator++(int)
     {
-        SinglyListNode<T> *tmp = this->node;
-        this->node = this->node->next;
+        SinglyListNode<T> *tmp = this->_node;
+        this->_node = this->_node->next;
         return tmp;
     }
 
@@ -43,26 +44,26 @@ public:
     */
     SinglyListNode<T> &operator++()
     {
-        this->node = this->node->next;
-        return *(this->node);
+        this->_node = this->_node->next;
+        return *(this->_node);
     }
 
     // consider only the data
-    bool operator==(const SinglyListNodeIterator &_list_iterator) const { return this->node->data() == _list_iterator.data(); }
-    bool operator!=(const SinglyListNodeIterator &_list_iterator) const { return !(this->node == _list_iterator); }
+    bool operator==(const SinglyListNodeIterator &_list_iterator) const { return this->_node->data() == _list_iterator.data(); }
+    bool operator!=(const SinglyListNodeIterator &_list_iterator) const { return !(this->_node == _list_iterator); }
 
-    bool operator>(const SinglyListNodeIterator &_list_iterator) const { return (this->node->data() > _list_iterator.data()); }
+    bool operator>(const SinglyListNodeIterator &_list_iterator) const { return (this->_node->data() > _list_iterator.data()); }
     bool operator<(const SinglyListNodeIterator &_list_iterator) const { return !(*this > _list_iterator); }
 
     bool operator>=(const SinglyListNodeIterator &_list_iterator) const { return (*this > _list_iterator || *this == _list_iterator); }
     bool operator<=(const SinglyListNodeIterator &_list_iterator) const { return (*this < _list_iterator || *this == _list_iterator); }
 
-    T &data() { return this->node->data; }
-    T &operator*() { return this->data(); }
-    SinglyListNode<T> *next() { return this->node->next(); }
+    T &data() { return this->_node->data; }
+    T &operator->() { return this->data(); }
+    T *operator*() { return &(this->data()); }
+    SinglyListNode<T> *next() { return this->_node->next; }
 
-private:
-    SinglyListNode<T> *node;
+    SinglyListNode<T> *_node;
 };
 
 /*
@@ -78,21 +79,26 @@ public:
         @param _standard_initializer initialize the whole list with this value
     */
     SinglyLinkedList(unsigned long _size, T &_standard_initializer);
+    ~SinglyLinkedList();
 
     void push_front(T &_data);
     void push_back(T &_data);
 
+    /*
+        insert _data on the _position and push the data that is now on this positon
+        one back
+    */
     void insert(unsigned long _position, T &_data);
 
     /*
         insert the data by moving it inside
     */
-    void emplace(unsigned long _position, T &_data);
+    // void emplace(unsigned long _position, T &_data);
 
     /*
         sort the list ascending
     */
-    void sort();
+    // void sort();
 
     /*
         @return the deleted element - standard-constructor of T if there isn't any more elements in the list
@@ -112,15 +118,16 @@ public:
     // same as length()
     unsigned long size() const;
 
-    SinglyListNode<T> &operator[](unsigned long _index) { return this->at(_index); }
-    const SinglyListNode<T> &operator[](unsigned long _index) const { return this->at(_index); }
-    SinglyListNode<T> &at(unsigned long _index);
-    const SinglyListNode<T> &at(unsigned long _index) const;
+    T &operator[](unsigned long _index) { return this->at(_index); }
+    const T &operator[](unsigned long _index) const { return this->at(_index); }
+    T &at(unsigned long _index);
+    const T &at(unsigned long _index) const;
 
     SinglyListNodeIterator<T> begin() { return this->_begin; }
-    SinglyListNodeIterator<T> end() { return this->_end; }
+    SinglyListNodeIterator<T> end() { return this->_last; }
 
 private:
+    SinglyListNode<T> _last; // the element which will be returned in a iterator at calling end(element past the last element of data)
     SinglyListNode<T> *_end;
     SinglyListNode<T> *_begin;
     unsigned long _size;
