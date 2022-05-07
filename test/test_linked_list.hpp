@@ -20,7 +20,7 @@ void linked_list_standard_initializer()
         TEST_ASSERT_EQUAL(num_of_elements, list.size());
         for (unsigned short i = 0; i < num_of_elements; ++i)
         {
-            TEST_ASSERT_EQUAL(list_default_testing_value, list[i]);
+            TEST_ASSERT_TRUE(list_default_testing_value == list[i]);
         }
     }
 }
@@ -31,7 +31,7 @@ void linked_list_push_back()
     unsigned short prev_list_size = list.size();
 
     list.push_back(list_default_testing_value);
-    TEST_ASSERT_EQUAL(list_default_testing_value, list[0]);
+    TEST_ASSERT_TRUE(list_default_testing_value == list[0]);
     TEST_ASSERT_EQUAL(prev_list_size + 1, list.size());
 
     for (unsigned short i = 0; i < max_list_size; ++i)
@@ -39,7 +39,7 @@ void linked_list_push_back()
         prev_list_size = list.size();
         list.push_back(list_default_testing_value);
         TEST_ASSERT_EQUAL(prev_list_size + 1, list.size());
-        TEST_ASSERT_EQUAL(list_default_testing_value, list[list.size() - 1]);
+        TEST_ASSERT_TRUE(list_default_testing_value == list[list.size() - 1]);
     }
 }
 
@@ -50,14 +50,14 @@ void linked_list_push_front()
 
     list.push_front(list_default_testing_value);
     TEST_ASSERT_EQUAL(prev_list_size + 1, list.size());
-    TEST_ASSERT_EQUAL(list_default_testing_value, list[0]);
+    TEST_ASSERT_TRUE(list_default_testing_value == list[0]);
 
     for (unsigned short i = 0; i < max_list_size; ++i)
     {
         prev_list_size = list.size();
         list.push_back(list_default_testing_value);
         TEST_ASSERT_EQUAL(prev_list_size + 1, list.size());
-        TEST_ASSERT_EQUAL(list_default_testing_value, list[0]);
+        TEST_ASSERT_TRUE(list_default_testing_value == list[0]);
     }
 }
 
@@ -74,7 +74,7 @@ void linked_list_insert()
         list.insert(insert_pos, list_default_testing_value);
 
         TEST_ASSERT_EQUAL(prev_list_size + 1, list.size());
-        TEST_ASSERT_EQUAL(list_default_testing_value, list[insert_pos]);
+        TEST_ASSERT_TRUE(list_default_testing_value == list[insert_pos]);
     }
 }
 
@@ -211,7 +211,15 @@ void linked_list_change_values()
     SinglyLinkedList<TESTING_TYPE> list(max_list_size, list_default_testing_value);
     for (unsigned short i = 0; i < max_list_size; ++i)
     {
-        TESTING_TYPE tmp = random(list_default_testing_value, list_2default_testing_value);
+        TESTING_TYPE tmp;
+        if (random(0, 100) % 2)
+        {
+            tmp = list_default_testing_value;
+        }
+        else
+        {
+            tmp = list_2default_testing_value;
+        }
         list[i] = tmp;
         TEST_ASSERT_TRUE(list[i] == tmp);
     }
