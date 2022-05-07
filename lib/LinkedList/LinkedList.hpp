@@ -273,22 +273,31 @@ T SinglyLinkedList<T>::pop_front()
 template <typename T>
 T SinglyLinkedList<T>::erase(unsigned long _position)
 {
-    assert(this->size() > 0);
+    assert(this->size() >= 0);
     if (this->_size > _position)
     {
         T data_backup;
         SinglyListNode<T> *element_to_delete;
-        SinglyListNodeIterator<T> tmp = this->begin();
 
-        unsigned long counter = 0;
-        while (counter < (_position - 1)) // holding one element before the element to delete
+        if (_position == 0)
         {
-            ++tmp;
-            ++counter;
+            element_to_delete = this->_begin;
+            this->_begin = element_to_delete->next;
         }
-        element_to_delete = tmp.next();
+        else
+        {
+            SinglyListNodeIterator<T> tmp = this->begin(); // one element before the element_to_delete
+            unsigned long counter = 0;
+            while (counter < (_position - 1)) // holding one element before the element to delete
+            {
+                ++tmp;
+                ++counter;
+            }
+            element_to_delete = tmp.next();
+            tmp._node->next = element_to_delete->next; // hoping over the element_to_delete
+        }
+
         data_backup = element_to_delete->data;
-        tmp._node->next = element_to_delete->next();
         delete element_to_delete;
         --this->_size;
         return data_backup;
