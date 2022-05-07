@@ -205,3 +205,14 @@ void linked_list_length()
         TEST_ASSERT_EQUAL(i + 1, list.length());
     }
 }
+
+void linked_list_change_values()
+{
+    SinglyLinkedList<TESTING_TYPE> list(max_list_size, list_default_testing_value);
+    for (unsigned short i = 0; i < max_list_size; ++i)
+    {
+        TESTING_TYPE tmp = random(list_default_testing_value, list_2default_testing_value);
+        list[i] = tmp;
+        TEST_ASSERT_TRUE(list[i] == tmp);
+    }
+}

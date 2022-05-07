@@ -17,6 +17,7 @@ void setup()
     RUN_TEST(linked_list_pop_front);
     RUN_TEST(linked_list_erase);
     RUN_TEST(linked_list_length);
+    RUN_TEST(linked_list_change_values);
     UNITY_END();
 }
 
