@@ -82,39 +82,43 @@ void linked_list_insert()
 void linked_list_clear()
 {
     SinglyLinkedList<TESTING_TYPE> list;
-
-    for (unsigned short i = 0; i < max_list_size; ++i)
+    for (unsigned short list_size = 0; list_size < max_list_size; ++list_size)
     {
-        list.push_back(list_default_testing_value);
+        for (unsigned short i = 0; i < list_size; ++i)
+        {
+            list.push_back(list_default_testing_value);
+        }
+        TEST_ASSERT_EQUAL(list_size, list.size());
+        list.clear();
+        TEST_ASSERT_EQUAL(0, list.size());
+        TEST_ASSERT_TRUE(list.begin() == list.end());
     }
-    TEST_ASSERT_EQUAL(max_list_size, list.size());
-    list.clear();
-    TEST_ASSERT_EQUAL(0, list.size());
-    TEST_ASSERT_TRUE(list.begin() == list.end());
 }
 
 void linked_list_pop_back()
 {
     SinglyLinkedList<TESTING_TYPE> list;
-    unsigned short prev_list_size;
-    for (unsigned short i = 0; i < max_list_size; ++i)
+    for (unsigned short list_size = 0; list_size < max_list_size; ++list_size)
     {
-        if (random(true, false))
+        for (unsigned short i = 0; i < list_size; ++i)
         {
-            list.push_back(list_default_testing_value);
+            if (random(true, false)) // just for pushing_back random data
+            {
+                list.push_back(list_default_testing_value);
+            }
+            else
+            {
+                list.push_back(list_2default_testing_value);
+            }
         }
-        else
+        for (unsigned short i = 0; i < list_size; ++i)
         {
-            list.push_back(list_2default_testing_value);
+            auto removed_value = list[list.size() - 1];
+            unsigned short prev_list_size = list.size();
+            auto tmp = list.pop_back();
+            TEST_ASSERT_TRUE(tmp == removed_value);
+            TEST_ASSERT_EQUAL(prev_list_size - 1, list.size());
         }
-    }
-    for (unsigned short i = 0; i < max_list_size; ++i)
-    {
-        auto removed_value = list[list.size() - 1];
-        prev_list_size = list.size();
-        auto tmp = list.pop_back();
-        TEST_ASSERT_TRUE(tmp == removed_value);
-        TEST_ASSERT_EQUAL(prev_list_size - 1, list.size());
     }
 }
 

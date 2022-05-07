@@ -200,7 +200,7 @@ void SinglyLinkedList<T>::push_front(T _data)
 template <typename T>
 void SinglyLinkedList<T>::insert(unsigned long _position, T _data)
 {
-    assert(_position <= this->_size);
+    assert(_position <= this->size());
     if (this->begin() == this->end()) // list is empty
     {
         this->_end = new SinglyListNode<T>(_data, &_last);
@@ -232,15 +232,27 @@ void SinglyLinkedList<T>::insert(unsigned long _position, T _data)
 template <typename T>
 T SinglyLinkedList<T>::pop_back()
 {
-    if (this->_size > 0)
+    if (this->size() > 0)
     {
         SinglyListNode<T> *element_to_delete = this->_end;
         T data_backup = element_to_delete->data;
         // finding one element before _end
         SinglyListNodeIterator<T> tmp(this->_begin);
-        while (tmp.next() != element_to_delete)
-            ++tmp;
-        tmp._node->next = &this->_last; // setting next poniter from the element before _end
+
+        if (this->size() > 1)
+        {
+            while (tmp.next() != element_to_delete)
+                ++tmp;
+            tmp._node->next = &this->_last; // setting next poniter from the element before _end
+            this->_end = tmp._node;
+        }
+        // if we only have left one element the _end and _begin point to the same element
+        // and then we cant just iterate to the element before _end!!
+        else
+        {
+            this->_end = &this->_last;
+            this->_begin = this->_end;
+        }
 
         delete element_to_delete;
         --this->_size;
@@ -252,13 +264,16 @@ T SinglyLinkedList<T>::pop_back()
 template <typename T>
 T SinglyLinkedList<T>::pop_front()
 {
-    return this->erase(0);
+    if (this->size() > 0)
+    {
+        return this->erase(0);
+    }
 }
 
 template <typename T>
 T SinglyLinkedList<T>::erase(unsigned long _position)
 {
-    assert(this->_size > 0);
+    assert(this->size() > 0);
     if (this->_size > _position)
     {
         T data_backup;
@@ -311,7 +326,7 @@ unsigned long SinglyLinkedList<T>::size() const
 template <typename T>
 T &SinglyLinkedList<T>::at(unsigned long _index)
 {
-    assert(_index < this->_size);
+    assert(_index < this->size());
     SinglyListNodeIterator<T> iterator = this->begin();
     unsigned long counter = 0;
     while (counter < _index) // after this while the iterator is on the requested position
@@ -325,7 +340,7 @@ T &SinglyLinkedList<T>::at(unsigned long _index)
 template <typename T>
 const T &SinglyLinkedList<T>::at(unsigned long _index) const
 {
-    assert(_index < this->_size);
+    assert(_index < this->size());
     SinglyListNodeIterator<T> iterator = this->begin();
     unsigned long counter = 0;
     while (counter < _index) // after this while the iterator is on the requested position
