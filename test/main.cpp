@@ -102,7 +102,7 @@ void linked_list_pop_back()
     {
         for (unsigned short i = 0; i < list_size; ++i)
         {
-            if (random(true, false)) // just for pushing_back random data
+            if (random(0, 100) % 2) // just for pushing_back random data
             {
                 list.push_back(list_default_testing_value);
             }
@@ -122,6 +122,64 @@ void linked_list_pop_back()
     }
 }
 
+void linked_list_pop_front()
+{
+    SinglyLinkedList<TESTING_TYPE> list;
+    for (unsigned short list_size = 0; list_size < max_list_size; ++list_size)
+    {
+        for (unsigned short i = 0; i < list_size; ++i) // initializing the list with data
+        {
+            if (random(0, 100) % 2) // just for pushing_back random data
+            {
+                list.push_back(list_default_testing_value);
+            }
+            else
+            {
+                list.push_back(list_2default_testing_value);
+            }
+        }
+        for (unsigned short i = 0; i < list_size; ++i)
+        {
+            auto removed_value = list[0];
+            unsigned short prev_list_size = list.size();
+            auto tmp = list.pop_front();
+            TEST_ASSERT_TRUE(tmp == removed_value);
+            TEST_ASSERT_EQUAL(prev_list_size - 1, list.size());
+        }
+    }
+}
+
+void linked_list_erase()
+{
+    SinglyLinkedList<TESTING_TYPE> list;
+    for (unsigned short list_size = 0; list_size < max_list_size; ++list_size)
+    {
+        for (unsigned short i = 0; i < list_size; ++i) // initializing the list with data
+        {
+            if (random(0, 100) % 2) // just for pushing_back random data
+            {
+                list.push_back(list_default_testing_value);
+            }
+            else
+            {
+                list.push_back(list_2default_testing_value);
+            }
+        }
+        for (unsigned short i = 0; i < list_size; ++i)
+        {
+            unsigned short removing_pos = random(0, list.size() - 1);
+            auto removed_value = list[removing_pos];
+            unsigned short prev_list_size = list.size();
+
+            auto tmp = list.erase(removing_pos);
+
+            TEST_ASSERT_TRUE(tmp == removed_value);
+            TEST_ASSERT_EQUAL(prev_list_size - 1, list.size());
+        }
+        TEST_ASSERT_TRUE(list.begin() == list.end());
+    }
+}
+
 void setup()
 {
     randomSeed(analogRead(A0)); // initializing random seed with random read value from analogPin A0
@@ -133,6 +191,8 @@ void setup()
     RUN_TEST(linked_list_insert);
     RUN_TEST(linked_list_clear);
     RUN_TEST(linked_list_pop_back);
+    // RUN_TEST(linked_list_pop_front);
+    RUN_TEST(linked_list_erase);
     UNITY_END();
 }
 
