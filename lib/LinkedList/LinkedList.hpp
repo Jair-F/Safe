@@ -9,16 +9,17 @@ class SinglyListNode
 {
 public:
     SinglyListNode(T _data, SinglyListNode<T> *_next) : data(_data), next(_next) {}
+    virtual ~SinglyListNode() {}
     T &operator*() const { return data; }
 
     /*
         consider the next pointer and the data...
     */
-    bool operator==(const SinglyListNode &_node) const { return (this->data == _node.data && this->next == _node.next); }
-    bool operator!=(const SinglyListNode &_node) const { return !(*this == _node); }
+    bool operator==(const SinglyListNode<T> &_node) const { return (this->data == _node.data && this->next == _node.next); }
+    bool operator!=(const SinglyListNode<T> &_node) const { return !(*this == _node); }
 
-    SinglyListNode<T> *next;
     T data;
+    SinglyListNode<T> *next;
 };
 
 /*
@@ -50,7 +51,7 @@ public:
     }
 
     // consider only the data
-    bool operator==(const SinglyListNodeIterator &_list_iterator) const { return this->_node->data == _list_iterator.data(); }
+    bool operator==(const SinglyListNodeIterator &_list_iterator) const { return this->_node == _list_iterator.node(); }
     bool operator!=(const SinglyListNodeIterator &_list_iterator) const { return !(*this == _list_iterator); }
 
     bool operator>(const SinglyListNodeIterator &_list_iterator) const { return (this->_node->data() > _list_iterator.data()); }
@@ -63,6 +64,7 @@ public:
     T &operator->() { return this->data(); }
     T *operator*() { return &(this->data()); }
     SinglyListNode<T> *next() { return this->_node->next; }
+    SinglyListNode<T> *node() { return _node; }
 
     SinglyListNode<T> *_node;
 };
@@ -71,6 +73,7 @@ public:
     Simple linked list - linked only in one direction
 
     works for every element which has implemented following methods:
+        - standard constructor(T())
         - copy constructor
         - compare-operator - operator==()
         - bigger than operator - operator>()
@@ -129,11 +132,11 @@ public:
     T &at(unsigned long _index);
     const T &at(unsigned long _index) const;
 
-    SinglyListNodeIterator<T> begin() { return this->_begin; }
-    SinglyListNodeIterator<T> end() { return this->_last; }
+    SinglyListNodeIterator<T> begin() { return SinglyListNodeIterator<T>(this->_begin); }
+    SinglyListNodeIterator<T> end() { return SinglyListNodeIterator<T>(static_cast<SinglyListNode<T> *>(nullptr)); }
 
 private:
-    SinglyListNode<T> _last; // the element which will be returned in a iterator at calling end(element past the last element of data)
+    // SinglyListNodeBase<T> _last; // the element which will be returned in a iterator at calling end(element past the last element of data)
     SinglyListNode<T> *_end;
     SinglyListNode<T> *_begin;
     unsigned long _size;
@@ -142,16 +145,16 @@ private:
 // ---------------- Implementations ----------------
 
 template <typename T>
-SinglyLinkedList<T>::SinglyLinkedList() : _last(T(), nullptr), _size(0)
+SinglyLinkedList<T>::SinglyLinkedList() : _size(0)
 {
-    this->_end = &_last;
+    this->_end = nullptr;
     this->_begin = (_end);
 }
 
 template <typename T>
-SinglyLinkedList<T>::SinglyLinkedList(unsigned long size, T _standard_initializer) : _last(T(), nullptr), _size(0)
+SinglyLinkedList<T>::SinglyLinkedList(unsigned long size, T _standard_initializer) : _size(0)
 {
-    this->_end = &_last;
+    this->_end = nullptr;
     this->_begin = (_end);
     for (unsigned long i = 0; i < size; i++)
     {
@@ -170,12 +173,12 @@ void SinglyLinkedList<T>::push_back(T _data)
 {
     if (this->begin() == this->end()) // no element in the list...
     {
-        this->_end = new SinglyListNode<T>(_data, &_last);
+        this->_end = new SinglyListNode<T>(_data, nullptr);
         this->_begin = this->_end;
     }
     else // at least one element in the list
     {
-        SinglyListNode<T> *tmp = new SinglyListNode<T>(_data, &_last);
+        SinglyListNode<T> *tmp = new SinglyListNode<T>(_data, nullptr);
         this->_end->next = tmp;
         this->_end = tmp;
     }
@@ -185,16 +188,9 @@ void SinglyLinkedList<T>::push_back(T _data)
 template <typename T>
 void SinglyLinkedList<T>::push_front(T _data)
 {
-    if (this->begin() == this->end()) // list is empty
-    {
-        this->push_back(_data);
-    }
-    else
-    {
-        SinglyListNode<T> *tmp = new SinglyListNode<T>(_data, this->_begin);
-        this->_begin = tmp;
-        ++_size;
-    }
+    SinglyListNode<T> *tmp = new SinglyListNode<T>(_data, this->_begin);
+    this->_begin = tmp;
+    ++_size;
 }
 
 template <typename T>
@@ -203,8 +199,9 @@ void SinglyLinkedList<T>::insert(unsigned long _position, T _data)
     assert(_position <= this->size());
     if (this->begin() == this->end()) // list is empty
     {
-        this->_end = new SinglyListNode<T>(_data, &_last);
+        this->_end = new SinglyListNode<T>(_data, nullptr);
         this->_begin = _end;
+        // or just use push_back
     }
     else // at least one element in the list
     {
@@ -215,7 +212,7 @@ void SinglyLinkedList<T>::insert(unsigned long _position, T _data)
         }
         else
         {
-            SinglyListNodeIterator<T> iterator = this->begin();
+            SinglyListNodeIterator<T> iterator(this->begin());
             unsigned long counter = 0;
             while (counter < _position - 1) // hold on one element before position and insert there the element so the element will be element no _positoin
             {
@@ -223,7 +220,7 @@ void SinglyLinkedList<T>::insert(unsigned long _position, T _data)
                 ++counter;
             }
             SinglyListNode<T> *tmp = new SinglyListNode<T>(_data, iterator.next());
-            iterator._node->next = tmp;
+            iterator._node->next = tmp; // set the element before
         }
     }
     ++this->_size;
@@ -243,14 +240,14 @@ T SinglyLinkedList<T>::pop_back()
         {
             while (tmp.next() != element_to_delete)
                 ++tmp;
-            tmp._node->next = &this->_last; // setting next poniter from the element before _end
+            tmp._node->next = nullptr; // setting next poniter from the element before _end
             this->_end = tmp._node;
         }
         // if we only have left one element the _end and _begin point to the same element
         // and then we cant just iterate to the element before _end!!
         else
         {
-            this->_end = &this->_last;
+            this->_end = nullptr;
             this->_begin = this->_end;
         }
 
@@ -286,7 +283,7 @@ T SinglyLinkedList<T>::erase(unsigned long _position)
         }
         else
         {
-            SinglyListNodeIterator<T> tmp = this->begin(); // one element before the element_to_delete
+            SinglyListNodeIterator<T> tmp(this->begin()); // one element before the element_to_delete
             unsigned long counter = 0;
             while (counter < (_position - 1)) // holding one element before the element to delete
             {
@@ -302,23 +299,16 @@ T SinglyLinkedList<T>::erase(unsigned long _position)
         --this->_size;
         return data_backup;
     }
+    return;
 }
 
 template <typename T>
 void SinglyLinkedList<T>::clear()
 {
-    SinglyListNodeIterator<T> iterator = this->begin();
-    SinglyListNode<T> *element_to_delete;
-    while (iterator != this->end())
+    while (this->length() > 0)
     {
-        element_to_delete = iterator._node;
-        ++iterator;
-        delete element_to_delete;
-        --this->_size;
+        this->pop_back();
     }
-    this->_end = &_last;
-    this->_begin = this->_end;
-    // this->_size = 0;
 }
 
 template <typename T>
@@ -359,3 +349,35 @@ const T &SinglyLinkedList<T>::at(unsigned long _index) const
     }
     return iterator._node->data;
 }
+
+/*
+template <typename T>
+void SinglyLinkedList<T>::sort()
+{
+    if (this->size() > 1)
+    {
+        bool list_sorted = false;
+        while (list_sorted == false)
+        {
+            for (unsigned short i = 0; i < this->size(); ++i)
+            {
+                if (this->at(i) > this->at(i + 1))
+                {
+                    T tmp = this->at(i);
+                    this->operator[](i) = this->at(i + 1);
+                    this->operator[](i + 1) = tmp;
+                }
+            }
+            list_sorted = true;
+            for (unsigned short i = 0; i < this->size(); ++i)
+            {
+                if (this->at(i) > this->at(i + 1))
+                {
+                    list_sorted = false;
+                    break;
+                }
+            }
+        }
+    }
+}
+*/
