@@ -14,6 +14,8 @@ RFID:
 namespace RFID
 {
     constexpr unsigned short NUM_OF_TAGS = 10;
+    // get according error_message to error_code
+    const char *error_message(MFRC522::StatusCode error_code);
 
     class RFID : public Unlock_Object
     {
@@ -97,8 +99,9 @@ RFID::RFID::RFID(byte chipSelectPin, byte resetPowerDownPin,
 
 void RFID::RFID::begin()
 {
-    SPI.begin();                          // Arduino interface which is necessarily for RFID(SPI is a global variable from Arduino)
-    this->rfid.PCD_Init();                // starting and initialising rfid
+    SPI.begin();           // Arduino interface which is necessarily for RFID(SPI is a global variable from Arduino)
+    this->rfid.PCD_Init(); // starting and initialising rfid
+#if defined(SERIAL_OUTPUT)
     this->rfid.PCD_DumpVersionToSerial(); // printing RFID_Version to serial
     if (this->rfid.PCD_PerformSelfTest())
     {
@@ -109,6 +112,7 @@ void RFID::RFID::begin()
         Serial.println(F("Self test failed"));
     }
     Serial.println(F("ready..."));
+#endif
 }
 
 void RFID::RFID::loop()
@@ -118,8 +122,8 @@ void RFID::RFID::loop()
         UID tag_uid = this->read_Tag_UID(true);
         if (tag_uid)
         {
-            Serial.print(F("Read tag with UID: "));
-            Serial.println(tag_uid.to_string());
+            DEBUG_PRINT(F("Read tag with UID: "));
+            DEBUG_PRINTLN(tag_uid.to_string());
             bool matching_tag_found = false; // if the tag is authorized
             for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
             {
@@ -153,7 +157,7 @@ bool RFID::RFID::read_add_tag(unsigned short id)
 {
     if (id > NUM_OF_TAGS - 1)
     {
-        Serial.println(F("id is out of range"));
+        DEBUG_PRINTLN(F("id is out of range"));
         // throw an error
     }
     UID tag_uid = this->read_Tag_UID();
@@ -178,7 +182,7 @@ void RFID::RFID::remove_tag(unsigned short id)
 {
     if (id > NUM_OF_TAGS - 1)
     {
-        Serial.println(F("id is out of range"));
+        DEBUG_PRINTLN(F("id is out of range"));
         // throw an error
     }
     this->allowed_tags[id].clear();
@@ -210,13 +214,13 @@ RFID::UID &RFID::RFID::get_tag_uid(unsigned short id)
 {
     if (id > NUM_OF_TAGS - 1)
     {
-        Serial.println(F("id is out of range"));
+        DEBUG_PRINTLN(F("id is out of range"));
         return;
         // throw an error
     }
     if (!this->allowed_tags[id])
     {
-        Serial.println(F("tag isnt set"));
+        DEBUG_PRINTLN(F("tag isnt set"));
         return;
         // throw error tag isnt set...
     }
@@ -251,7 +255,9 @@ RFID::UID RFID::RFID::read_Tag_UID(bool async)
             auto err_code = rfid.PICC_HaltA(); // halt the reader in order to not read the same card again and again
             if (err_code != MFRC522::StatusCode::STATUS_OK)
             {
-                Serial.println(F("Error halting"));
+                String error_msg = F("RFID-ERROR: error reading tag - halting - error_message: ");
+                error_msg += error_message(err_code);
+                DEBUG_PRINTLN(error_msg);
             }
             return UID(); // return a empty uid
         }
@@ -264,4 +270,64 @@ RFID::UID RFID::RFID::read_Tag_UID(bool async)
     }
     rfid.PICC_HaltA(); // halt the reader in order to not read the same card again and again
     return uid;
+}
+
+const char *RFID::error_message(MFRC522::StatusCode error_code)
+{
+    const char *err_msg = nullptr;
+    switch (error_code)
+    {
+    case MFRC522::StatusCode::STATUS_COLLISION:
+    {
+        err_msg = "Collission detected";
+        break;
+    }
+    case MFRC522::StatusCode::STATUS_CRC_WRONG:
+
+    {
+        err_msg = "The CRC_A does not match";
+        break;
+    }
+    case MFRC522::StatusCode::STATUS_ERROR:
+    {
+        err_msg = "Error in communication";
+        break;
+    }
+    case MFRC522::StatusCode::STATUS_INTERNAL_ERROR:
+    {
+        err_msg = "Internal error in the code(in RFID-library). Should not happen ;-)";
+        break;
+    }
+    case MFRC522::StatusCode::STATUS_INVALID:
+    {
+        err_msg = "Invalid argument.";
+        break;
+    }
+    case MFRC522::StatusCode::STATUS_MIFARE_NACK:
+    {
+        err_msg = "A MIFARE PICC responded with NAK.";
+        break;
+    }
+    case MFRC522::StatusCode::STATUS_NO_ROOM:
+    {
+        err_msg = "A buffer is not big enough.";
+        break;
+    }
+    case MFRC522::StatusCode::STATUS_OK:
+    {
+        err_msg = "Success";
+        break;
+    }
+    case MFRC522::StatusCode::STATUS_TIMEOUT:
+    {
+        err_msg = "Timeout in communication.";
+        break;
+    }
+    default:
+    {
+        err_msg = "Unknown ERROR";
+        break;
+    }
+    }
+    return err_msg;
 }
