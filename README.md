@@ -30,4 +30,10 @@
     - TX:  19(RX1)
     - VC:  5V
     - GND: GND
+- RTC-Module(DS1302):
+    - VCC:  5V
+    - GND:  GND
+    - CLK:  6
+    - DATA: 5
+    - RST:  7
 - Display:
