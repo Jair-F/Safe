@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
+#include "GlobalVariables.hpp"
 #include "GlobalConstants.hpp"
 #include "Fingerprint.hpp"
 #include "RFID/RFID.hpp"
@@ -11,7 +12,7 @@
 #include "Pin.hpp"
 #include "system_clock.hpp"
 #include "Helper.hpp"
-//#include "logging/Log.hpp"
+#include "logging/Log.hpp"
 
 namespace Fase
 {
@@ -77,6 +78,7 @@ namespace Fase
         Fingerprint::Fingerprint fingerprint;
         RFID::RFID rfid;
         Pin::Pin pin;
+        // Log::Log log;
     };
 }
 
@@ -85,7 +87,7 @@ namespace Fase
 Fase::Fase::Fase() : /*mySerial(SERIAL_RECEIVE_PIN, SERIAL_TRANSMIT_PIN),*/ lock(this->lock_timer),
                      fingerprint(&mySerial, this->lock.create_unlock_token()),
                      rfid(MFRC522_SS_PIN, MFRC522_RST_PIN, lock.create_unlock_token()),
-                     pin(lock.create_unlock_token())
+                     pin(lock.create_unlock_token()) //, log(Log::log_level::L_WARNING)
 {
     mode = Mode::NORMAL;
 }
@@ -100,9 +102,9 @@ void Fase::Fase::begin()
     {
         if (this->rfid.id_used(i)) // id is used
         {
-            String msg = "Tag ";
+            String msg(F("Tag "));
             msg += i;
-            msg += " is used: ";
+            msg += F(" is used: ");
             msg += rfid.get_tag_uid(i).to_string();
             DEBUG_PRINT(msg)
         }
@@ -163,8 +165,9 @@ void Fase::Fase::loop()
                 err_code = this->fingerprint.deleteModel(this->fingerprint.fingerID);
                 if (err_code != FINGERPRINT_OK)
                 {
-                    Serial.print(F("ERROR: "));
-                    Serial.println(Fingerprint::error_code_message(err_code));
+                    String err_msg = F("FINGEPRINT: ");
+                    err_msg += Fingerprint::error_code_message(err_code);
+                    logger.log(err_msg, Log::log_level::L_WARNING);
                 }
                 else
                 {
@@ -187,8 +190,9 @@ void Fase::Fase::loop()
             uint8_t err_code = this->fingerprint.deleteModel(id);
             if (err_code != FINGERPRINT_OK)
             {
-                Serial.print(F("ERROR: "));
-                Serial.println(Fingerprint::error_code_message(err_code));
+                String err_msg = F("FINGEPRINT: ");
+                err_msg += Fingerprint::error_code_message(err_code);
+                logger.log(err_msg, Log::log_level::L_WARNING);
             }
         }
         break;
@@ -204,8 +208,9 @@ void Fase::Fase::loop()
         }
         else
         {
-            Serial.print(F("ERROR: "));
-            Serial.println(Fingerprint::error_code_message(err_code));
+            String err_msg = F("FINGEPRINT: ");
+            err_msg += Fingerprint::error_code_message(err_code);
+            logger.log(err_msg, Log::log_level::L_WARNING);
         }
         this->mode = Mode::NORMAL;
         break;
@@ -298,7 +303,7 @@ void Fase::Fase::loop()
             if (read == F("help"))
             {
                 Serial.print(F("Commands: "));
-                Serial.println(F("$add_finger, $normal, $rfid_remove_tag, $rfid_add_tag, $rfid_empty_database, $finger_empty_database, $remove_finger, $reset_config, $reset_time"));
+                Serial.println(F("$add_finger, $normal, $rfid_remove_tag, $rfid_add_tag, $rfid_empty_database, $finger_empty_database, $remove_finger, $reset_config, $reset_time, $print_logger"));
                 Serial.println();
             }
             else if (read == F("remove_finger"))
@@ -348,6 +353,10 @@ void Fase::Fase::loop()
                 msg += __TIME__;
                 Serial.println(msg);
             }
+            else if (read == F("print_logger"))
+            {
+                logger.serial_dump();
+            }
             else
             {
                 Serial.print(F("Unknown command "));
@@ -396,8 +405,10 @@ void Fase::Fase::add_fingerprint(unsigned short id)
     err_code = this->fingerprint.image2Tz(1);
     if (err_code != FINGERPRINT_OK)
     {
-        Serial.print(F("ERROR at converting image to template model: "));
-        Serial.println(Fingerprint::error_code_message(err_code));
+        String err_msg = F("FINGEPRINT: error at converting image to template model - ");
+        err_msg += Fingerprint::error_code_message(err_code);
+        logger.log(err_msg, Log::log_level::L_WARNING);
+
         // delay(200);
         //  exit the add-finger mode
     }
@@ -414,8 +425,9 @@ void Fase::Fase::add_fingerprint(unsigned short id)
     err_code = this->fingerprint.image2Tz(2);
     if (err_code != FINGERPRINT_OK)
     {
-        Serial.print(F("ERROR at converting image to template model: "));
-        Serial.println(Fingerprint::error_code_message(err_code));
+        String err_msg = F("FINGEPRINT: error at converting image to template model - ");
+        err_msg += Fingerprint::error_code_message(err_code);
+        logger.log(err_msg, Log::log_level::L_WARNING);
         delay(200);
         // exit the add-finger mode
     }
@@ -423,16 +435,18 @@ void Fase::Fase::add_fingerprint(unsigned short id)
     err_code = this->fingerprint.createModel();
     if (err_code != FINGERPRINT_OK)
     {
-        Serial.print(F("ERROR at creating the fingerprint model: "));
-        Serial.println(Fingerprint::error_code_message(err_code));
+        String err_msg = F("FINGEPRINT: error at creating the fingerprint model - ");
+        err_msg += Fingerprint::error_code_message(err_code);
+        logger.log(err_msg, Log::log_level::L_WARNING);
         delay(200);
         // exit the add-finger mode
     }
     err_code = this->fingerprint.storeModel(id);
     if (err_code != FINGERPRINT_OK)
     {
-        Serial.print(F("ERROR at storing the fingerprint model: "));
-        Serial.println(Fingerprint::error_code_message(err_code));
+        String err_msg = F("FINGEPRINT: error at storing the fingerprint model - ");
+        err_msg += Fingerprint::error_code_message(err_code);
+        logger.log(err_msg, Log::log_level::L_WARNING);
         delay(200);
         // exit the add-finger mode
     }
@@ -446,10 +460,11 @@ void Fase::Fase::reset_config()
     DeserializationError error = deserializeJson(config, default_config);
     if (error)
     {
-        Serial.print(F("ERROR while reseting the config: Code: "));
-        Serial.print(error.code());
-        Serial.print(F(" Message: "));
-        Serial.println(error.c_str());
+        String err_msg = F("CONFIG: ERROR while reseting the config(deserialization) - ERROR_CODE: ");
+        err_msg += error.code();
+        err_msg += F(" ERROR_MESSAGE: ");
+        err_msg += error.c_str();
+        logger.log(err_msg, Log::log_level::L_ERROR);
     }
     serializeJsonPretty(config, Serial);
 
@@ -458,7 +473,8 @@ void Fase::Fase::reset_config()
     Config::error err = Config::write_config(config_str);
     if (!err == Config::error::NO_ERROR)
     {
-        Serial.println(F("An error occoured while saving the config..."));
+        String err_msg = F("CONFIG: ERROR while saving the config - buffer too long");
+        logger.log(err_msg, Log::log_level::L_ERROR);
     }
 }
 
@@ -492,7 +508,8 @@ void Fase::Fase::save_config()
     Config::error error = Config::write_config(config_str);
     if (!error == Config::error::NO_ERROR)
     {
-        Serial.println(F("An error occoured while saving the config..."));
+        String err_msg = F("CONFIG: ERROR while saving the config - buffer too long");
+        logger.log(err_msg, Log::log_level::L_ERROR);
     }
     // deleting the tags from the config - save memory
     RFID_tags_ref.clear();
@@ -504,10 +521,11 @@ void Fase::Fase::read_config()
     DeserializationError error = deserializeJson(config, config_str);
     if (error)
     {
-        Serial.print(F("ERROR while reading the config: Code: "));
-        Serial.print(error.code());
-        Serial.print(F(" Message: "));
-        Serial.println(error.c_str());
+        String err_msg = F("CONFIG: ERROR while reading the config(deserialization) - ERROR_CODE: ");
+        err_msg += error.code();
+        err_msg += F(" ERROR_MESSAGE: ");
+        err_msg += error.c_str();
+        logger.log(err_msg, Log::log_level::L_ERROR);
     }
 
     config_str = "";

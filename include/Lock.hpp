@@ -188,7 +188,7 @@ Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool 
             uint8_t num_read_bytes = system_clock.GetMemory(buffer, sizeof(RtcDateTime));
             if (num_read_bytes < sizeof(RtcDateTime))
             {
-                DEBUG_PRINT(F("Failed to read locked_until_timepoint from the system_clock"))
+                logger.log(F("LOCK: Failed to read locked_until_timepoint from the system_clock"), Log::log_level::L_WARNING);
             }
             locked_until_time_point = reinterpret_cast<RtcDateTime *>(buffer); // RtcDateTime is exactly 6*sizeof(uint8_t)=48 bits
 
@@ -212,7 +212,7 @@ Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool 
     }
     else
     {
-        DEBUG_PRINT(F("RTC-Module lost power - we dont read locked_until_time_point"))
+        logger.log(F("LOCK: RTC-Module lost power - locked_until_time_point will not be read - replace battary"), Log::log_level::L_WARNING);
         /*
             writing to the clock module that there is no locked_unitl time_point - could be that now the random data
             is true and if we change the battary it could lock the lock to a random time_point
@@ -234,7 +234,7 @@ Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool 
         msg += this->locked_until_time_point->Minute();
         msg += ':';
         msg += this->locked_until_time_point->Second();
-        DEBUG_PRINT(msg)
+        DEBUG_PRINTLN(msg)
     }
 }
 
@@ -264,7 +264,7 @@ void Lock::Lock::report_unauthorized_unlock_try()
             String msg = F("Locking the lock for ");
             msg += locking_period;
             msg += F(" seconds due to to often tried to unlock");
-            DEBUG_PRINT(msg)
+            DEBUG_PRINTLN(msg)
             if (locked_until_time_point == nullptr)
             {
                 locked_until_time_point = new RtcDateTime(0);
@@ -274,7 +274,7 @@ void Lock::Lock::report_unauthorized_unlock_try()
 
             if (!_save_locked_until_time_point())
             {
-                DEBUG_PRINT(F("[ERROR] Failed to write locked_until_time_point to the system_clock"))
+                logger.log(F("LOCK: Failed to write locked_until_time_point to the system_clock"), Log::log_level::L_ERROR);
             }
 
             this->unlocking_allowed = false;
@@ -296,7 +296,7 @@ void Lock::Lock::report_unauthorized_unlock_try()
         msg += this->locked_until_time_point->Minute();
         msg += ':';
         msg += this->locked_until_time_point->Second();
-        DEBUG_PRINT(msg)
+        DEBUG_PRINTLN(msg)
     }
 }
 
@@ -307,7 +307,7 @@ void Lock::Lock::_lock()
         bool success = on_locking(); // calling the "switch_state" function which will lock the physical lock
         if (!success)
         {
-            DEBUG_PRINT(F("Error locking the physical Lock!!"))
+            logger.log(F("LOCK: Error locking the physical Lock"), Log::log_level::L_ERROR);
         }
         this->state = lock_state::LOCKED;
     }
@@ -319,7 +319,7 @@ void Lock::Lock::_unlock()
         bool success = on_unlocking(); // calling the "switch_state" function which will unlock the physical lock
         if (!success)
         {
-            DEBUG_PRINT(F("Error unlocking the physical Lock!!"))
+            logger.log(F("LOCK: Error unlocking the physical Lock"), Log::log_level::L_ERROR);
         }
         this->unlock_time_point = system_clock.GetDateTime();
         this->state = lock_state::UNLOCKED;
@@ -395,7 +395,7 @@ void Lock::Lock::loop()
     {
         if (now > *locked_until_time_point)
         {
-            DEBUG_PRINT(F("unlocking is now allowed"))
+            DEBUG_PRINTLN(F("unlocking is now allowed"))
             this->unlocking_allowed = true;
             _delete_locked_until_time_point();
             delete locked_until_time_point;

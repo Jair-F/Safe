@@ -105,13 +105,13 @@ void RFID::RFID::begin()
     this->rfid.PCD_DumpVersionToSerial(); // printing RFID_Version to serial
     if (this->rfid.PCD_PerformSelfTest())
     {
-        Serial.println(F("passed self test"));
+        logger.log(F("RFID:passed self test"), Log::log_level::L_INFO);
     }
     else
     {
-        Serial.println(F("Self test failed"));
+        logger.log(F("RFID: Self test failed"), Log::log_level::L_WARNING);
     }
-    Serial.println(F("ready..."));
+    logger.log(F("RFID: status ready..."), Log::log_level::L_INFO);
 #endif
 }
 
@@ -255,8 +255,9 @@ RFID::UID RFID::RFID::read_Tag_UID(bool async)
             auto err_code = rfid.PICC_HaltA(); // halt the reader in order to not read the same card again and again
             if (err_code != MFRC522::StatusCode::STATUS_OK)
             {
-                String error_msg = F("RFID-ERROR: error reading tag - halting - error_message: ");
+                String error_msg(F("RFID: error reading tag - halting - error_message: "));
                 error_msg += error_message(err_code);
+                logger.log(error_msg, Log::log_level::L_ERROR);
                 DEBUG_PRINTLN(error_msg);
             }
             return UID(); // return a empty uid

@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <Adafruit_Fingerprint.h>
+#include "GlobalVariables.hpp"
 #include "GlobalConstants.hpp"
 #include "Unlock_Object.hpp"
 #include "Lock.hpp"
@@ -79,11 +80,11 @@ void Fingerprint::Fingerprint::begin()
     Adafruit_Fingerprint::begin(default_baudrate);
     if (this->verifyPassword())
     {
-        Serial.println(F("Found fingerprint"));
+        logger.log(F("FINGERPRINT: found fingerprint"), Log::log_level::L_INFO);
     }
     else
     {
-        Serial.println(F("Didnt found fingerprint"));
+        logger.log(F("FINGERPRINT: didnt found fingerprint-sensor"), Log::log_level::L_ERROR);
         // exit(-1);
     }
 }
@@ -119,7 +120,7 @@ void Fingerprint::Fingerprint::loop()
         err_code = this->image2Tz(finger_template_slot);
         if (err_code) // error_handling - maybe output on display...
         {
-            Serial.println(F("Error"));
+            logger.log(F("FINGERPRINT: error converting fingerprint-image to feature template"), Log::log_level::L_DEBUG);
             return;
         }
 
@@ -182,11 +183,29 @@ uint8_t Fingerprint::Fingerprint::add_finger(uint16_t id)
 
     Serial.println(F("Creating model of finger..."));
     err_code = this->createModel(); // creating model of the two feature templates which are created from the images
-    Serial.println(error_code_message(err_code));
+    if (err_code != FINGERPRINT_OK)
+    {
+        if (err_code == FINGERPRINT_ENROLLMISMATCH)
+        {
+            Serial.println(F("scanned fingerprints dont match"));
+        }
+        String err_msg(F("FINGERPRINT: error creating fingerprint-model. ERROR_CODE: "));
+        err_msg += err_code;
+        logger.log(err_msg, Log::log_level::L_DEBUG);
+    }
 
     Serial.println(F("Storing model in Database..."));
     err_code = this->storeModel(id);
-    Serial.println(error_code_message(err_code));
+    if (err_code != FINGERPRINT_OK)
+    {
+        if (err_code == FINGERPRINT_ENROLLMISMATCH)
+        {
+            Serial.println(F("scanned fingerprints dont match"));
+        }
+        String err_msg(F("FINGERPRINT: error storing fingerprint-model. ERROR_CODE: "));
+        err_msg += err_code;
+        logger.log(err_msg, Log::log_level::L_DEBUG);
+    }
 
     return err_code;
 }
