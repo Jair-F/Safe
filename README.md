@@ -28,7 +28,7 @@
 - Fingerprint:
     - RX:  18(TX1)
     - TX:  19(RX1)
-    - VC:  5V
+    - VC:  A0(Controled power pin for fingerprint)
     - GND: GND
 - RTC-Module(DS1302):
     - VCC:  5V
