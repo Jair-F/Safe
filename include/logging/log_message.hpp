@@ -1,82 +1,85 @@
 #pragma once
 
+#include "system_clock.hpp"
+
 namespace Log
 {
-    enum log_level
+    namespace log_level
     {
-        L_DEBUG = 0,
-        L_INFO,
-        L_WARNING,
-        L_ERROR,
-        L_CRITICAL
-    };
+        /*
+            the most less critical level has the lowest value - 0
+        */
+        constexpr byte L_DEBUG = 0;
+        constexpr byte L_INFO = 1;
+        constexpr byte L_WARNING = 2;
+        constexpr byte L_ERROR = 3;
+        constexpr byte L_CRITICAL = 4;
+    }
 
     class log_message
     {
     private:
-        char *msg;
-        log_level level;
-        bool msg_deep_copy;
+        String msg;
+        byte level;
+        RtcDateTime tm_point; // when the log message was created
 
     public:
-        /*
-            !!! IMPORTANT !!! this saves only the pointer to the beggining from the msg - makes not a deep copy
-            please ensure the pointer to the memory is valid as long as the message exist! - for memory-saving
-            on the arduino-board
-        */
-        log_message(const char *_msg, log_level _LogLevel);
-        /*
-            makes a deep-copy of the _msg string.
-        */
-        log_message(const String &_msg, log_level get_LogLevel);
-        log_message(log_message &lm);
+        log_message() : msg(), level(log_level::L_DEBUG) {}
+
+        log_message(const char *_msg, byte _LogLevel);
+        log_message(const String &_msg, byte _LogLevel);
+
+        log_message(const log_message &lm);
         log_message &operator=(const log_message &);
         ~log_message();
 
-        const char *message() const;
-        log_level Level() const;
-        /*
-            @return true if the message is a deep copy
-        */
-        bool _msg_is_deep_copy() const;
+        bool operator==(const log_message &_msg) const;
+        bool operator>(const log_message &_msg) const;
+
+        const String &message() const;
+        byte Level() const;
+        const RtcDateTime &time_point() const;
     };
 
 } // namespace Log
 
-Log::log_message::log_message(const char *_msg, log_level _LogLevel) : msg(const_cast<char *>(_msg)), level(_LogLevel), msg_deep_copy(false) {}
+Log::log_message::log_message(const char *_msg, byte _LogLevel) : msg(_msg), level(_LogLevel), tm_point(system_clock.GetDateTime()) {}
 
-Log::log_message::log_message(const String &_msg, log_level _LogLevel) : level(_LogLevel)
-{
-    msg = new char[_msg.length() + 1];
-    strcpy(msg, _msg.c_str());
-}
+Log::log_message::log_message(const String &_msg, byte _LogLevel) : msg(_msg), level(_LogLevel), tm_point(system_clock.GetDateTime()) {}
 Log::log_message &Log::log_message::operator=(const log_message &_lm)
 {
-    this->msg = const_cast<char *>(_lm.message());
+    this->msg = _lm.message();
     this->level = _lm.Level();
-    this->msg_deep_copy = _lm._msg_is_deep_copy();
+    this->tm_point = system_clock.GetDateTime();
     return *this;
 }
-Log::log_message::~log_message()
-{
-    if (msg_deep_copy)
-    {
-        delete[] msg;
-    }
-    msg = nullptr;
-}
+Log::log_message::~log_message() {}
 
-const char *Log::log_message::message() const
+const String &Log::log_message::message() const
 {
     return this->msg;
 }
 
-Log::log_level Log::log_message::Level() const
+byte Log::log_message::Level() const
 {
     return this->level;
 }
 
-bool Log::log_message::_msg_is_deep_copy() const
+bool Log::log_message::operator==(const log_message &_l_msg) const
 {
-    return this->msg_deep_copy;
+    return (this->msg.length() == _l_msg.message().length()) && (this->level == _l_msg.Level());
+}
+Log::log_message::log_message(const log_message &_msg)
+{
+    this->msg = _msg.message();
+    this->level = _msg.Level();
+}
+bool Log::log_message::operator>(const log_message &_l_msg) const
+{
+    return this->level > _l_msg.Level();
+}
+
+const RtcDateTime &Log::log_message::time_point() const
+{
+    return this->tm_point;
 }
