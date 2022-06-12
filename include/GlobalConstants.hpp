@@ -1,8 +1,4 @@
 #pragma once
-#include <Arduino.h>
-
-// Allow Debug-Outputs on the Debug-Output
-#define DEBUG
 
 // Hardware_Pinouts
 
@@ -23,7 +19,6 @@
 #define PIN_C1 8
 #define PIN_C2 9
 #define PIN_C3 10
-#define PIN_C4 11
 
 // RTC-Clock-Pins
 #define RTC_DATA 5 // DATA/IO
