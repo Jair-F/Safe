@@ -32,9 +32,9 @@ protected:
 #define RELEASED_BORDER_COLOR 0xffff
 #define RELEASED_TEXT_COLOR 0xffff
 
-#define PRESSED_BACKGROUND_COLOR 0x630c
+#define PRESSED_BACKGROUND_COLOR 0xffff
 #define PRESSED_BORDER_COLOR 0xffff
-#define PRESSED_TEXT_COLOR 0xffff
+#define PRESSED_TEXT_COLOR 0x0000
 
     void _draw_released_widget() override
     {
