@@ -3,4 +3,6 @@
 #include <Arduino.h>
 #include "logging/Log.hpp"
 
-Log::Log logger(Log::log_level::L_INFO);
+const byte LOGGING_LEVEL = Log::log_level::L_INFO;
+
+Log::Log logger(LOGGING_LEVEL);
