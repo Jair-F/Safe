@@ -71,27 +71,27 @@ void Log::Log::serial_dump()
         {
         case ::Log::log_level::L_DEBUG:
         {
-            tmp += "DEBUG: ";
+            tmp += F("DEBUG: ");
             break;
         }
         case ::Log::log_level::L_CRITICAL:
         {
-            tmp += "CRITICAL: ";
+            tmp += F("CRITICAL: ");
             break;
         }
         case ::Log::log_level::L_ERROR:
         {
-            tmp += "ERROR: ";
+            tmp += F("ERROR: ");
             break;
         }
         case ::Log::log_level::L_INFO:
         {
-            tmp += "INFO: ";
+            tmp += F("INFO: ");
             break;
         }
         case ::Log::log_level::L_WARNING:
         {
-            tmp += "WARNING: ";
+            tmp += F("WARNING: ");
             break;
         }
 
