@@ -1,8 +1,9 @@
 #pragma once
+#include "GlobalVariables.hpp"
 #include "GlobalConstants.hpp"
 
 // Outputs the given Data on the Debug-Output if DEBUG is defined
-#if defined DEBUG
+
 #define DEBUG_PRINT(X)      \
     if (!Serial)            \
     {                       \
@@ -10,10 +11,15 @@
         Serial.println();   \
         delay(1000);        \
     }                       \
+    Serial.print((X));
+#define DEBUG_PRINTLN(X)    \
+    if (!Serial)            \
+    {                       \
+        Serial.begin(9600); \
+        Serial.println();   \
+        delay(1000);        \
+    }                       \
     Serial.println((X));
-#else
-#define DEBUG_PRINT(X)
-#endif
 
 unsigned int power(unsigned short num, unsigned short exp)
 {

@@ -18,7 +18,7 @@
 ## Wiring for Arduino Mega with this Code
 <!-- Wiring not working for Arduino Mega: https://arduino.stackexchange.com/questions/60525/did-not-find-fingerprint-sensor-arduino-mega-2560-adafruit-fingerprint-sensor -->
 - RFID:
-    - SDA:  53
+    - SDA:  53 (SS - Slave-Select - needs only LOW and HIGH)
     - SCK:  52
     - MOSI: 51
     - MISO: 50
@@ -33,7 +33,7 @@
 - RTC-Module(DS1302):
     - VCC:  5V
     - GND:  GND
-    - CLK:  6
-    - DATA: 5
-    - RST:  7
+    - CLK:  A1
+    - DATA: A2
+    - RST:  A3
 - Display:

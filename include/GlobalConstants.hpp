@@ -21,6 +21,6 @@
 #define PIN_C3 10
 
 // RTC-Clock-Pins
-#define RTC_DATA 5 // DATA/IO
-#define RTC_CLK 6  // CLK/SCLK
-#define RTC_RST 7  // RST/CE
+#define RTC_DATA A2 // DATA/IO
+#define RTC_CLK A1  // CLK/SCLK
+#define RTC_RST A3  // RST/CE
