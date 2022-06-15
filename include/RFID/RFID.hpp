@@ -99,9 +99,8 @@ RFID::RFID::RFID(byte chipSelectPin, byte resetPowerDownPin,
 
 void RFID::RFID::begin()
 {
-    SPI.begin();           // Arduino interface which is necessarily for RFID(SPI is a global variable from Arduino)
-    this->rfid.PCD_Init(); // starting and initialising rfid
-#if defined(SERIAL_OUTPUT)
+    SPI.begin();                          // Arduino interface which is necessarily for RFID(SPI is a global variable from Arduino)
+    this->rfid.PCD_Init();                // starting and initialising rfid
     this->rfid.PCD_DumpVersionToSerial(); // printing RFID_Version to serial
     if (this->rfid.PCD_PerformSelfTest())
     {
@@ -112,7 +111,6 @@ void RFID::RFID::begin()
         logger.log(F("RFID: Self test failed"), Log::log_level::L_WARNING);
     }
     logger.log(F("RFID: status ready..."), Log::log_level::L_INFO);
-#endif
 }
 
 void RFID::RFID::loop()

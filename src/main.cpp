@@ -23,9 +23,7 @@
 #include "app_api.h" // only needed with flash breakpoints
 #endif               // SERIAL_DEBUG
 
-#include "UI/MainWindow.hpp"
-#include "UI/Widget.hpp"
-#include "UI/Button.hpp"
+#include "UI/UI.hpp"
 
 /*
     Touch-Display:  https://www.youtube.com/watch?v=9Ms59ofSJIY
@@ -43,10 +41,10 @@ URTouch myTouch(6, 5, 4, 3, 2);
 
 #define TOUCH_ORIENTATION PORTRAIT
 
-position upper_left{20, 40};
-position lower_right{130, 70};
+UI::position upper_left{20, 40};
+UI::position lower_right{130, 70};
 
-Button _button(upper_left, lower_right, myGLCD, myTouch);
+UI::Button _button(upper_left, lower_right, myGLCD, myTouch);
 
 // -------------
 
@@ -64,10 +62,10 @@ void setup()
     myTouch.InitTouch(TOUCH_ORIENTATION);
     myTouch.setPrecision(PREC_MEDIUM);
     _button.setText("Click mich");
-    //_button.on_click = []()
-    //{ Serial.println("Clicked button"); };
-    //_button.on_release = []()
-    //{ Serial.println("Released button"); };
+    _button.on_click = []()
+    { Serial.println("Clicked button"); };
+    _button.on_release = []()
+    { Serial.println("Released button"); };
 
     EEPROM.begin();
     if (system_clock.lost_power())

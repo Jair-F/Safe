@@ -178,7 +178,7 @@ bool RFID::UID::_check_adjust_format(String &_uid) const
                 return false;
             }
         }
-        else // i%2 & "i%1"
+        else // in case: i%2 & "i%1"
         {
             if (!isHexadecimalDigit(_uid[i - 1]))
             {
