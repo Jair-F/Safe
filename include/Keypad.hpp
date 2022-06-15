@@ -34,11 +34,9 @@ namespace Keypad
         Keypad(char **userKeymap, byte *rows, byte *columns, int numRows, int numColumns);
         ~Keypad() {}
 
-        /*
-            read a key without adding it to the buffer
-            @return if no key was pressed '\0' else the key_value
-        */
-        char get();
+        void (*on_input)(char _input_data) = {};
+
+        void loop();
 
         void begin();
 
@@ -63,6 +61,21 @@ void Keypad::Keypad::begin()
     this->keypad.begin();
 }
 
+void Keypad::Keypad::loop()
+{
+    this->keypad.tick(); // read for input
+
+    if (this->keypad.available() >= 1) // some input in the buffer
+    {
+        keypadEvent key_event = this->keypad.read();
+        if (key_event.bit.EVENT == 1) // a key was pressed - not released...
+        {
+            this->on_input(static_cast<char>(key_event.bit.KEY));
+        }
+    }
+}
+
+/*
 char Keypad::Keypad::get()
 {
     this->keypad.tick();
@@ -78,3 +91,4 @@ char Keypad::Keypad::get()
     }
     return '\0';
 }
+*/
