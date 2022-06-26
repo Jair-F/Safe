@@ -48,11 +48,17 @@ Log::Log::Log(byte _logging_level) : _log_list(), logging_level(_logging_level)
 
 void Log::Log::log(const String msg, byte _log_level)
 {
-    this->_log_list.push_back(log_message(msg, _log_level));
+    if (_log_level >= this->logging_level)
+    {
+        this->_log_list.push_back(log_message(msg, _log_level));
+    }
 }
 void Log::Log::log(const char *msg, byte _log_level)
 {
-    this->_log_list.push_back(log_message(msg, _log_level));
+    if (_log_level >= this->logging_level)
+    {
+        this->_log_list.push_back(log_message(msg, _log_level));
+    }
 }
 
 void Log::Log::serial_dump()
