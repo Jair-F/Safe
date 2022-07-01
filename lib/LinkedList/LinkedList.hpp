@@ -255,6 +255,7 @@ T SinglyLinkedList<T>::pop_back()
         --this->_size;
         return data_backup;
     }
+    return;
 }
 
 template <typename T>
