@@ -18,12 +18,15 @@
 #include "system_clock.hpp"
 #include "logging/Log.hpp"
 
-#ifdef SERIAL_DEBUG
+//#define DEBUG
+
+#ifdef DEBUG
 #include "avr8-stub.h"
 #include "app_api.h" // only needed with flash breakpoints
 #endif               // SERIAL_DEBUG
 
 #include "UI/UI.hpp"
+#include <MemoryFree.h>
 
 /*
     Touch-Display:  https://www.youtube.com/watch?v=9Ms59ofSJIY
@@ -41,33 +44,31 @@ URTouch myTouch(6, 5, 4, 3, 2);
 
 #define TOUCH_ORIENTATION PORTRAIT
 
-UI::position upper_left{20, 40};
-UI::position lower_right{130, 70};
+#include "UI/lock_screen.hpp"
 
-UI::Button _button(upper_left, lower_right, myGLCD, myTouch);
+UI::MainWindow m_window(&myGLCD, &myTouch);
 
 // -------------
 
 Fase::Fase fase;
 
-// Keypad::Keypad k_pad;
+Keypad::Keypad k_pad;
 
 void setup()
 {
+#ifdef DEBUG
+    debug_init();
+#endif // DEBUG
     Serial.begin(9600);
+
+    EEPROM.begin();
 
     myGLCD.InitLCD();
     myGLCD.setFont(SmallFont);
     myGLCD.clrScr();
     myTouch.InitTouch(TOUCH_ORIENTATION);
     myTouch.setPrecision(PREC_MEDIUM);
-    _button.setText("Click mich");
-    _button.on_click = []()
-    { Serial.println("Clicked button"); };
-    _button.on_release = []()
-    { Serial.println("Released button"); };
 
-    EEPROM.begin();
     if (system_clock.lost_power())
     {
         DEBUG_PRINTLN(F("RTC-Module lost power - change battery..."))
@@ -108,12 +109,28 @@ void setup()
 
     // k_pad.begin();
 
-    logger.serial_dump();
+    // logger.serial_dump();
+    delay(500);
+
+    lock_screen l_screen(&m_window, {0, 0}, myGLCD.getDisplayXSize(), myGLCD.getDisplayYSize());
+
+    // Serial.println(l_screen.pos().x_pos);
+    // Serial.println(l_screen.pos().y_pos);
+
+    m_window.set_active_window(&l_screen);
+    // Serial.println("active window is set");
+
+    // Serial.println("Free memory: ");
+    // Serial.println(freeMemory());
+
+    while (true)
+    {
+        m_window.loop();
+    }
 }
 
 void loop()
 {
-    _button.loop();
     /*
     char key = k_pad.get();
     if (key != '\0')
@@ -122,5 +139,5 @@ void loop()
     }
     */
 
-    fase.loop();
+    // fase.loop();
 }
