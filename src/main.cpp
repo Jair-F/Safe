@@ -46,7 +46,9 @@ URTouch myTouch(6, 5, 4, 3, 2);
 
 #include "UI/lock_screen.hpp"
 
-UI::MainWindow m_window(&myGLCD, &myTouch);
+UI::MainWindow m_window(&myGLCD, &myTouch, {20, 20}, {myGLCD.getDisplayXSize(), myGLCD.getDisplayYSize()});
+
+lock_screen l_screen(&m_window);
 
 // -------------
 
@@ -110,23 +112,15 @@ void setup()
     // k_pad.begin();
 
     // logger.serial_dump();
-    delay(500);
-
-    lock_screen l_screen(&m_window, {0, 0}, myGLCD.getDisplayXSize(), myGLCD.getDisplayYSize());
+    m_window.set_active_window(&l_screen);
 
     // Serial.println(l_screen.pos().x_pos);
     // Serial.println(l_screen.pos().y_pos);
 
-    m_window.set_active_window(&l_screen);
     // Serial.println("active window is set");
 
     // Serial.println("Free memory: ");
     // Serial.println(freeMemory());
-
-    while (true)
-    {
-        m_window.loop();
-    }
 }
 
 void loop()
@@ -138,6 +132,7 @@ void loop()
         Serial.println(key);
     }
     */
+    m_window.loop();
 
     // fase.loop();
 }

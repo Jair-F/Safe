@@ -1,5 +1,5 @@
 #pragma once
 
-#include "Window.hpp"
-#include "Widget.hpp"
-#include "Button.hpp"
+#include "lib/Window.hpp"
+#include "lib/Widget.hpp"
+#include "lib/Button.hpp"

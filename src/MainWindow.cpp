@@ -1,4 +1,4 @@
-#include "UI/MainWindow.hpp"
+#include "UI/UI.hpp"
 
 #ifdef DEBUG
 #include <avr8-stub.h>
@@ -37,7 +37,7 @@ void UI::MainWindow::set_active_window(Window *_win)
     {
         // Serial.println("win is not nullptr");
     }
-    // assert(_win != nullptr);
+    assert(_win != nullptr);
 
     // clear space of previous window
     if (this->active_window != nullptr)
@@ -99,9 +99,6 @@ void UI::MainWindow::loop()
                 // delay(100); // bisschen warten, damit die Werte nicht so extrem schwanken...
             }
 
-            // if ()
-            //     clicked_widget->_reset_click();
-
             //  touch was released at this point...
             this->active_window->handle_touch_released(touch_data);
         }
@@ -121,4 +118,14 @@ bool UI::MainWindow::_check_in_display(const position &_pos)
 {
     return _pos.x_pos <= this->display->getDisplayXSize() ||
            _pos.y_pos <= this->display->getDisplayYSize();
+}
+
+const UI::position &UI::MainWindow::_get_window_upper_left() const
+{
+    return this->_window_upper_left;
+}
+
+const UI::position &UI::MainWindow::_get_window_lower_right() const
+{
+    return this->_window_lower_right;
 }

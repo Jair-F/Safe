@@ -16,7 +16,12 @@ namespace UI
     class MainWindow
     {
     public:
-        MainWindow(UTFT *_display, URTouch *_touch) : focused_widget(nullptr), active_window(nullptr), display(_display), touch(_touch) {}
+        /*
+            @param window_upper_left size - the upper left position of the "normal windows" which are shown on the main_window
+            @param window_lower_right size - the lower right position of the "normal windows" which are shown on the main_window
+        */
+        MainWindow(UTFT *_display, URTouch *_touch, position window_upper_left, position window_lower_right) : focused_widget(nullptr),
+                                                                                                               active_window(nullptr), display(_display), touch(_touch) {}
         virtual ~MainWindow() {}
 
         // String get_input() { return this->keypad.get_buffer(); }
@@ -39,8 +44,22 @@ namespace UI
 
         void loop();
 
+        /*
+            for the windows to get their size from the main_window
+        */
+        const position &_get_window_upper_left() const;
+
+        /*
+            for the windows to get their size from the main_window
+        */
+        const position &_get_window_lower_right() const;
+
+        inline UTFT *_get_display() const { return this->display; }
+        inline URTouch *_get_touch() const { return this->touch; }
+
     protected:
-        void _handle_keypad_input(char _input_data);
+        void
+        _handle_keypad_input(char _input_data);
 
         /*
             check if the given position is in the display-size
@@ -61,5 +80,10 @@ namespace UI
 
         UTFT *display;
         URTouch *touch;
+
+        /*
+            size of the "normal windows" which are shown on the main_window - the windows grab the size in their window-constructor
+        */
+        position _window_lower_right, _window_upper_left;
     };
 } // namespace UI

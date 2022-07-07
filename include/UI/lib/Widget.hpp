@@ -3,7 +3,7 @@
 #include <URTouch.h>
 #include <UTFT.h>
 #include "position.hpp"
-#include "UI/Window.hpp"
+#include "Window.hpp"
 
 namespace UI
 {
@@ -19,16 +19,23 @@ namespace UI
     class Widget
     {
     private:
-        bool focused; // if the object has the focus - the last element that was clicked
         bool hidden;
         Window *_parent_window;
 
     protected:
-        URTouch &touch;
-        UTFT &display;
+        // getting the display pointers from the parent window in the constructor
+        URTouch *touch;
+        UTFT *display;
 
+        /*
+            for touch_widgets we need released and pressed widget... on normal widget - which can not be touched
+            this function and teh pressed widget are doing the same
+        */
         virtual void _draw_released_widget() = 0;
-
+        /*
+            for touch_widgets we need released and pressed widget... on normal widget - which can not be touched
+            this function and teh released widget are doing the same
+        */
         virtual void _draw_pressed_widget() = 0;
 
         /*
@@ -41,14 +48,10 @@ namespace UI
     public:
         virtual ~Widget() {}
 
-        // if the widget is touched
-        void (*on_click)() = []() {};
-        void (*on_release)() = []() {};
-
         /*
             @param _uppser_left_pos upper left corner in relation to the parent window zero point
         */
-        Widget(Window *_parent, const position _upper_left_pos, const position _lower_right_pos, UTFT &_display, URTouch &_touch);
+        Widget(Window *_parent, const position _upper_left_pos, const position _lower_right_pos);
         // Widget(position &_upper_left_pos, unsigned int _width, unsigned int _height, UTFT &_display, URTouch &_touch);
 
         uint16_t width() { return _lower_right_pos.x_pos - _upper_left_pos.x_pos; }
@@ -56,10 +59,9 @@ namespace UI
 
         /*
             if the element has focus it gets the input of the keypad - the last element that was touched
+            just defined to be able to call the derived class function touched_widget with the base class pointer
         */
-        bool is_focused() { return this->focused; }
-
-        void remove_focus();
+        bool is_focused() {}
 
         bool is_hidden() { return this->hidden; }
 
@@ -78,18 +80,27 @@ namespace UI
 
         /*
             for sending click-signal
+            if the widget is hidden this function will not make anything
+
+            -- defined just to create the ability to call the derived function in touch_widget with the base class pointer
         */
-        void _click();
+        virtual void _click() {}
 
         /*
             for sending release-signal
+            if the widget is hidden this function will not make anything
+
+            -- defined just to create the ability to call the derived function in touch_widget with the base class pointer
         */
-        void _release();
+        virtual void _release() {}
 
         /*
             if the widget was clicked but not released on the pos
+            if the widget is hidden this function will not make anything
+
+            -- defined just to create the ability to call the derived function in touch_widget with the base class pointer
         */
-        void _reset_click();
+        virtual void _reset_click() {}
 
         /*
             check if _pos is in the widget.
@@ -97,6 +108,6 @@ namespace UI
         */
         bool _check_pos(const position &_pos);
 
-        void loop();
+        Window *_get_parent_window() const { return this->_parent_window; }
     };
 }

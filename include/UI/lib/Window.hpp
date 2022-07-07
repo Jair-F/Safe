@@ -20,12 +20,10 @@ namespace UI
     class Window
     {
     public:
-        Window(MainWindow *_main_window, position upper_left, uint16_t width, uint16_t height) : _main_window(_main_window), _upper_left(upper_left), _lower_right{width, height}, last_focused_widget(nullptr) {}
-        Window(MainWindow *_main_window, position upper_left, position lower_right) : _main_window(_main_window), _upper_left(upper_left), _lower_right(lower_right), last_focused_widget(nullptr) {}
+        Window(MainWindow *main_window);
         virtual ~Window() {}
         virtual void show() = 0;
         virtual void hide() = 0;
-        virtual void loop() = 0;
 
         /*
             @param _widget request focus for _widget to get keyboard_input
@@ -58,15 +56,25 @@ namespace UI
         */
         void _register_widget(Widget *_widget);
 
+        UTFT *_get_display() const;
+        URTouch *_get_touch() const;
+
+        /*
+            function which inherited classes need to overwrite.
+            It is to update the window for example with sensor values - actions which are not controlled/depend
+            on touch actions.
+            This function will be called from the main_window-loop - so be shure to call the main_window loop in a loop!
+        */
+        virtual void loop() {}
+
     private:
         MainWindow *_main_window; // the display itself
+        Widget *last_focused_widget;
+        SinglyLinkedList<Widget *> registered_widgets;
 
         // window size - rectangle
         position _upper_left;
         position _lower_right;
-        Widget *last_focused_widget;
-
-        SinglyLinkedList<Widget *> registered_widgets;
     };
 
 } // namespace UI

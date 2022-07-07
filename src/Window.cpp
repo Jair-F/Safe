@@ -1,5 +1,12 @@
-#include "UI/Window.hpp"
-#include "UI/Widget.hpp"
+#include "UI/UI.hpp"
+#include <URTouch.h>
+#include <UTFT.h>
+
+UI::Window::Window(UI::MainWindow *main_window) : _main_window(main_window), last_focused_widget(nullptr), registered_widgets()
+{
+    this->_upper_left = _main_window->_get_window_upper_left();
+    this->_lower_right = _main_window->_get_window_lower_right();
+}
 
 bool UI::Window::request_focus(UI::Widget *_widget)
 {
@@ -81,4 +88,14 @@ void UI::Window::handle_touch_released(const position &_touch_data)
         if (this->last_focused_widget != nullptr)
             this->last_focused_widget->_reset_click();
     }
+}
+
+UTFT *UI::Window::_get_display() const
+{
+    return this->_main_window->_get_display();
+}
+
+URTouch *UI::Window::_get_touch() const
+{
+    return this->_main_window->_get_touch();
 }
