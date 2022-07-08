@@ -30,7 +30,7 @@ public:
     friend void func();
 
 protected:
-    void button_print_clicked()
+    void button_print_clicked(UI::Touch_Widget<lock_screen> *_widget)
     {
 #ifdef DEBUG
         debug_message("Clicked button");
@@ -39,7 +39,7 @@ protected:
 #endif
     }
 
-    void button_print_released()
+    void button_print_released(UI::Touch_Widget<lock_screen> *_widget)
     {
         // UI::Button *but_ptr = static_cast<UI::Button *>(widget);
         // but_ptr->

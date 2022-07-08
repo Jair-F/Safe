@@ -43,6 +43,12 @@ namespace UI
         */
         virtual void _clear_widget_space() = 0;
 
+        /*
+            draws the widget on the screen - according to his actual status it calls _draw_released_widget or
+            _draw_pressed_widget
+        */
+        virtual void _draw_widget() = 0;
+
         position _upper_left_pos, _lower_right_pos;
 
     public:
@@ -52,7 +58,7 @@ namespace UI
             @param _uppser_left_pos upper left corner in relation to the parent window zero point
         */
         Widget(Window *_parent, const position _upper_left_pos, const position _lower_right_pos);
-        // Widget(position &_upper_left_pos, unsigned int _width, unsigned int _height, UTFT &_display, URTouch &_touch);
+        Widget(Window *_parent, const position &_upper_left_pos, unsigned int _width, unsigned int _height);
 
         uint16_t width() { return _lower_right_pos.x_pos - _upper_left_pos.x_pos; }
         uint16_t height() { return _lower_right_pos.y_pos - _upper_left_pos.y_pos; }
@@ -61,7 +67,7 @@ namespace UI
             if the element has focus it gets the input of the keypad - the last element that was touched
             just defined to be able to call the derived class function touched_widget with the base class pointer
         */
-        bool is_focused() {}
+        virtual bool is_focused() = 0;
 
         bool is_hidden() { return this->hidden; }
 
@@ -84,7 +90,7 @@ namespace UI
 
             -- defined just to create the ability to call the derived function in touch_widget with the base class pointer
         */
-        virtual void _click() {}
+        virtual void _click() = 0;
 
         /*
             for sending release-signal
@@ -92,7 +98,7 @@ namespace UI
 
             -- defined just to create the ability to call the derived function in touch_widget with the base class pointer
         */
-        virtual void _release() {}
+        virtual void _release() = 0;
 
         /*
             if the widget was clicked but not released on the pos
@@ -100,7 +106,7 @@ namespace UI
 
             -- defined just to create the ability to call the derived function in touch_widget with the base class pointer
         */
-        virtual void _reset_click() {}
+        virtual void _reset_click() = 0;
 
         /*
             check if _pos is in the widget.
