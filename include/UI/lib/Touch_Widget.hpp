@@ -57,7 +57,10 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_click()
         this->_draw_pressed_widget();
         // this->_parent_window->request_focus(this);
         // this->on_click(this);
-        (this->call_object->*this->on_click)();
+        if (this->on_click != nullptr)
+        {
+            (this->call_object->*this->on_click)();
+        }
     }
 }
 
@@ -68,7 +71,10 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_release()
     {
         this->_draw_released_widget();
         // this->on_release(this);
-        (this->call_object->*this->on_release)();
+        if (this->on_release != nullptr)
+        {
+            (this->call_object->*this->on_release)();
+        }
     }
 }
 

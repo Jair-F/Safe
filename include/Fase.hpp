@@ -9,7 +9,6 @@
 #include "RFID/RFID.hpp"
 #include "Config.hpp"
 #include "Lock.hpp"
-#include "Pin.hpp"
 #include "system_clock.hpp"
 #include "Helper.hpp"
 #include "logging/Log.hpp"
@@ -69,7 +68,7 @@ namespace Fase
 
 // !!!!!! Myserial is for Fingerprint-Sensor !!!!!!
 // SoftwareSerial mySerial;
-#define mySerial Serial1
+#define _finger_print_serial Serial1
 
         Mode mode;
         Lock::Lock lock;
@@ -77,7 +76,6 @@ namespace Fase
 
         Fingerprint::Fingerprint fingerprint;
         RFID::RFID rfid;
-        Pin::Pin pin;
         // Log::Log log;
     };
 }
@@ -85,9 +83,8 @@ namespace Fase
 // ---------------- Implementations ----------------
 
 Fase::Fase::Fase() : /*mySerial(SERIAL_RECEIVE_PIN, SERIAL_TRANSMIT_PIN),*/ lock(this->lock_timer),
-                     fingerprint(&mySerial, this->lock.create_unlock_token()),
-                     rfid(MFRC522_SS_PIN, MFRC522_RST_PIN, lock.create_unlock_token()),
-                     pin(lock.create_unlock_token()) //, log(Log::log_level::L_WARNING)
+                     fingerprint(&_finger_print_serial, this->lock.create_unlock_token()),
+                     rfid(MFRC522_SS_PIN, MFRC522_RST_PIN, lock.create_unlock_token()) //, log(Log::log_level::L_WARNING)
 {
     mode = Mode::NORMAL;
 }
@@ -119,7 +116,7 @@ void Fase::Fase::loop()
     case Mode::NORMAL:
     {
         fingerprint.loop();
-        rfid.loop();
+        // rfid.loop();
 
         // pin.loop();
         lock.loop();
@@ -536,11 +533,11 @@ void Fase::Fase::read_config()
     // initializing pin-keyboard
     if (config[F("Keyboard")][F("enabled")])
     {
-        this->pin.enable();
+        // this->pin.enable();
     }
     else
     {
-        this->pin.disable();
+        // this->pin.disable();
     }
 
     // initializing Fingerprint
