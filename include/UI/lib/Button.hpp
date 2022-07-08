@@ -35,31 +35,22 @@ namespace UI
             // this->_draw_released_widget();
         }
 
-        void update()
-        {
-            if (!this->is_hidden())
-            {
-                this->_draw_released_widget();
-            }
-        }
-
     protected:
 /*
     the color values are RGB-565 values(16-bit value)
     RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
 */
-#define RELEASED_BACKGROUND_COLOR VGA_AQUA
-#define RELEASED_BORDER_COLOR VGA_GREEN
-#define RELEASED_TEXT_COLOR VGA_PURPLE
+#define RELEASED_BACKGROUND_COLOR VGA_BLACK
+#define RELEASED_BORDER_COLOR VGA_WHITE
+#define RELEASED_TEXT_COLOR VGA_WHITE
 
-#define PRESSED_BACKGROUND_COLOR 0xffff
-#define PRESSED_BORDER_COLOR 0x0000
-#define PRESSED_TEXT_COLOR 0x0000
+#define PRESSED_BACKGROUND_COLOR VGA_WHITE
+#define PRESSED_BORDER_COLOR VGA_WHITE
+#define PRESSED_TEXT_COLOR VGA_BLACK
 
         virtual void _draw_released_widget() override;
-
         virtual void _draw_pressed_widget() override;
-        virtual void _clear_widget_space() override;
+        virtual void _draw_widget() override;
 
     private:
         String text;
@@ -69,15 +60,6 @@ namespace UI
 }
 
 // ------------- template implementation -------------
-
-template <typename CALL_OBJECT_TYPE>
-void UI::Button<CALL_OBJECT_TYPE>::_clear_widget_space()
-{
-    // clear teh space where the button is(background-color)
-    this->display->setColor(RELEASED_BACKGROUND_COLOR);
-    this->display->fillRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
-                            this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
-}
 
 template <typename CALL_OBJECT_TYPE>
 void UI::Button<CALL_OBJECT_TYPE>::_draw_pressed_widget()
@@ -101,6 +83,7 @@ void UI::Button<CALL_OBJECT_TYPE>::_draw_pressed_widget()
     this->display->setFont(this->_text_font);
     this->display->setColor(PRESSED_TEXT_COLOR);
     this->display->setBackColor(PRESSED_BACKGROUND_COLOR);
+    this->display->setFont(this->_text_font);
     this->display->print(this->text, this->_upper_left_pos.x_pos + (this->width() / 2) - (font_width * text.length() / 2), this->_lower_right_pos.y_pos - (this->height() / 2) - font_height / 2);
 }
 
@@ -127,5 +110,22 @@ void UI::Button<CALL_OBJECT_TYPE>::_draw_released_widget()
     this->display->setFont(this->_text_font);
     this->display->setBackColor(RELEASED_BACKGROUND_COLOR);
     this->display->setColor(RELEASED_TEXT_COLOR);
+    this->display->setFont(this->_text_font);
     this->display->print(this->text, this->_upper_left_pos.x_pos + (this->width() / 2) - (font_width * text.length() / 2), this->_lower_right_pos.y_pos - (this->height() / 2) - font_height / 2);
+}
+
+template <typename CALL_OBJECT_TYPE>
+void UI::Button<CALL_OBJECT_TYPE>::_draw_widget()
+{
+    if (!this->is_hidden())
+    {
+        if (this->is_touched())
+        {
+            this->_draw_pressed_widget();
+        }
+        else
+        {
+            this->_draw_released_widget();
+        }
+    }
 }

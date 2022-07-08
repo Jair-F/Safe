@@ -72,7 +72,6 @@ void UI::Window::handle_touch_released(const position &_touch_data)
             if (widget_iterator->_check_pos(_touch_data))
             {
                 touch_data_same_widget = true;
-                // widget_on_touch_pos = widget_iterator.data();
                 // this->last_focused_widget = widget_on_touch_pos;
                 break;
             }

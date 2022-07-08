@@ -67,6 +67,15 @@ namespace UI
         */
         virtual void loop() {}
 
+#define WINDOW_BACKGROUND_COLOR VGA_BLACK
+        /*
+            get the background color defined for this window
+        */
+        unsigned int get_background_color()
+        {
+            return WINDOW_BACKGROUND_COLOR;
+        }
+
     private:
         MainWindow *_main_window; // the display itself
         Widget *last_focused_widget;
