@@ -72,35 +72,40 @@ void UI::MainWindow::loop()
 
             // call the on_click func
             Widget *clicked_widget = this->active_window->handle_touch_clicked(touch_data);
-            if (!this->get_focus_frozen()) // if focus isnt frozen...
+            if (clicked_widget != nullptr)
             {
-                if (this->focused_widget != clicked_widget)
+                if (!this->get_focus_frozen()) // if focus isnt frozen...
                 {
-                    Serial.println("focused widget changed...");
+                    if (this->focused_widget != clicked_widget)
+                    {
+#ifndef DEBUG
+                        // Serial.println("focused widget changed...");
+#endif
+                    }
+                    this->focused_widget = clicked_widget;
                 }
-                this->focused_widget = clicked_widget;
-            }
-            // delay(250);
-            while (this->touch->dataAvailable())
-            {
-                position tmp = this->_read_touch();
-                if (this->_check_in_display(tmp))
+                // delay(250);
+                while (this->touch->dataAvailable())
                 {
-                    touch_data = tmp;
-                }
+                    position tmp = this->_read_touch();
+                    if (this->_check_in_display(tmp))
+                    {
+                        touch_data = tmp;
+                    }
 
 #ifndef DEBUG
-                Serial.print("X_POS: ");
-                Serial.println(touch_data.x_pos);
-                Serial.print("Y_POS: ");
-                Serial.println(touch_data.y_pos);
+                    // Serial.print("X_POS: ");
+                    // Serial.println(touch_data.x_pos);
+                    // Serial.print("Y_POS: ");
+                    // Serial.println(touch_data.y_pos);
 #endif
 
-                // delay(100); // bisschen warten, damit die Werte nicht so extrem schwanken...
-            }
+                    // delay(100); // bisschen warten, damit die Werte nicht so extrem schwanken...
+                }
 
-            //  touch was released at this point...
-            this->active_window->handle_touch_released(touch_data);
+                //  touch was released at this point...
+                this->active_window->handle_touch_released(touch_data);
+            }
         }
     }
 }

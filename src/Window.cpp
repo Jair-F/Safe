@@ -53,11 +53,13 @@ UI::Widget *UI::Window::handle_touch_clicked(const position &_touch_data)
                 this->last_focused_widget = widget_iterator.data();
                 // touch-data is on the widget - clicked
                 widget_iterator->_click();
+                return widget_iterator.data(); // return the touched widget
                 break;
             }
         }
         ++widget_iterator;
     }
+    return nullptr; // no visible widget matches
 }
 
 void UI::Window::handle_touch_released(const position &_touch_data)
