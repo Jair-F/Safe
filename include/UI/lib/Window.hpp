@@ -31,8 +31,8 @@ namespace UI
         */
         bool request_focus(Widget *_widget);
 
-        uint16_t width() { return this->_lower_right.x_pos - this->_upper_left.x_pos; }
-        uint16_t height() { return this->_lower_right.y_pos - this->_upper_left.y_pos; }
+        inline uint16_t width() const { return this->_lower_right.x_pos - this->_upper_left.x_pos; }
+        inline uint16_t height() const { return this->_lower_right.y_pos - this->_upper_left.y_pos; }
 
         /*
             @return the upper left position
@@ -71,7 +71,7 @@ namespace UI
         /*
             get the background color defined for this window
         */
-        unsigned int get_background_color()
+        inline unsigned int get_background_color() const
         {
             return WINDOW_BACKGROUND_COLOR;
         }

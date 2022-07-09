@@ -13,7 +13,7 @@ namespace UI
         /*
             @return true if the checkbox is checked
         */
-        bool is_checked() { return this->checked; }
+        inline bool is_checked() const { return this->checked; }
 
         /*
             @param true if checked
@@ -42,7 +42,7 @@ namespace UI
         void _draw_pressed_widget() override;
         void _draw_released_widget() override;
 
-        private:
+    private:
         bool checked; // true if the checkbox is checked, false if not
     };
 } // namespace UI

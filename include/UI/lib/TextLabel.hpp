@@ -35,10 +35,10 @@ namespace UI
             @param _border true if the text field should have a border, false if not
         */
         void set_border(bool _border) { this->draw_border = _border; }
-        bool has_border() { return this->draw_border; }
+        inline bool has_border() const { return this->draw_border; }
 
         void set_text_alignment(text_alignment _text_alignment) { this->text_align = _text_alignment; }
-        text_alignment get_text_alignment() { return this->text_align; }
+        inline text_alignment get_text_alignment() const { return this->text_align; }
 
         /*
             the color values are RGB-565 values(16-bit value)

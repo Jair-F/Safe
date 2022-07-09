@@ -51,12 +51,12 @@ namespace UI
         /*
             if the element has focus it gets the input of the keypad - the last element that was touched
         */
-        bool is_focused() { return this->focused; }
+        inline bool is_focused() const { return this->focused; }
 
         /*
             @return true if the widget is touched at the time, else false
         */
-        bool is_touched() { return this->touched; }
+        inline bool is_touched() const { return this->touched; }
     };
 
 }

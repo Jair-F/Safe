@@ -61,8 +61,8 @@ namespace UI
         Widget(Window *_parent, const position &_upper_left_pos, uint16_t _width, uint16_t _height);
         virtual ~Widget() {}
 
-        uint16_t width() { return _lower_right_pos.x_pos - _upper_left_pos.x_pos; }
-        uint16_t height() { return _lower_right_pos.y_pos - _upper_left_pos.y_pos; }
+        inline uint16_t width() const { return _lower_right_pos.x_pos - _upper_left_pos.x_pos; }
+        inline uint16_t height() const { return _lower_right_pos.y_pos - _upper_left_pos.y_pos; }
 
         /*
             resize the widget
@@ -74,9 +74,9 @@ namespace UI
             if the element has focus it gets the input of the keypad - the last element that was touched
             just defined to be able to call the derived class function touched_widget with the base class pointer
         */
-        virtual bool is_focused() { return false; };
+        inline virtual bool is_focused() const { return false; };
 
-        bool is_hidden() { return this->hidden; }
+        inline bool is_hidden() const { return this->hidden; }
 
         /*
             handle the input of the keyboard/keypad
@@ -96,7 +96,7 @@ namespace UI
         /*
             @return the upper left position
         */
-        const position &pos() const { return _upper_left_pos; }
+        inline const position &pos() const { return _upper_left_pos; }
 
         /*
             for sending click-signal
@@ -126,8 +126,8 @@ namespace UI
             check if _pos is in the widget.
             @return true if in the widget - else false
         */
-        bool _check_pos(const position &_pos);
+        bool _check_pos(const position &_pos) const;
 
-        Window *_get_parent_window() const { return this->_parent_window; }
+        inline Window *_get_parent_window() const { return this->_parent_window; }
     };
 }

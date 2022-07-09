@@ -14,7 +14,7 @@ bool UI::MainWindow::request_focus(UI::Widget *_widget)
     return false;
 }
 
-UI::Window *UI::MainWindow::get_active_window()
+UI::Window *UI::MainWindow::get_active_window() const
 {
     return active_window;
 }
@@ -119,7 +119,7 @@ UI::position UI::MainWindow::_read_touch()
     return touch_data_ret;
 }
 
-bool UI::MainWindow::_check_in_display(const position &_pos)
+bool UI::MainWindow::_check_in_display(const position &_pos) const
 {
     return _pos.x_pos <= this->display->getDisplayXSize() ||
            _pos.y_pos <= this->display->getDisplayYSize();

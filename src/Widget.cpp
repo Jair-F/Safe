@@ -31,7 +31,7 @@ void UI::Widget::show()
     this->hidden = false;
     this->_draw_widget();
 }
-bool UI::Widget::_check_pos(const position &_pos)
+bool UI::Widget::_check_pos(const position &_pos) const
 {
     return (_pos.x_pos >= this->_upper_left_pos.x_pos && _pos.y_pos >= this->_upper_left_pos.y_pos) &&
            (_pos.x_pos <= this->_lower_right_pos.x_pos && _pos.y_pos <= this->_lower_right_pos.y_pos);

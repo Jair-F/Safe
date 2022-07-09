@@ -30,7 +30,7 @@ namespace UI
             removes also the focused widget(sets it to nullptr)
         */
         void set_active_window(Window *_win);
-        Window *get_active_window();
+        Window *get_active_window() const;
 
         void freeze_focus() { this->focus_frozen = true; }
         void unfreeze_focus() { this->focus_frozen = false; }
@@ -42,6 +42,10 @@ namespace UI
         */
         bool request_focus(Widget *_widget);
 
+        /*
+            need to be called continuously in the main loop of the application
+            checks for touch data and handles the windows and widgets
+        */
         void loop();
 
         /*
@@ -65,7 +69,7 @@ namespace UI
             check if the given position is in the display-size
             @return true if it is in the display
         */
-        bool _check_in_display(const position &_pos);
+        inline bool _check_in_display(const position &_pos) const;
 
         /*
             read the touch and convert it to the position corresponding to the display
