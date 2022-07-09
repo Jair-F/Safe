@@ -43,6 +43,7 @@ namespace UI
         /*
             hide the widget - clear the space where the widget is drawn
             the widget space is always a rectangle
+            clear the space with the background color of the window in which the widget is registerd tos
         */
         virtual void _clear_widget_space();
 
@@ -56,8 +57,8 @@ namespace UI
         /*
             @param _uppser_left_pos upper left corner in relation to the parent window zero point
         */
-        Widget(Window *_parent, const position _upper_left_pos, const position _lower_right_pos);
-        Widget(Window *_parent, const position &_upper_left_pos, unsigned int _width, unsigned int _height);
+        Widget(Window *_parent, const position &_upper_left_pos, const position &_lower_right_pos);
+        Widget(Window *_parent, const position &_upper_left_pos, uint16_t _width, uint16_t _height);
         virtual ~Widget() {}
 
         uint16_t width() { return _lower_right_pos.x_pos - _upper_left_pos.x_pos; }
