@@ -65,7 +65,7 @@ template <typename CALL_OBJECT_TYPE>
 void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_released_widget()
 {
     this->display->setColor(this->background_color);
-    this->display->fillRoundRect(this->_upper_left_pos.x_pos - 1, this->_upper_left_pos.y_pos - 1, this->_lower_right_pos.x_pos - 1, this->_lower_right_pos.y_pos - 1);
+    this->display->fillRoundRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos, this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
 
     this->display->setColor(this->border_color);
     this->display->drawRoundRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos, this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
@@ -75,7 +75,7 @@ template <typename CALL_OBJECT_TYPE>
 void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_pressed_widget()
 {
     this->display->setColor(this->background_color);
-    this->display->fillRoundRect(this->_upper_left_pos.x_pos - 1, this->_upper_left_pos.y_pos - 1, this->_lower_right_pos.x_pos - 1, this->_lower_right_pos.y_pos - 1);
+    this->display->fillRoundRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos, this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
 
     this->display->setColor(this->border_color);
     this->display->drawRoundRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos, this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
