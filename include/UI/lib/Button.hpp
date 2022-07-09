@@ -13,7 +13,7 @@ namespace UI
     class Button : public Touch_Widget<CALL_OBJECT_TYPE>
     {
     public:
-        Button(Window *parent, const position _upper_left_pos_pos, const position _lower_right_pos,
+        Button(Window *parent, position _upper_left_pos_pos, position _lower_right_pos,
                CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(parent, parent->_calc_absolute_pos(_upper_left_pos_pos),
                                                                                 parent->_calc_absolute_pos(_lower_right_pos), _call_object)
         {
@@ -32,22 +32,22 @@ namespace UI
         void setText(String _text)
         {
             text = _text;
-            // this->_draw_released_widget();
+            this->_draw_widget();
         }
 
+        /*
+            the color values are RGB-565 values(16-bit value)
+            RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
+        */
+        unsigned int released_background_color = VGA_BLACK;
+        unsigned int released_text_color = VGA_WHITE;
+        unsigned int released_border_color = VGA_WHITE;
+
+        unsigned int pressed_background_color = VGA_WHITE;
+        unsigned int pressed_text_color = VGA_BLACK;
+        unsigned int pressed_border_color = VGA_WHITE;
+
     protected:
-/*
-    the color values are RGB-565 values(16-bit value)
-    RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
-*/
-#define RELEASED_BACKGROUND_COLOR VGA_BLACK
-#define RELEASED_BORDER_COLOR VGA_WHITE
-#define RELEASED_TEXT_COLOR VGA_WHITE
-
-#define PRESSED_BACKGROUND_COLOR VGA_WHITE
-#define PRESSED_BORDER_COLOR VGA_WHITE
-#define PRESSED_TEXT_COLOR VGA_BLACK
-
         virtual void _draw_released_widget() override;
         virtual void _draw_pressed_widget() override;
         virtual void _draw_widget() override;
@@ -64,15 +64,15 @@ namespace UI
 template <typename CALL_OBJECT_TYPE>
 void UI::Button<CALL_OBJECT_TYPE>::_draw_pressed_widget()
 {
-    this->_clear_widget_space();
+    // this->_clear_widget_space();
 
     // draw background-color
-    this->display->setColor(PRESSED_BACKGROUND_COLOR);
+    this->display->setColor(this->pressed_background_color);
     this->display->fillRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
                             this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
 
     // draw the border
-    this->display->setColor(PRESSED_BORDER_COLOR);
+    this->display->setColor(this->pressed_border_color);
     this->display->drawRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
                             this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
 
@@ -81,8 +81,8 @@ void UI::Button<CALL_OBJECT_TYPE>::_draw_pressed_widget()
 
     // print the button-label
     this->display->setFont(this->_text_font);
-    this->display->setColor(PRESSED_TEXT_COLOR);
-    this->display->setBackColor(PRESSED_BACKGROUND_COLOR);
+    this->display->setColor(this->pressed_text_color);
+    this->display->setBackColor(this->pressed_background_color);
     this->display->setFont(this->_text_font);
     this->display->print(this->text, this->_upper_left_pos.x_pos + (this->width() / 2) - (font_width * text.length() / 2), this->_lower_right_pos.y_pos - (this->height() / 2) - font_height / 2);
 }
@@ -91,15 +91,15 @@ template <typename CALL_OBJECT_TYPE>
 void UI::Button<CALL_OBJECT_TYPE>::_draw_released_widget()
 {
 
-    this->_clear_widget_space();
+    // this->_clear_widget_space();
 
     // draw background-color
-    this->display->setColor(RELEASED_BACKGROUND_COLOR);
+    this->display->setColor(this->released_background_color);
     this->display->fillRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
                             this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
 
     // draw the border
-    this->display->setColor(RELEASED_BORDER_COLOR);
+    this->display->setColor(this->released_border_color);
     this->display->drawRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
                             this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
 
@@ -108,8 +108,8 @@ void UI::Button<CALL_OBJECT_TYPE>::_draw_released_widget()
 
     // print the button-label
     this->display->setFont(this->_text_font);
-    this->display->setBackColor(RELEASED_BACKGROUND_COLOR);
-    this->display->setColor(RELEASED_TEXT_COLOR);
+    this->display->setBackColor(this->released_background_color);
+    this->display->setColor(this->released_text_color);
     this->display->setFont(this->_text_font);
     this->display->print(this->text, this->_upper_left_pos.x_pos + (this->width() / 2) - (font_width * text.length() / 2), this->_lower_right_pos.y_pos - (this->height() / 2) - font_height / 2);
 }
