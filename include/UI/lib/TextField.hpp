@@ -40,6 +40,10 @@ namespace UI
         void set_text_alignment(text_alignment _text_alignment) { this->text_align = _text_alignment; }
         text_alignment get_text_alignment() { return this->text_align; }
 
+        /*
+            the color values are RGB-565 values(16-bit value)
+            RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
+        */
         unsigned int background_color;
         unsigned int text_color;
         unsigned int border_color;
