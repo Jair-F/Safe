@@ -85,7 +85,7 @@ protected:
 private:
     UI::Button<lock_screen> _button;
     UI::Button<lock_screen> _button2;
-    UI::TextField text_feld;
+    UI::TextLabel text_feld;
     UI::CheckBox<lock_screen> ch_box;
 };
 

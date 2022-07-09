@@ -1,20 +1,20 @@
 #include "UI/UI.hpp"
 
 /*
-UI::TextField::TextField(Window *_parent, const position _upper_left_pos,
+UI::TextLabel::TextLabel(Window *_parent, const position _upper_left_pos,
                          const position _lower_right_pos, String _text = "") : Widget(_parent, _upper_left_pos, _lower_right_pos),
                                                                                text(_text)
 {
 }
 
-UI::TextField::TextField(Window *_parent, const position _upper_left_pos,
+UI::TextLabel::TextLabel(Window *_parent, const position _upper_left_pos,
                          unsigned int _width, unsigned int _height, String _text = "") : Widget(_parent, _upper_left_pos, _width, _height),
                                                                                          text(_text)
 {
 }
 */
 
-UI::TextField::TextField(Window *_parent, const position _upper_left_pos, uint16_t _width,
+UI::TextLabel::TextLabel(Window *_parent, const position _upper_left_pos, uint16_t _width,
                          String _text, uint8_t *_text_font) : Widget(_parent, _upper_left_pos, {_width, 1}),
                                                               background_color(VGA_BLACK), text_color(VGA_WHITE), border_color(VGA_WHITE),
                                                               text(_text), text_font(_text_font), text_align(text_alignment::AL_LEFT), draw_border(false)
@@ -29,7 +29,7 @@ UI::TextField::TextField(Window *_parent, const position _upper_left_pos, uint16
     this->_calc_widget();
 }
 
-void UI::TextField::_draw_widget()
+void UI::TextLabel::_draw_widget()
 {
     // fill the widget_space with the background_color
     this->display->setColor(background_color);
@@ -87,7 +87,7 @@ void UI::TextField::_draw_widget()
     }
 }
 
-void UI::TextField::set_text(String _text)
+void UI::TextLabel::set_text(String _text)
 {
     this->text = _text;
     this->_clear_widget_space();
@@ -97,7 +97,7 @@ void UI::TextField::set_text(String _text)
     this->_draw_widget();
 }
 
-void UI::TextField::_calc_widget()
+void UI::TextLabel::_calc_widget()
 {
     this->display->setFont(text_font);
     uint16_t font_height = this->display->getFontYsize();
