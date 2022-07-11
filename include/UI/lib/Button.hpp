@@ -14,8 +14,7 @@ namespace UI
     {
     public:
         Button(Window *parent, position _upper_left_pos_pos, position _lower_right_pos,
-               CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(parent, parent->_calc_absolute_pos(_upper_left_pos_pos),
-                                                                                parent->_calc_absolute_pos(_lower_right_pos), _call_object)
+               CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(parent, _upper_left_pos_pos, _lower_right_pos, _call_object)
         {
             // this->_draw_released_widget();
         }
