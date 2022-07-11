@@ -14,7 +14,7 @@ UI::TextLabel::TextLabel(Window *_parent, const position _upper_left_pos,
 }
 */
 
-UI::TextLabel::TextLabel(Window *_parent, const position _upper_left_pos, uint16_t _width,
+UI::TextLabel::TextLabel(Base_Window *_parent, const position _upper_left_pos, uint16_t _width,
                          String _text, uint8_t *_text_font) : Widget(_parent, _upper_left_pos, {_width, 1}),
                                                               background_color(VGA_BLACK), text_color(VGA_WHITE), border_color(VGA_WHITE),
                                                               text(_text), text_font(_text_font), text_align(text_alignment::AL_LEFT), draw_border(false)
