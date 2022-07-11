@@ -59,6 +59,8 @@ namespace UI
         UTFT *_get_display() const;
         URTouch *_get_touch() const;
 
+        Widget *get_focused_widget() const;
+
         /*
             function which inherited classes need to overwrite.
             It is to update the window for example with sensor values - actions which are not controlled/depend

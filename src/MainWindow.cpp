@@ -76,8 +76,12 @@ void UI::MainWindow::loop()
             {
                 if (!this->get_focus_frozen()) // if focus isnt frozen...
                 {
-                    if (this->focused_widget != clicked_widget)
+                    if (this->focused_widget != clicked_widget) // focused widget change
                     {
+                        if (this->focused_widget != nullptr)
+                        {
+                            this->focused_widget->_focus_lose(); // call focus_lose for the previous focused widget
+                        }
 #ifndef DEBUG
                         // Serial.println("focused widget changed...");
 #endif

@@ -44,14 +44,14 @@ namespace UI
         */
         void (CALL_OBJECT_TYPE::*on_release)(Touch_Widget *_widget);
 
-        void _click() override;
+        void _touch() override;
         void _release() override;
         void _reset_click() override;
 
         /*
             if the element has focus it gets the input of the keypad - the last element that was touched
         */
-        inline bool is_focused() const { return this->focused; }
+        inline bool is_focused() const { return this->_parent_window->get_focused_widget() == this; }
 
         /*
             @return true if the widget is touched at the time, else false
@@ -64,7 +64,7 @@ namespace UI
 // ------------- template implementation -------------
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Touch_Widget<CALL_OBJECT_TYPE>::_click()
+void UI::Touch_Widget<CALL_OBJECT_TYPE>::_touch()
 {
     if (!this->is_hidden())
     {

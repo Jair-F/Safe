@@ -9,24 +9,30 @@ namespace UI
 {
     class Window;
 
-    enum Mode
-    {
-        Normal,  // nothing - normal(not clicked or focused)
-        Focused, // after clicking on it its focused - ready for input
-        Clicked
-    };
+    /*
+        enum Mode
+        {
+            Normal,  // nothing - normal(not clicked or focused)
+            Focused, // after clicking on it its focused - ready for input
+            Clicked
+        };
+        */
 
     class Widget
     {
     private:
         bool hidden;
-        Window *_parent_window;
 
     protected:
+        Window *_parent_window;
+
         // getting the display pointers from the parent window in the constructor
         URTouch *touch;
         UTFT *display;
 
+        /*
+            absoloute positions on the display
+        */
         position _upper_left_pos, _lower_right_pos;
 
         /*
@@ -104,7 +110,7 @@ namespace UI
 
             -- defined just to create the ability to call the derived function in touch_widget with the base class pointer
         */
-        virtual void _click() {}
+        virtual void _touch() {}
 
         /*
             for sending release-signal
@@ -121,6 +127,13 @@ namespace UI
             -- defined just to create the ability to call the derived function in touch_widget with the base class pointer
         */
         virtual void _reset_click() {}
+
+        /*
+            function which will be called if the widget looses the focus.
+
+            btw. function for _focus_gain is the _touch function...
+        */
+        virtual void _focus_lose() {}
 
         /*
             check if _pos is in the widget.

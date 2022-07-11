@@ -32,6 +32,8 @@ namespace UI
         void set_active_window(Window *_win);
         Window *get_active_window() const;
 
+        Widget *get_focused_widget() const { return this->focused_widget; }
+
         void freeze_focus() { this->focus_frozen = true; }
         void unfreeze_focus() { this->focus_frozen = false; }
         bool get_focus_frozen() { return this->focus_frozen; }

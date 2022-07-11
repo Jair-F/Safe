@@ -52,7 +52,7 @@ UI::Widget *UI::Window::handle_touch_clicked(const position &_touch_data)
             {
                 this->last_focused_widget = widget_iterator.data();
                 // touch-data is on the widget - clicked
-                widget_iterator->_click();
+                widget_iterator->_touch();
                 return widget_iterator.data(); // return the touched widget
                 break;
             }
@@ -112,4 +112,9 @@ UTFT *UI::Window::_get_display() const
 URTouch *UI::Window::_get_touch() const
 {
     return this->_main_window->_get_touch();
+}
+
+UI::Widget *UI::Window::get_focused_widget() const
+{
+    return this->_main_window->get_focused_widget();
 }
