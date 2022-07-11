@@ -5,6 +5,21 @@
 UI::Widget::Widget(Window *_parent, const position &_upper_left_pos, const position &_lower_right_pos) : hidden(true), _parent_window(_parent),
                                                                                                          _upper_left_pos(_upper_left_pos), _lower_right_pos(_lower_right_pos)
 {
+    // adjusting the positions in case they not set correctly - if the _upper_left is for example the _lower_right position
+    decltype(_upper_left_pos.x_pos) tmp;
+    if (this->_lower_right_pos.x_pos < this->_upper_left_pos.x_pos)
+    {
+        tmp = this->_lower_right_pos.x_pos;
+        this->_lower_right_pos.x_pos = this->_upper_left_pos.x_pos;
+        this->_upper_left_pos.x_pos = tmp;
+    }
+    if (this->_lower_right_pos.y_pos < this->_upper_left_pos.y_pos)
+    {
+        tmp = this->_lower_right_pos.y_pos;
+        this->_lower_right_pos.y_pos = this->_upper_left_pos.y_pos;
+        this->_upper_left_pos.y_pos = tmp;
+    }
+
     this->display = this->_parent_window->_get_display();
     this->touch = this->_parent_window->_get_touch();
     this->_parent_window->_register_widget(this);
