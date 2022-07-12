@@ -35,9 +35,13 @@ namespace UI
         inline uint16_t height() const { return this->_lower_right.y_pos - this->_upper_left.y_pos; }
 
         /*
-            @return the upper left position
+            @return the upper left position(absolute pos)
         */
         const position &pos() const { return this->_upper_left; }
+        // (absolute pos)
+        const position &_get_lower_right_pos() const { return this->_lower_right; }
+        // (absolute pos)
+        const position &_get_upper_left_pos() const { return this->_upper_left; }
 
         /*
             calc the absolute position of the real display

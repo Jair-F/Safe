@@ -20,6 +20,18 @@ UI::Widget::Widget(Window *_parent, const position &_upper_left_pos, const posit
         this->_upper_left_pos.y_pos = tmp;
     }
 
+    // check that the positions are in the window - if not adjust them to the maximum of the window
+    if (this->_lower_right_pos.y_pos > this->_parent_window->_get_lower_right_pos().y_pos - 1)
+    {
+        // one pixel smaller than the window that it can be touched...
+        this->_lower_right_pos.y_pos = this->_parent_window->_get_lower_right_pos().y_pos - 1; //
+    }
+    if (this->_lower_right_pos.x_pos > this->_parent_window->_get_lower_right_pos().x_pos - 1)
+    {
+        // one pixel smaller than the window that it can be touched...
+        this->_lower_right_pos.x_pos = this->_parent_window->_get_lower_right_pos().x_pos - 1;
+    }
+
     this->display = this->_parent_window->_get_display();
     this->touch = this->_parent_window->_get_touch();
     this->_parent_window->_register_widget(this);
