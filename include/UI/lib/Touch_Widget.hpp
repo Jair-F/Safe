@@ -98,6 +98,6 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_reset_click()
     if (!this->is_hidden())
     {
         this->touched = false;
-        this->_draw_released_widget();
+        this->_draw_widget();
     }
 }
