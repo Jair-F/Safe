@@ -36,4 +36,12 @@
     - CLK:  A1
     - DATA: A2
     - RST:  A3
-- Display:
+- Keypad:
+    - R1: A8
+    - R2: A9
+    - R3: A10
+    - R4: A11
+    - C1: A12
+    - C2: A13
+    - C3: A14
+
