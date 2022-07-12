@@ -52,7 +52,7 @@ UI::Widget *UI::Window::handle_touch_clicked(const position &_touch_data)
             {
                 this->last_focused_widget = widget_iterator.data();
                 // touch-data is on the widget - clicked
-                widget_iterator->_touch();
+                widget_iterator->_touch(_touch_data);
                 return widget_iterator.data(); // return the touched widget
                 break;
             }
@@ -90,7 +90,7 @@ void UI::Window::handle_touch_released(const position &_touch_data)
         if (!this->last_focused_widget->is_hidden())
         {
             // click was in the widget - not swiped out...
-            this->last_focused_widget->_release();
+            this->last_focused_widget->_release(_touch_data);
         }
     }
     else
@@ -99,7 +99,7 @@ void UI::Window::handle_touch_released(const position &_touch_data)
         {
             // widget was clicked but not released on this position
             if (this->last_focused_widget != nullptr)
-                this->last_focused_widget->_reset_click();
+                this->last_focused_widget->_reset_touch();
         }
     }
 }

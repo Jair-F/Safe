@@ -27,7 +27,7 @@ namespace UI
         /*
             we change the state of the check_box only on the release of the touch
         */
-        void _release() override;
+        void _release(const position &_touch_data) override;
 
         /*
             the color values are RGB-565 values(16-bit value)
@@ -108,11 +108,11 @@ void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_widget()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::CheckBox<CALL_OBJECT_TYPE>::_release()
+void UI::CheckBox<CALL_OBJECT_TYPE>::_release(const position &_touch_data)
 {
     if (!this->is_hidden())
     {
         this->checked = !this->checked;
-        Touch_Widget<CALL_OBJECT_TYPE>::_release(); // draw_widget is called in the touch_widget::click func
+        Touch_Widget<CALL_OBJECT_TYPE>::_release(_touch_data); // draw_widget is called in the touch_widget::click func
     }
 }

@@ -109,16 +109,20 @@ namespace UI
             if the widget is hidden this function will not make anything
 
             -- defined just to create the ability to call the derived function in touch_widget with the base class pointer
+
+            @param _touch_data absolute position of the touch
         */
-        virtual void _touch() {}
+        virtual void _touch(const position &_touch_data) {}
 
         /*
             for sending release-signal
             if the widget is hidden this function will not make anything
 
             -- defined just to create the ability to call the derived function in touch_widget with the base class pointer
+
+            @param _touch_data absolute position of the release of the touch
         */
-        virtual void _release() {}
+        virtual void _release(const position &_touch_data) {}
 
         /*
             if the widget was clicked but not released on the pos
@@ -126,7 +130,7 @@ namespace UI
 
             -- defined just to create the ability to call the derived function in touch_widget with the base class pointer
         */
-        virtual void _reset_click() {}
+        virtual void _reset_touch() {}
 
         /*
             function which will be called if the widget looses the focus.

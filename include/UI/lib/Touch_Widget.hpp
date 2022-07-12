@@ -44,9 +44,15 @@ namespace UI
         */
         void (CALL_OBJECT_TYPE::*on_release)(Touch_Widget *_widget);
 
-        void _touch() override;
-        void _release() override;
-        void _reset_click() override;
+        /*
+            @param _touch_data absolute position of the touch
+        */
+        void _touch(const position &_touch_data) override;
+        /*
+            @param _touch_data absolute position of the release of the touch
+        */
+        void _release(const position &_touch_data) override;
+        void _reset_touch() override;
 
         /*
             if the element has focus it gets the input of the keypad - the last element that was touched
@@ -64,7 +70,7 @@ namespace UI
 // ------------- template implementation -------------
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Touch_Widget<CALL_OBJECT_TYPE>::_touch()
+void UI::Touch_Widget<CALL_OBJECT_TYPE>::_touch(const position &_touch_data)
 {
     if (!this->is_hidden())
     {
@@ -79,7 +85,7 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_touch()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Touch_Widget<CALL_OBJECT_TYPE>::_release()
+void UI::Touch_Widget<CALL_OBJECT_TYPE>::_release(const position &_touch_data)
 {
     if (!this->is_hidden())
     {
@@ -93,7 +99,7 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_release()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Touch_Widget<CALL_OBJECT_TYPE>::_reset_click()
+void UI::Touch_Widget<CALL_OBJECT_TYPE>::_reset_touch()
 {
     if (!this->is_hidden())
     {
