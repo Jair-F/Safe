@@ -36,7 +36,7 @@ namespace Fingerprint
         void wake_up()
         {
             digitalWrite(FINGERPRINT_POWER_PIN, HIGH);
-            this->begin();
+            this->_initialize_sensor();
         }
         /*
             disable the sensor - save power and dont burn the LED
@@ -56,8 +56,7 @@ namespace Fingerprint
             @param id The id to store the fingerprint in the database(1-127)
             @return error_code from this-> - message can be shown with Fingerprint::error_code_message
         */
-        uint8_t
-        add_finger(uint16_t id);
+        uint8_t add_finger(uint16_t id);
 
         /*
             Checks if a fingerprint is stored on this id in the Database
@@ -65,6 +64,21 @@ namespace Fingerprint
             @return true if a fingerprint is saved on this id otherwise false
         */
         bool check_id_used(uint16_t id);
+
+    protected:
+        void _initialize_sensor()
+        {
+            Adafruit_Fingerprint::begin(default_baudrate);
+            if (this->verifyPassword())
+            {
+                logger.log(F("FINGERPRINT: found fingerprint"), Log::log_level::L_INFO);
+            }
+            else
+            {
+                logger.log(F("FINGERPRINT: didnt found fingerprint-sensor"), Log::log_level::L_ERROR);
+                // exit(-1);
+            }
+        }
 
     private:
     };
@@ -77,16 +91,7 @@ namespace Fingerprint
 
 void Fingerprint::Fingerprint::begin()
 {
-    Adafruit_Fingerprint::begin(default_baudrate);
-    if (this->verifyPassword())
-    {
-        logger.log(F("FINGERPRINT: found fingerprint"), Log::log_level::L_INFO);
-    }
-    else
-    {
-        logger.log(F("FINGERPRINT: didnt found fingerprint-sensor"), Log::log_level::L_ERROR);
-        // exit(-1);
-    }
+    this->wake_up();
 }
 
 void Fingerprint::Fingerprint::enable()
