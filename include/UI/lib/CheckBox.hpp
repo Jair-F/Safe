@@ -21,7 +21,6 @@ namespace UI
         void set_checked(bool _checked)
         {
             this->checked = _checked;
-            this->_draw_widget();
         }
 
         /*
