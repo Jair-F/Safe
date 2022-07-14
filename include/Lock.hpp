@@ -133,7 +133,7 @@ namespace Lock
             @return true if unlocking was successful
         */
         bool (*on_unlocking)(void) = []()
-        {DEBUG_PRINT("unlocking the lock"); DEBUG_PRINT(system_clock.GetDateTime()); return true; };
+        {DEBUG_PRINT("unlocking the lock"); return true; };
     };
 
     /*
@@ -382,7 +382,7 @@ void Lock::Lock::loop()
     {
         RtcDateTime lock_time_point(this->unlock_time_point); // when this timepoint is passed the lock has to be locked (lock_time_point+lock_timer)
         lock_time_point += this->lock_timer;                  // addition is in seconds
-        DEBUG_PRINT(now);
+        DEBUG_PRINT('.');
 
         if (now > lock_time_point)
         {
