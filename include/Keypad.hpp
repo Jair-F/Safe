@@ -27,50 +27,63 @@ namespace Keypad
 #define CANCEL_KEY '*'
 #define ENTER_KEY '#'
 
+    template <typename CALL_OBJECT_TYPE>
     class Keypad
     {
     public:
-        Keypad();
-        Keypad(char **userKeymap, byte *rows, byte *columns, int numRows, int numColumns);
+        /*
+            for using the default predefined layout with the default set pins
+        */
+        Keypad(CALL_OBJECT_TYPE *_call_object);
+        /*
+           for setting self the pinouts and layout
+        */
+        Keypad(char **userKeymap, byte *rows, byte *columns, int numRows, int numColumns, CALL_OBJECT_TYPE *_call_object);
         ~Keypad() {}
 
-        void (*on_input)(char _input_data) = {};
+        void (CALL_OBJECT_TYPE::*on_input)(char _input_data) = {};
 
         void loop();
 
         void begin();
 
-        void (*buffer_changed)();
-
     private:
         Adafruit_Keypad keypad;
+        CALL_OBJECT_TYPE *call_object;
     };
 } // namespace Keypad
-
-Keypad::Keypad::Keypad(char **userKeymap, byte *rows,
-                       byte *columns, int numRows, int numColumns) : keypad(makeKeymap(userKeymap), rows, columns, numRows, numColumns)
+template <typename CALL_OBJECT_TYPE>
+Keypad::Keypad<CALL_OBJECT_TYPE>::Keypad(char **userKeymap, byte *rows,
+                                         byte *columns, int numRows, int numColumns,
+                                         CALL_OBJECT_TYPE *_call_object) : keypad(makeKeymap(userKeymap), rows, columns, numRows, numColumns), call_object(_call_object)
 {
 }
 
-Keypad::Keypad::Keypad() : keypad(makeKeymap(KEYS), ROW_PINS, COLUMN_PINS, ROWS, COLUMNS)
+template <typename CALL_OBJECT_TYPE>
+Keypad::Keypad<CALL_OBJECT_TYPE>::Keypad(CALL_OBJECT_TYPE *_call_object) : keypad(makeKeymap(KEYS), ROW_PINS, COLUMN_PINS, ROWS, COLUMNS), call_object(_call_object)
 {
 }
 
-void Keypad::Keypad::begin()
+template <typename CALL_OBJECT_TYPE>
+void Keypad::Keypad<CALL_OBJECT_TYPE>::begin()
 {
     this->keypad.begin();
 }
 
-void Keypad::Keypad::loop()
+template <typename CALL_OBJECT_TYPE>
+void Keypad::Keypad<CALL_OBJECT_TYPE>::loop()
 {
     this->keypad.tick(); // read for input
 
     if (this->keypad.available() >= 1) // some input in the buffer
     {
+        Serial.print("keypad sent input...: ");
         keypadEvent key_event = this->keypad.read();
         if (key_event.bit.EVENT == 1) // a key was pressed - not released...
         {
-            this->on_input(static_cast<char>(key_event.bit.KEY));
+            (this->call_object->*this->on_input)(static_cast<char>(key_event.bit.KEY));
+            Serial.println(static_cast<char>(key_event.bit.KEY));
+            // this->on_input(static_cast<char>(key_event.bit.KEY));
         }
     }
 }

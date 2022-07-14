@@ -19,7 +19,7 @@ UI::Window *UI::MainWindow::get_active_window() const
     return active_window;
 }
 
-void UI::MainWindow::_handle_keypad_input(char _input_data)
+void UI::MainWindow::send_input(char _input_data)
 {
     if (this->focused_widget != nullptr)
     {

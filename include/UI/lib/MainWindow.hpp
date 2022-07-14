@@ -45,6 +45,11 @@ namespace UI
         bool request_focus(Widget *_widget);
 
         /*
+            send the _input_data to the focused widget
+        */
+        void send_input(char _input_data);
+
+        /*
             need to be called continuously in the main loop of the application
             checks for touch data and handles the windows and widgets
         */
@@ -64,9 +69,6 @@ namespace UI
         inline URTouch *_get_touch() const { return this->touch; }
 
     protected:
-        void
-        _handle_keypad_input(char _input_data);
-
         /*
             check if the given position is in the display-size
             @return true if it is in the display
