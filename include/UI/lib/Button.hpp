@@ -110,7 +110,9 @@ void UI::Button<CALL_OBJECT_TYPE>::_draw_released_widget()
     this->display->setBackColor(this->released_background_color);
     this->display->setColor(this->released_text_color);
     this->display->setFont(this->_text_font);
-    this->display->print(this->text, this->_upper_left_pos.x_pos + (this->width() / 2) - (font_width * text.length() / 2), this->_lower_right_pos.y_pos - (this->height() / 2) - font_height / 2);
+    this->display->print(this->text,
+                         this->_upper_left_pos.x_pos + (this->width() / 2) - (font_width * text.length() / 2),
+                         this->_lower_right_pos.y_pos - (this->height() / 2) - font_height / 2);
 }
 
 template <typename CALL_OBJECT_TYPE>
