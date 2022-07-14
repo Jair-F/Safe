@@ -133,10 +133,10 @@ bool UI::MainWindow::_check_in_display(const position &_pos) const
 
 const UI::position &UI::MainWindow::_get_window_upper_left() const
 {
-    return this->_window_upper_left;
+    return this->window_upper_left;
 }
 
 const UI::position &UI::MainWindow::_get_window_lower_right() const
 {
-    return this->_window_lower_right;
+    return this->window_lower_right;
 }

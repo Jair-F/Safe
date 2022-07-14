@@ -92,6 +92,6 @@ namespace UI
         /*
             size of the "normal windows" which are shown on the main_window - the windows grab the size in their window-constructor
         */
-        position _window_lower_right, _window_upper_left;
+        position window_lower_right, window_upper_left;
     };
 } // namespace UI
