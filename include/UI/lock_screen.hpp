@@ -14,14 +14,14 @@ public:
                                                 _button2(this, {this->_get_display()->getDisplayXSize() - 100, this->_get_display()->getDisplayYSize() - 35}, {this->_get_display()->getDisplayXSize() - 1, this->_get_display()->getDisplayYSize() - 1}, this),
                                                 text_feld(this, {0, 0}, this->_get_display()->getDisplayXSize() - 1, "Window title"),
                                                 ch_box(this, {50, 150}, 25, 25, this),
-                                                input_field(this, {150, 150}, 60, 35, this, UI::InputField<10, '*', lock_screen>::IN_INPUT_TYPE::IN_DIGIT)
+                                                input_field(this, {150, 150}, 60, 35, this, UI::InputField<20, lock_screen>::IN_INPUT_TYPE::IN_TEXT)
     {
         text_feld.set_border(false);
         text_feld.set_text_alignment(text_feld.AL_CENTER);
         text_feld.set_font(SmallFont);
 
         _button.setText("Click mich");
-        _button.on_click = &this->button_print_clicked;
+        _button.on_touch = &this->button_print_clicked;
         _button.on_release = &this->button_print_released;
 
         _button2.on_release = &this->restart_system;
@@ -91,7 +91,7 @@ private:
     UI::Button<lock_screen> _button2;
     UI::TextLabel text_feld;
     UI::CheckBox<lock_screen> ch_box;
-    UI::InputField<10, '*', lock_screen> input_field;
+    UI::InputField<20, lock_screen> input_field;
 };
 
 void lock_screen::show()
