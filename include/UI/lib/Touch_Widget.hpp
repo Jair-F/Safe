@@ -46,6 +46,7 @@ namespace UI
             @param widget the widget from where the function call is comming
         */
         void (CALL_OBJECT_TYPE::*on_release)(Touch_Widget *_widget) = nullptr;
+        void (CALL_OBJECT_TYPE::*on_focus_lose)(Touch_Widget *_widget) = nullptr;
 
         /*
             @param _touch_data absolute position of the touch
@@ -59,6 +60,7 @@ namespace UI
             if the release of the touch was outside of the widget - draws the widget without calling on_release
         */
         void _reset_touch() override;
+        void _focus_lose() override;
 
         /*
             if the element has focus it gets the input of the keypad - the last element that was touched
@@ -93,23 +95,24 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_touch(const position &_touch_data)
 template <typename CALL_OBJECT_TYPE>
 void UI::Touch_Widget<CALL_OBJECT_TYPE>::_release(const position &_touch_data)
 {
-    if (!this->is_hidden())
+    this->touched = false; // needs to be set first - the draw_widget draws the widget according to that
+    this->_draw_widget();  // draw the widget according to the actual state
+    if (this->on_release != nullptr)
     {
-        this->touched = false; // needs to be set first - the draw_widget draws the widget according to that
-        this->_draw_widget();  // draw the widget according to the actual state
-        if (this->on_release != nullptr)
-        {
-            (this->call_object->*this->on_release)(this); // calling the on_release func which is set by the user with the object
-        }
+        (this->call_object->*this->on_release)(this); // calling the on_release func which is set by the user with the object
     }
 }
 
 template <typename CALL_OBJECT_TYPE>
 void UI::Touch_Widget<CALL_OBJECT_TYPE>::_reset_touch()
 {
-    if (!this->is_hidden())
-    {
-        this->touched = false;
-        this->_draw_widget();
-    }
+    this->touched = false;
+    this->_draw_widget();
+}
+
+template <typename CALL_OBJECT_TYPE>
+void UI::Touch_Widget<CALL_OBJECT_TYPE>::_focus_lose()
+{
+    if (this->on_focus_lose != nullptr)
+        (this->call_object->*this->on_focus_lose)(this);
 }

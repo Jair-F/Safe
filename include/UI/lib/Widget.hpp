@@ -140,6 +140,7 @@ namespace UI
 
         /*
             function which will be called if the widget looses the focus.
+            -- defined just to create the ability to call the derived function in touch_widget with the base class pointer
 
             btw. function for _focus_gain is the _touch function...
         */

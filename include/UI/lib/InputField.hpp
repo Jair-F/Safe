@@ -314,6 +314,7 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_pressed_widget()
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
 void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_focus_lose()
 {
+    Touch_Widget<CALL_OBJECT_TYPE>::_focus_lose();
     this->_draw_released_widget();
 }
 
