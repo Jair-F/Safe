@@ -14,7 +14,7 @@ public:
                                                 _button2(this, {this->_get_display()->getDisplayXSize() - 100, this->_get_display()->getDisplayYSize() - 35}, {this->_get_display()->getDisplayXSize() - 1, this->_get_display()->getDisplayYSize() - 1}, this),
                                                 text_feld(this, {0, 0}, this->_get_display()->getDisplayXSize() - 1, "Window title"),
                                                 ch_box(this, {50, 150}, 25, 25, this),
-                                                input_field(this, {150, 150}, 60, 35, this, UI::InputField<20, lock_screen>::IN_INPUT_TYPE::IN_PASSWORD)
+                                                input_field(this, {150, 150}, 60, 35, this, UI::InputField<20, lock_screen>::IN_INPUT_TYPE::IN_TEXT)
     {
         text_feld.set_border(false);
         text_feld.set_text_alignment(text_feld.AL_CENTER);
@@ -35,7 +35,7 @@ public:
 
         input_field.set_input_buffer("123");
         input_field.on_enter = &this->update_window_label;
-        input_field.on_release = &this->update_window_label;
+        input_field.on_focus_lose = &this->update_window_label;
     }
     virtual ~lock_screen() {}
 
