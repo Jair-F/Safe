@@ -64,31 +64,31 @@ template <typename CALL_OBJECT_TYPE>
 void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_released_widget()
 {
     this->display->setColor(this->background_color);
-    this->display->fillRoundRect(this->_upper_left.x_pos, this->_upper_left.y_pos, this->_lower_right.x_pos, this->_lower_right.y_pos);
+    this->display->fillRoundRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
 
     this->display->setColor(this->border_color);
-    this->display->drawRoundRect(this->_upper_left.x_pos, this->_upper_left.y_pos, this->_lower_right.x_pos, this->_lower_right.y_pos);
+    this->display->drawRoundRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
 }
 
 template <typename CALL_OBJECT_TYPE>
 void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_pressed_widget()
 {
     this->display->setColor(this->background_color);
-    this->display->fillRoundRect(this->_upper_left.x_pos, this->_upper_left.y_pos, this->_lower_right.x_pos, this->_lower_right.y_pos);
+    this->display->fillRoundRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
 
     this->display->setColor(this->border_color);
-    this->display->drawRoundRect(this->_upper_left.x_pos, this->_upper_left.y_pos, this->_lower_right.x_pos, this->_lower_right.y_pos);
+    this->display->drawRoundRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
 
     uint8_t gap_from_box = 2; // the gap between the box and the begin of the check mark
 
     this->display->setColor(this->check_sign_color);
     // check-mark - short line
-    this->display->drawLine(this->_upper_left.x_pos + gap_from_box, (this->_upper_left.y_pos + this->height() * 0.5),
-                            (this->_upper_left.x_pos + this->width() * 0.5) - gap_from_box, this->_lower_right.y_pos - gap_from_box);
+    this->display->drawLine(this->upper_left.x_pos + gap_from_box, (this->upper_left.y_pos + this->height() * 0.5),
+                            (this->upper_left.x_pos + this->width() * 0.5) - gap_from_box, this->lower_right.y_pos - gap_from_box);
 
     // check-mark - long line
-    this->display->drawLine((this->_upper_left.x_pos + this->width() * 0.5) - gap_from_box, this->_lower_right.y_pos - gap_from_box,
-                            this->_lower_right.x_pos - gap_from_box - 1, this->_upper_left.y_pos + gap_from_box + 1);
+    this->display->drawLine((this->upper_left.x_pos + this->width() * 0.5) - gap_from_box, this->lower_right.y_pos - gap_from_box,
+                            this->lower_right.x_pos - gap_from_box - 1, this->upper_left.y_pos + gap_from_box + 1);
 }
 
 template <typename CALL_OBJECT_TYPE>
