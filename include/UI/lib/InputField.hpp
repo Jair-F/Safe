@@ -9,17 +9,17 @@ namespace UI
         @param MAX_NUM_OF_CHARS maximum number of input-digits/chars/letters that the input_field can storage and will accept. If the user
                 tries to input more the field will simply not accept more.
     */
-    template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
+    template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
     class InputField : public Touch_Widget<CALL_OBJECT_TYPE>
     {
     public:
-        void (CALL_OBJECT_TYPE::*on_enter)(Widget *_widget);
-
         enum class IN_INPUT_TYPE
         {
-            IN_DIGIT,
+            IN_TEXT,
             IN_PASSWORD
         };
+
+        void (CALL_OBJECT_TYPE::*on_enter)(Widget *_widget) = nullptr;
 
         InputField(Window *_parent, const position _upper_left, const position _lower_right,
                    CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type);
@@ -28,6 +28,8 @@ namespace UI
 
         // function called from the keypad from the MainWindow
         void send_input(char _input_data) override;
+        void send_backspace() override;
+        void send_enter() override;
 
         /*
             @return pointer to the input_buffer of the class - make sure that the instance of the InputField class exists at accessing the data!!!
@@ -87,10 +89,10 @@ namespace UI
 
 // ------------- template implementation -------------
 
-template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left, const position _lower_right,
-                                                                              CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right, _call_object),
-                                                                                                                                           input_type(_input_type)
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left, const position _lower_right,
+                                                               CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right, _call_object),
+                                                                                                                            input_type(_input_type)
 {
     assert(MAX_NUM_OF_CHARS > 0);
 
@@ -103,57 +105,55 @@ UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::InputField(Wi
     }
 }
 
-template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
-                                                                              IN_INPUT_TYPE _input_type) : InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _width, _upper_left.y_pos + _height}, _call_object, _input_type)
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
+                                                               IN_INPUT_TYPE _input_type) : InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _width, _upper_left.y_pos + _height}, _call_object, _input_type)
 {
 }
 
-template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::send_input(char _input_data)
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_input(char _input_data)
 {
     if (_input_data != this->INPUT_UNSET_VALUE) // INPUT_UNSET_VALUE is not allowed...
     {
-        switch (_input_data)
+        for (uint8_t i = 0; i < MAX_NUM_OF_CHARS; ++i)
         {
-        case (BACKSPACE_KEY):
-        {
-            // searching for the last set input-pos
-            uint8_t i = 0;
-            for (; i < MAX_NUM_OF_CHARS; ++i)
+            if (this->input_buffer[i] == this->INPUT_UNSET_VALUE)
             {
-                if (this->input_buffer[i] == this->INPUT_UNSET_VALUE)
-                {
-                    break;
-                }
+                this->input_buffer[i] = _input_data;
+                break;
             }
-            --i;
-            this->input_buffer[i] = this->INPUT_UNSET_VALUE;
-
-            break;
         }
-
-        // add input to the buffer
-        default:
-        {
-
-            for (uint8_t i = 0; i < MAX_NUM_OF_CHARS; ++i)
-            {
-                if (this->input_buffer[i] == this->INPUT_UNSET_VALUE)
-                {
-                    this->input_buffer[i] = _input_data;
-                    break;
-                }
-            }
-            break;
-        }
-        }
-        this->_draw_widget();
     }
+    this->_draw_widget();
 }
 
-template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::clear_input_buffer()
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_backspace()
+{
+    // searching for the last set input-pos
+    uint8_t i = 0;
+    for (; i < MAX_NUM_OF_CHARS; ++i)
+    {
+        if (this->input_buffer[i] == this->INPUT_UNSET_VALUE)
+        {
+            break;
+        }
+    }
+    --i;
+    this->input_buffer[i] = this->INPUT_UNSET_VALUE;
+    this->_draw_widget();
+}
+
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_enter()
+{
+    if (this->on_enter != nullptr)
+        (this->call_object->*on_enter)(this);
+}
+
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::clear_input_buffer()
 {
     for (uint8_t i = 0; i < MAX_NUM_OF_CHARS; ++i)
     {
@@ -161,8 +161,8 @@ void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::clear_in
     }
 }
 
-template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::set_input_buffer(const char *_input_data)
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::set_input_buffer(const char *_input_data)
 {
     size_t _input_data_length = strlen(_input_data);
 
@@ -179,21 +179,21 @@ void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::set_inpu
     }
 }
 
-template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::set_input_buffer(String _input_buffer)
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::set_input_buffer(String _input_buffer)
 {
     this->set_input_buffer(_input_buffer.c_str());
 }
 
-template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-bool UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::buffer_is_empty()
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+bool UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::buffer_is_empty()
 {
     // we fill the buffer from pos-0 to ...
     return this->input_buffer[0] == this->INPUT_UNSET_VALUE;
 }
 
-template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::_draw_released_widget()
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_released_widget()
 {
     // draw background-color
     this->display->setColor(this->released_background_color);
@@ -234,14 +234,23 @@ void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::_draw_re
             }
         }
 
+        // if the input-field is a password-input-field display only *
+        if (this->input_type == IN_INPUT_TYPE::IN_PASSWORD)
+        {
+            for (uint8_t i = 0; i < text_to_print.length(); ++i)
+            {
+                text_to_print[i] = '*';
+            }
+        }
+
         // center the text horizontally in the widget
         this->display->print(text_to_print, this->upper_left.x_pos + this->_text_gap,
                              this->upper_left.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
     }
 }
 
-template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::_draw_pressed_widget()
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_pressed_widget()
 {
     // draw background-color
     this->display->setColor(this->pressed_background_color);
@@ -283,6 +292,15 @@ void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::_draw_pr
             }
         }
 
+        // if the input-field is a password-input-field display only *
+        if (this->input_type == IN_INPUT_TYPE::IN_PASSWORD)
+        {
+            for (uint8_t i = 0; i < text_to_print.length(); ++i)
+            {
+                text_to_print[i] = '*';
+            }
+        }
+
         // center the text horizontally in the widget
         this->display->print(text_to_print, this->upper_left.x_pos + this->_text_gap,
                              this->upper_left.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
@@ -293,14 +311,14 @@ void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::_draw_pr
                              this->upper_left.y_pos + (this->height() / 2) - font_height / 2, font_height); // height of the curser is the font-height and the upper-pos is the upper-pos of the text
 }
 
-template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::_focus_lose()
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_focus_lose()
 {
     this->_draw_released_widget();
 }
 
-template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::_draw_widget()
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {
