@@ -12,7 +12,7 @@ public:
     lock_screen(UI::MainWindow *_main_window) : UI::Window(_main_window),
                                                 _button(this, ::upper_left, ::lower_right, this),
                                                 _button2(this, {this->_get_display()->getDisplayXSize() - 100, this->_get_display()->getDisplayYSize() - 35}, {this->_get_display()->getDisplayXSize() - 1, this->_get_display()->getDisplayYSize() - 1}, this),
-                                                text_feld(this, {0, 0}, this->_get_display()->getDisplayYSize() - 1, "Window title"),
+                                                text_feld(this, {0, 0}, this->_get_display()->getDisplayXSize() - 1, "Window title"),
                                                 ch_box(this, {50, 150}, 25, 25, this),
                                                 input_field(this, {150, 150}, 60, 35, this, UI::InputField<10, '*', lock_screen>::IN_INPUT_TYPE::IN_DIGIT)
     {

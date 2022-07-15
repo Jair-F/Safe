@@ -42,34 +42,44 @@ extern uint8_t BigFont[];
 UTFT myGLCD(ILI9341_16, 38, 39, 40, 41);
 URTouch myTouch(6, 5, 4, 3, 2);
 
-#define TOUCH_ORIENTATION PORTRAIT
+#define DISPLAY_ORIENTATION LANDSCAPE
 
 #include "UI/lock_screen.hpp"
 
-UI::MainWindow m_window(&myGLCD, &myTouch, {20, 20}, {myGLCD.getDisplayXSize(), myGLCD.getDisplayYSize()});
+UI::MainWindow m_window(&myGLCD, &myTouch, {0, 0}, {320, 240});
 
-lock_screen l_screen(&m_window);
+lock_screen *l_screen;
 
 // -------------
 
-Fase::Fase fase;
+// Fase::Fase fase;
 
-Keypad::Keypad k_pad;
+Keypad::Keypad<UI::MainWindow> k_pad(&m_window);
 
 void setup()
 {
 #ifdef DEBUG
     debug_init();
-#endif // DEBUG
+#else
     Serial.begin(9600);
+#endif // DEBUG
 
     EEPROM.begin();
 
-    myGLCD.InitLCD();
+    myGLCD.InitLCD(DISPLAY_ORIENTATION);
     myGLCD.setFont(SmallFont);
     myGLCD.clrScr();
-    myTouch.InitTouch(TOUCH_ORIENTATION);
+    myTouch.InitTouch(DISPLAY_ORIENTATION);
     myTouch.setPrecision(PREC_MEDIUM);
+
+    Serial.println("Display-Size: ");
+    Serial.print('(');
+    Serial.print(myGLCD.getDisplayXSize());
+    Serial.print(",");
+    Serial.print(myGLCD.getDisplayYSize());
+    Serial.println(')');
+
+    l_screen = new lock_screen(&m_window);
 
     if (system_clock.lost_power())
     {
@@ -106,13 +116,17 @@ void setup()
     DEBUG_PRINTLN(now.DayOfWeek());
 
     logger.log(F("Started startup"), Log::log_level::L_DEBUG);
-    fase.begin();
+    // fase.begin();
     logger.log(F("Everything initialized"), Log::log_level::L_DEBUG);
 
-    // k_pad.begin();
+    k_pad.on_input = &m_window.send_input;
+    k_pad.begin();
+
+    Serial.println(myGLCD.getDisplayXSize());
+    Serial.println(myGLCD.getDisplayYSize());
 
     // logger.serial_dump();
-    m_window.set_active_window(&l_screen);
+    m_window.set_active_window(l_screen);
 
     // Serial.println(l_screen.pos().x_pos);
     // Serial.println(l_screen.pos().y_pos);
@@ -132,6 +146,7 @@ void loop()
         Serial.println(key);
     }
     */
+    k_pad.loop();
     m_window.loop();
 
     // fase.loop();

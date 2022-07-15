@@ -20,8 +20,23 @@ namespace UI
             @param window_upper_left size - the upper left position of the "normal windows" which are shown on the main_window
             @param window_lower_right size - the lower right position of the "normal windows" which are shown on the main_window
         */
-        MainWindow(UTFT *_display, URTouch *_touch, position window_upper_left, position window_lower_right) : focused_widget(nullptr),
-                                                                                                               active_window(nullptr), display(_display), touch(_touch) {}
+        MainWindow(UTFT *_display, URTouch *_touch, position _window_upper_left, position _window_lower_right) : focused_widget(nullptr),
+                                                                                                                 active_window(nullptr), display(_display), touch(_touch),
+                                                                                                                 window_upper_left(_window_upper_left), window_lower_right(_window_lower_right)
+        {
+            Serial.println("Mainwindow window shift: ");
+            Serial.print('(');
+            Serial.print(window_upper_left.x_pos);
+            Serial.print(",");
+            Serial.print(window_upper_left.y_pos);
+            Serial.println(')');
+
+            Serial.print('(');
+            Serial.print(window_lower_right.x_pos);
+            Serial.print(",");
+            Serial.print(window_lower_right.y_pos);
+            Serial.println(')');
+        }
         virtual ~MainWindow() {}
 
         // String get_input() { return this->keypad.get_buffer(); }
@@ -92,6 +107,6 @@ namespace UI
         /*
             size of the "normal windows" which are shown on the main_window - the windows grab the size in their window-constructor
         */
-        position window_lower_right, window_upper_left;
+        position window_upper_left, window_lower_right;
     };
 } // namespace UI
