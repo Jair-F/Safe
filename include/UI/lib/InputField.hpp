@@ -19,7 +19,7 @@ namespace UI
             IN_PASSWORD
         };
 
-        void (CALL_OBJECT_TYPE::*on_enter)(Widget *_widget) = nullptr;
+        void (CALL_OBJECT_TYPE::*on_enter)(Touch_Widget<CALL_OBJECT_TYPE> *_widget) = nullptr;
 
         InputField(Window *_parent, const position _upper_left, const position _lower_right,
                    CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type);
@@ -48,12 +48,12 @@ namespace UI
         uint8_t *get_font() { return this->_text_font; }
 
     protected:
+        void _draw_widget() override;
         void _draw_released_widget() override;
         /*
             at this time this isnt when the widget is pressed. its when the widget is focused and ready for input - then we show the cursor
         */
         void _draw_pressed_widget() override;
-        void _draw_widget() override;
 
         void _focus_lose() override;
 
