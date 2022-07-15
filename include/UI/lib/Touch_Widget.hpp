@@ -55,6 +55,9 @@ namespace UI
             @param _touch_data absolute position of the release of the touch
         */
         void _release(const position &_touch_data) override;
+        /*
+            if the release of the touch was outside of the widget - draws the widget without calling on_release
+        */
         void _reset_touch() override;
 
         /*
@@ -77,7 +80,7 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_touch(const position &_touch_data)
 {
     if (!this->is_hidden())
     {
-        this->touched = true; // needs to be set first - the _draw_widget draws the widget according to that
+        this->touched = true; // needs to be set first - the draw_widget draws the widget according to that
         this->_draw_widget(); // draw the widget according to the actual state
         // this->_parent_window->request_focus(this);
         if (this->on_touch != nullptr)
@@ -92,7 +95,7 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_release(const position &_touch_data)
 {
     if (!this->is_hidden())
     {
-        this->touched = false; // needs to be set first - the _draw_widget draws the widget according to that
+        this->touched = false; // needs to be set first - the draw_widget draws the widget according to that
         this->_draw_widget();  // draw the widget according to the actual state
         if (this->on_release != nullptr)
         {

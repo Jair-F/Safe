@@ -49,8 +49,7 @@ namespace UI
         unsigned int border_color;
 
     protected:
-        void
-        _draw_widget();
+        void _draw_widget();
 
         // those two are doing the same - call _draw_widget
         void _draw_released_widget() { this->_draw_widget(); }

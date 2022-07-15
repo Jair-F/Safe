@@ -81,7 +81,6 @@ namespace UI
             just defined to be able to call the derived class function touched_widget with the base class pointer
         */
         inline virtual bool is_focused() const { return false; };
-
         inline bool is_hidden() const { return this->hidden; }
 
         /*
@@ -100,6 +99,11 @@ namespace UI
             set is_hidden to false and draw the whole widget on the screen
         */
         void show();
+
+        /*
+            wrapper for redrawing the widget from outside
+        */
+        void update_widget() { this->_draw_widget(); }
 
         /*
             @return the upper left position
