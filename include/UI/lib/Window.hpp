@@ -45,6 +45,8 @@ namespace UI
 
         /*
             calc the absolute position of the real display
+            @param _pos the relative pos from the widget
+            @return the according absolute pos to the relative pos
         */
         position _calc_absolute_pos(const position &_pos) const;
 
@@ -87,7 +89,7 @@ namespace UI
         Widget *last_focused_widget;
         SinglyLinkedList<Widget *> registered_widgets;
 
-        // window size - rectangle
+        // window size - rectangle(absolute positions)
         position _upper_left;
         position _lower_right;
     };

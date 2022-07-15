@@ -7,8 +7,8 @@ namespace UI
     class CheckBox : public Touch_Widget<CALL_OBJECT_TYPE>
     {
     public:
-        CheckBox(Window *_parent, position _upper_left_pos, position _lower_right_pos, CALL_OBJECT_TYPE *_call_object);
-        CheckBox(Window *_parent, position _upper_left_pos, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object);
+        CheckBox(Window *_parent, position _upper_left, position _lower_right, CALL_OBJECT_TYPE *_call_object);
+        CheckBox(Window *_parent, position _upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object);
 
         /*
             @return true if the checkbox is checked
@@ -49,14 +49,14 @@ namespace UI
 // ------------- template implementation -------------
 
 template <typename CALL_OBJECT_TYPE>
-UI::CheckBox<CALL_OBJECT_TYPE>::CheckBox(Window *_parent, position _upper_left_pos,
-                                         position _lower_right_pos, CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left_pos, _lower_right_pos, _call_object), checked(false)
+UI::CheckBox<CALL_OBJECT_TYPE>::CheckBox(Window *_parent, position _upper_left,
+                                         position _lower_right, CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right, _call_object), checked(false)
 {
 }
 
 template <typename CALL_OBJECT_TYPE>
-UI::CheckBox<CALL_OBJECT_TYPE>::CheckBox(Window *_parent, const position _upper_left_pos,
-                                         uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left_pos, _width, _height, _call_object), checked(false)
+UI::CheckBox<CALL_OBJECT_TYPE>::CheckBox(Window *_parent, const position _upper_left,
+                                         uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _width, _height, _call_object), checked(false)
 {
 }
 
@@ -64,31 +64,31 @@ template <typename CALL_OBJECT_TYPE>
 void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_released_widget()
 {
     this->display->setColor(this->background_color);
-    this->display->fillRoundRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos, this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->fillRoundRect(this->_upper_left.x_pos, this->_upper_left.y_pos, this->_lower_right.x_pos, this->_lower_right.y_pos);
 
     this->display->setColor(this->border_color);
-    this->display->drawRoundRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos, this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->drawRoundRect(this->_upper_left.x_pos, this->_upper_left.y_pos, this->_lower_right.x_pos, this->_lower_right.y_pos);
 }
 
 template <typename CALL_OBJECT_TYPE>
 void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_pressed_widget()
 {
     this->display->setColor(this->background_color);
-    this->display->fillRoundRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos, this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->fillRoundRect(this->_upper_left.x_pos, this->_upper_left.y_pos, this->_lower_right.x_pos, this->_lower_right.y_pos);
 
     this->display->setColor(this->border_color);
-    this->display->drawRoundRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos, this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->drawRoundRect(this->_upper_left.x_pos, this->_upper_left.y_pos, this->_lower_right.x_pos, this->_lower_right.y_pos);
 
     uint8_t gap_from_box = 2; // the gap between the box and the begin of the check mark
 
     this->display->setColor(this->check_sign_color);
     // check-mark - short line
-    this->display->drawLine(this->_upper_left_pos.x_pos + gap_from_box, (this->_upper_left_pos.y_pos + this->height() * 0.5),
-                            (this->_upper_left_pos.x_pos + this->width() * 0.5) - gap_from_box, this->_lower_right_pos.y_pos - gap_from_box);
+    this->display->drawLine(this->_upper_left.x_pos + gap_from_box, (this->_upper_left.y_pos + this->height() * 0.5),
+                            (this->_upper_left.x_pos + this->width() * 0.5) - gap_from_box, this->_lower_right.y_pos - gap_from_box);
 
     // check-mark - long line
-    this->display->drawLine((this->_upper_left_pos.x_pos + this->width() * 0.5) - gap_from_box, this->_lower_right_pos.y_pos - gap_from_box,
-                            this->_lower_right_pos.x_pos - gap_from_box - 1, this->_upper_left_pos.y_pos + gap_from_box + 1);
+    this->display->drawLine((this->_upper_left.x_pos + this->width() * 0.5) - gap_from_box, this->_lower_right.y_pos - gap_from_box,
+                            this->_lower_right.x_pos - gap_from_box - 1, this->_upper_left.y_pos + gap_from_box + 1);
 }
 
 template <typename CALL_OBJECT_TYPE>

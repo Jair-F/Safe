@@ -21,9 +21,9 @@ namespace UI
             IN_PASSWORD
         };
 
-        InputField(Window *_parent, const position _upper_left_pos, const position _lower_right_pos,
+        InputField(Window *_parent, const position _upper_left, const position _lower_right,
                    CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type);
-        InputField(Window *_parent, const position _upper_left_pos, uint16_t _width, uint16_t _height,
+        InputField(Window *_parent, const position _upper_left, uint16_t _width, uint16_t _height,
                    CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type);
 
         // function called from the keypad from the MainWindow
@@ -88,8 +88,8 @@ namespace UI
 // ------------- template implementation -------------
 
 template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left_pos, const position _lower_right_pos,
-                                                                              CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left_pos, _lower_right_pos, _call_object),
+UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left, const position _lower_right,
+                                                                              CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right, _call_object),
                                                                                                                                            input_type(_input_type)
 {
     assert(MAX_NUM_OF_CHARS > 0);
@@ -104,8 +104,8 @@ UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::InputField(Wi
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>
-UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left_pos, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
-                                                                              IN_INPUT_TYPE _input_type) : InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>(_parent, _upper_left_pos, {_upper_left_pos.x_pos + _width, _upper_left_pos.y_pos + _height}, _call_object, _input_type)
+UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
+                                                                              IN_INPUT_TYPE _input_type) : InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _width, _upper_left.y_pos + _height}, _call_object, _input_type)
 {
 }
 
@@ -197,13 +197,13 @@ void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::_draw_re
 {
     // draw background-color
     this->display->setColor(this->released_background_color);
-    this->display->fillRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
-                            this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->fillRect(this->_upper_left.x_pos, this->_upper_left.y_pos,
+                            this->_lower_right.x_pos, this->_lower_right.y_pos);
 
     // draw the border
     this->display->setColor(this->released_border_color);
-    this->display->drawRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
-                            this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->drawRect(this->_upper_left.x_pos, this->_upper_left.y_pos,
+                            this->_lower_right.x_pos, this->_lower_right.y_pos);
 
     // print the print the text in the InputField if there is text in the buffer
     if (!this->buffer_is_empty())
@@ -235,8 +235,8 @@ void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::_draw_re
         }
 
         // center the text horizontally in the widget
-        this->display->print(text_to_print, this->_upper_left_pos.x_pos + this->_text_gap,
-                             this->_upper_left_pos.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
+        this->display->print(text_to_print, this->_upper_left.x_pos + this->_text_gap,
+                             this->_upper_left.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
     }
 }
 
@@ -245,13 +245,13 @@ void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::_draw_pr
 {
     // draw background-color
     this->display->setColor(this->pressed_background_color);
-    this->display->fillRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
-                            this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->fillRect(this->_upper_left.x_pos, this->_upper_left.y_pos,
+                            this->_lower_right.x_pos, this->_lower_right.y_pos);
 
     // draw the border
     this->display->setColor(this->pressed_border_color);
-    this->display->drawRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
-                            this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->drawRect(this->_upper_left.x_pos, this->_upper_left.y_pos,
+                            this->_lower_right.x_pos, this->_lower_right.y_pos);
 
     uint8_t font_height = this->display->getFontYsize();
     uint8_t font_width = this->display->getFontXsize();
@@ -284,13 +284,13 @@ void UI::InputField<MAX_NUM_OF_CHARS, BACKSPACE_KEY, CALL_OBJECT_TYPE>::_draw_pr
         }
 
         // center the text horizontally in the widget
-        this->display->print(text_to_print, this->_upper_left_pos.x_pos + this->_text_gap,
-                             this->_upper_left_pos.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
+        this->display->print(text_to_print, this->_upper_left.x_pos + this->_text_gap,
+                             this->_upper_left.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
     }
     // draw the cursor
     this->display->setColor(this->pressed_cursor_color);
-    this->display->drawVLine(this->_upper_left_pos.x_pos + this->_text_gap + font_width * text_to_print.length(),
-                             this->_upper_left_pos.y_pos + (this->height() / 2) - font_height / 2, font_height); // height of the curser is the font-height and the upper-pos is the upper-pos of the text
+    this->display->drawVLine(this->_upper_left.x_pos + this->_text_gap + font_width * text_to_print.length(),
+                             this->_upper_left.y_pos + (this->height() / 2) - font_height / 2, font_height); // height of the curser is the font-height and the upper-pos is the upper-pos of the text
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, char BACKSPACE_KEY, typename CALL_OBJECT_TYPE>

@@ -33,7 +33,7 @@ namespace UI
         /*
             absoloute positions on the display
         */
-        position _upper_left_pos, _lower_right_pos;
+        position _upper_left, _lower_right;
 
         /*
             for touch_widgets we need released and pressed widget... on normal widget - which can not be touched
@@ -63,12 +63,12 @@ namespace UI
         /*
             @param _uppser_left_pos upper left corner in relation to the parent window zero point
         */
-        Widget(Window *_parent, const position &_upper_left_pos, const position &_lower_right_pos);
+        Widget(Window *_parent, const position &_upper_left_pos, const position &_lower_right);
         Widget(Window *_parent, const position &_upper_left_pos, uint16_t _width, uint16_t _height);
         virtual ~Widget() {}
 
-        inline uint16_t width() const { return _lower_right_pos.x_pos - _upper_left_pos.x_pos; }
-        inline uint16_t height() const { return _lower_right_pos.y_pos - _upper_left_pos.y_pos; }
+        inline uint16_t width() const { return _lower_right.x_pos - _upper_left.x_pos; }
+        inline uint16_t height() const { return _lower_right.y_pos - _upper_left.y_pos; }
 
         /*
             resize the widget
@@ -102,7 +102,7 @@ namespace UI
         /*
             @return the upper left position
         */
-        inline const position &pos() const { return _upper_left_pos; }
+        inline const position &pos() const { return _upper_left; }
 
         /*
             for sending click-signal

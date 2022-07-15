@@ -19,14 +19,14 @@ namespace UI
         };
 
         /*
-        TextLabel(Window *_parent, const position _upper_left_pos, const position _lower_right_pos, String _text = "");
-        TextLabel(Window *_parent, const position _upper_left_pos, unsigned int _width, unsigned int _height, String _text = "");
+        TextLabel(Window *_parent, const position _upper_left, const position _lower_right, String _text = "");
+        TextLabel(Window *_parent, const position _upper_left, unsigned int _width, unsigned int _height, String _text = "");
         */
 
         /*
             adjust the widget height according to the text_length
         */
-        TextLabel(Window *_parent, const position _upper_left_pos, uint16_t _width, String _text, uint8_t *_font = SmallFont);
+        TextLabel(Window *_parent, const position _upper_left, uint16_t _width, String _text, uint8_t *_font = SmallFont);
 
         void set_font(uint8_t *_font) { this->text_font = _font; }
         void set_text(String _text);

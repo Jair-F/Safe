@@ -15,20 +15,20 @@ namespace UI
         bool touched;                  // true if the widget is touched at the time - else false
 
     public:
-        Touch_Widget(Window *_parent, const position &_upper_left_pos,
-                     const position &_lower_right_pos, CALL_OBJECT_TYPE *_call_object) : Widget(_parent, _upper_left_pos, _lower_right_pos),
-                                                                                         call_object(_call_object), on_click(nullptr), on_release(nullptr) {}
-        Touch_Widget(Window *_parent, const position &_upper_left_pos,
-                     const position _lower_right_pos, CALL_OBJECT_TYPE *_call_object,
-                     void (CALL_OBJECT_TYPE::*_on_click)(), void (CALL_OBJECT_TYPE::*_on_release)()) : Widget(_parent, _upper_left_pos, _lower_right_pos),
+        Touch_Widget(Window *_parent, const position &_upper_left,
+                     const position &_lower_right, CALL_OBJECT_TYPE *_call_object) : Widget(_parent, _upper_left, _lower_right),
+                                                                                     call_object(_call_object), on_click(nullptr), on_release(nullptr) {}
+        Touch_Widget(Window *_parent, const position &_upper_left,
+                     const position _lower_right, CALL_OBJECT_TYPE *_call_object,
+                     void (CALL_OBJECT_TYPE::*_on_click)(), void (CALL_OBJECT_TYPE::*_on_release)()) : Widget(_parent, _upper_left, _lower_right),
                                                                                                        call_object(_call_object), on_click(_on_click), on_release(_on_release) {}
 
-        Touch_Widget(Window *_parent, const position &_upper_left_pos,
-                     uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object) : Widget(_parent, _upper_left_pos, _width, _height),
+        Touch_Widget(Window *_parent, const position &_upper_left,
+                     uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object) : Widget(_parent, _upper_left, _width, _height),
                                                                                           call_object(_call_object), on_click(nullptr), on_release(nullptr) {}
-        Touch_Widget(Window *_parent, const position &_upper_left_pos,
+        Touch_Widget(Window *_parent, const position &_upper_left,
                      uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
-                     void (CALL_OBJECT_TYPE::*_on_click)(), void (CALL_OBJECT_TYPE::*_on_release)()) : Widget(_parent, _upper_left_pos, _width, height),
+                     void (CALL_OBJECT_TYPE::*_on_click)(), void (CALL_OBJECT_TYPE::*_on_release)()) : Widget(_parent, _upper_left, _width, height),
                                                                                                        call_object(_call_object), on_click(_on_click), on_release(_on_release) {}
 
         /*

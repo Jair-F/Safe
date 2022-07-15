@@ -13,8 +13,8 @@ namespace UI
     class Button : public Touch_Widget<CALL_OBJECT_TYPE>
     {
     public:
-        Button(Window *parent, position _upper_left_pos_pos, position _lower_right_pos,
-               CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(parent, _upper_left_pos_pos, _lower_right_pos, _call_object)
+        Button(Window *parent, position _upper_left_pos_pos, position _lower_right,
+               CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(parent, _upper_left_pos_pos, _lower_right, _call_object)
         {
             // this->_draw_released_widget();
         }
@@ -67,13 +67,13 @@ void UI::Button<CALL_OBJECT_TYPE>::_draw_pressed_widget()
 
     // draw background-color
     this->display->setColor(this->pressed_background_color);
-    this->display->fillRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
-                            this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->fillRect(this->_upper_left.x_pos, this->_upper_left.y_pos,
+                            this->_lower_right.x_pos, this->_lower_right.y_pos);
 
     // draw the border
     this->display->setColor(this->pressed_border_color);
-    this->display->drawRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
-                            this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->drawRect(this->_upper_left.x_pos, this->_upper_left.y_pos,
+                            this->_lower_right.x_pos, this->_lower_right.y_pos);
 
     uint8_t font_height = this->display->getFontYsize();
     uint8_t font_width = this->display->getFontXsize();
@@ -83,7 +83,7 @@ void UI::Button<CALL_OBJECT_TYPE>::_draw_pressed_widget()
     this->display->setColor(this->pressed_text_color);
     this->display->setBackColor(this->pressed_background_color);
     this->display->setFont(this->_text_font);
-    this->display->print(this->text, this->_upper_left_pos.x_pos + (this->width() / 2) - (font_width * text.length() / 2), this->_lower_right_pos.y_pos - (this->height() / 2) - font_height / 2);
+    this->display->print(this->text, this->_upper_left.x_pos + (this->width() / 2) - (font_width * text.length() / 2), this->_lower_right.y_pos - (this->height() / 2) - font_height / 2);
 }
 
 template <typename CALL_OBJECT_TYPE>
@@ -94,13 +94,13 @@ void UI::Button<CALL_OBJECT_TYPE>::_draw_released_widget()
 
     // draw background-color
     this->display->setColor(this->released_background_color);
-    this->display->fillRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
-                            this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->fillRect(this->_upper_left.x_pos, this->_upper_left.y_pos,
+                            this->_lower_right.x_pos, this->_lower_right.y_pos);
 
     // draw the border
     this->display->setColor(this->released_border_color);
-    this->display->drawRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
-                            this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->drawRect(this->_upper_left.x_pos, this->_upper_left.y_pos,
+                            this->_lower_right.x_pos, this->_lower_right.y_pos);
 
     uint8_t font_height = this->display->getFontYsize();
     uint8_t font_width = this->display->getFontXsize();
@@ -111,8 +111,8 @@ void UI::Button<CALL_OBJECT_TYPE>::_draw_released_widget()
     this->display->setColor(this->released_text_color);
     this->display->setFont(this->_text_font);
     this->display->print(this->text,
-                         this->_upper_left_pos.x_pos + (this->width() / 2) - (font_width * text.length() / 2),
-                         this->_lower_right_pos.y_pos - (this->height() / 2) - font_height / 2);
+                         this->_upper_left.x_pos + (this->width() / 2) - (font_width * text.length() / 2),
+                         this->_lower_right.y_pos - (this->height() / 2) - font_height / 2);
 }
 
 template <typename CALL_OBJECT_TYPE>

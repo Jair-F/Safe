@@ -1,21 +1,21 @@
 #include "UI/UI.hpp"
 
 /*
-UI::TextLabel::TextLabel(Window *_parent, const position _upper_left_pos,
-                         const position _lower_right_pos, String _text = "") : Widget(_parent, _upper_left_pos, _lower_right_pos),
+UI::TextLabel::TextLabel(Window *_parent, const position _upper_left,
+                         const position _lower_right, String _text = "") : Widget(_parent, _upper_left, _lower_right),
                                                                                text(_text)
 {
 }
 
-UI::TextLabel::TextLabel(Window *_parent, const position _upper_left_pos,
-                         unsigned int _width, unsigned int _height, String _text = "") : Widget(_parent, _upper_left_pos, _width, _height),
+UI::TextLabel::TextLabel(Window *_parent, const position _upper_left,
+                         unsigned int _width, unsigned int _height, String _text = "") : Widget(_parent, _upper_left, _width, _height),
                                                                                          text(_text)
 {
 }
 */
 
-UI::TextLabel::TextLabel(Window *_parent, const position _upper_left_pos, uint16_t _width,
-                         String _text, uint8_t *_text_font) : Widget(_parent, _upper_left_pos, {_width, 1}),
+UI::TextLabel::TextLabel(Window *_parent, const position _upper_left, uint16_t _width,
+                         String _text, uint8_t *_text_font) : Widget(_parent, _upper_left, {_width, 1}),
                                                               background_color(VGA_BLACK), text_color(VGA_WHITE), border_color(VGA_WHITE),
                                                               text(_text), text_font(_text_font), text_align(text_alignment::AL_LEFT), draw_border(false)
 {
@@ -33,8 +33,8 @@ void UI::TextLabel::_draw_widget()
 {
     // fill the widget_space with the background_color
     this->display->setColor(background_color);
-    this->display->fillRect(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos,
-                            this->_lower_right_pos.x_pos, this->_lower_right_pos.y_pos);
+    this->display->fillRect(this->_upper_left.x_pos, this->_upper_left.y_pos,
+                            this->_lower_right.x_pos, this->_lower_right.y_pos);
 
     this->display->setFont(text_font);
     this->display->setBackColor(this->background_color);
@@ -42,7 +42,7 @@ void UI::TextLabel::_draw_widget()
 
     this->_calc_widget();
 
-    position text_starting_pos = {this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos + text_gap_height};
+    position text_starting_pos = {this->_upper_left.x_pos, this->_upper_left.y_pos + text_gap_height};
 
     for (unsigned short i = 0; i < this->text_lines; ++i)
     {
@@ -53,21 +53,21 @@ void UI::TextLabel::_draw_widget()
         {
         case text_alignment::AL_LEFT:
         {
-            text_starting_pos.x_pos = this->_upper_left_pos.x_pos + this->text_gap_length;
+            text_starting_pos.x_pos = this->_upper_left.x_pos + this->text_gap_length;
             break;
         }
         case text_alignment::AL_CENTER:
         {
             // remaining space at the sides if the text length and the gap at the side is considered (!! sum of the space of both sides !!)
             uint16_t remaining_space = ((this->width() - 2 * text_gap_length) - line_to_print.length() * this->display->getFontXsize());
-            text_starting_pos.x_pos = this->_upper_left_pos.x_pos + this->text_gap_length + remaining_space / 2;
+            text_starting_pos.x_pos = this->_upper_left.x_pos + this->text_gap_length + remaining_space / 2;
             break;
         }
         case text_alignment::AL_RIGHT:
         {
             // remaining space at the sides if the text length and the gap at the side is considered (!! sum of the space of both sides !!)
             uint16_t remaining_space = ((this->width() - 2 * text_gap_length) - line_to_print.length() * this->display->getFontXsize());
-            text_starting_pos.x_pos = this->_upper_left_pos.x_pos + this->text_gap_length + remaining_space;
+            text_starting_pos.x_pos = this->_upper_left.x_pos + this->text_gap_length + remaining_space;
             break;
         }
         }
@@ -80,10 +80,10 @@ void UI::TextLabel::_draw_widget()
     if (this->has_border())
     { // border of the widget
         this->display->setColor(this->border_color);
-        this->display->drawHLine(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos, this->width());
-        this->display->drawHLine(this->_upper_left_pos.x_pos, this->_lower_right_pos.y_pos, this->width());
-        this->display->drawVLine(this->_upper_left_pos.x_pos, this->_upper_left_pos.y_pos, this->height());
-        this->display->drawVLine(this->_lower_right_pos.x_pos, this->_upper_left_pos.y_pos, this->height());
+        this->display->drawHLine(this->_upper_left.x_pos, this->_upper_left.y_pos, this->width());
+        this->display->drawHLine(this->_upper_left.x_pos, this->_lower_right.y_pos, this->width());
+        this->display->drawVLine(this->_upper_left.x_pos, this->_upper_left.y_pos, this->height());
+        this->display->drawVLine(this->_lower_right.x_pos, this->_upper_left.y_pos, this->height());
     }
 }
 
