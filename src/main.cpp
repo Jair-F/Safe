@@ -120,6 +120,8 @@ void setup()
     logger.log(F("Everything initialized"), Log::log_level::L_DEBUG);
 
     k_pad.on_input = &m_window.send_input;
+    k_pad.on_enter = &m_window.send_enter;
+    k_pad.on_backspace = &m_window.send_backspace;
     k_pad.begin();
 
     Serial.println(myGLCD.getDisplayXSize());
