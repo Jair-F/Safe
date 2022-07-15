@@ -24,7 +24,7 @@ namespace Keypad
                                 {'4', '5', '6'},
                                 {'7', '8', '9'},
                                 {'*', '0', '#'}};
-#define CANCEL_KEY '*'
+#define BACKSPACE_KEY '*'
 #define ENTER_KEY '#'
 
     template <typename CALL_OBJECT_TYPE>
@@ -41,7 +41,9 @@ namespace Keypad
         Keypad(char **userKeymap, byte *rows, byte *columns, int numRows, int numColumns, CALL_OBJECT_TYPE *_call_object);
         ~Keypad() {}
 
-        void (CALL_OBJECT_TYPE::*on_input)(char _input_data) = {};
+        void (CALL_OBJECT_TYPE::*on_input)(char _input_data) = nullptr;
+        void (CALL_OBJECT_TYPE::*on_backspace)() = nullptr;
+        void (CALL_OBJECT_TYPE::*on_enter)() = nullptr;
 
         void loop();
 
@@ -77,14 +79,35 @@ void Keypad::Keypad<CALL_OBJECT_TYPE>::loop()
 
     if (this->keypad.available() >= 1) // some input in the buffer
     {
-        Serial.print("keypad sent input...: ");
         keypadEvent key_event = this->keypad.read();
-        if (key_event.bit.EVENT == 1) // a key was pressed - not released...
+        if (key_event.bit.EVENT == KEY_JUST_PRESSED) // a key was pressed - not released...
         {
-            (this->call_object->*this->on_input)(static_cast<char>(key_event.bit.KEY));
-            Serial.println(static_cast<char>(key_event.bit.KEY));
-            // this->on_input(static_cast<char>(key_event.bit.KEY));
+            char pressed_key = static_cast<char>(key_event.bit.KEY);
+            if (pressed_key == BACKSPACE_KEY)
+            {
+                if (this->on_backspace != nullptr)
+                    (this->call_object->*this->on_backspace)();
+            }
+            else if (pressed_key == ENTER_KEY)
+            {
+                if (this->on_enter != nullptr)
+                    (this->call_object->*this->on_enter)();
+            }
+            else
+            {
+                if (this->on_input != nullptr)
+                    (this->call_object->*this->on_input)(pressed_key);
+            }
         }
+
+        Serial.println("keypad-input: ");
+        Serial.print("Key: ");
+        Serial.println(static_cast<char>(key_event.bit.KEY));
+
+        Serial.print("Key-Event: ");
+        Serial.print(key_event.bit.EVENT);
+        Serial.print(" -> ");
+        Serial.println(key_event.bit.EVENT == KEY_JUST_PRESSED ? "pressed" : "released");
     }
 }
 
