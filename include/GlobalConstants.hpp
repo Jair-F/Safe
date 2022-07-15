@@ -8,17 +8,17 @@
 #define FINGERPRINT_POWER_PIN A0
 
 // RFID
-#define MFRC522_RST_PIN 49 // RST_PIN
-#define MFRC522_SS_PIN 53  // SDA_PIN
+#define MFRC522_RST_PIN A5 // RST_PIN
+#define MFRC522_SS_PIN A4  // SDA_PIN
 
 // Keypad-Pins
-#define PIN_R1 2
-#define PIN_R2 3
-#define PIN_R3 4
-#define PIN_R4 5
-#define PIN_C1 8
-#define PIN_C2 9
-#define PIN_C3 10
+#define PIN_R1 A8
+#define PIN_R2 A9
+#define PIN_R3 A10
+#define PIN_R4 A11
+#define PIN_C1 A12
+#define PIN_C2 A13
+#define PIN_C3 A14
 
 // RTC-Clock-Pins
 #define RTC_DATA A2 // DATA/IO
