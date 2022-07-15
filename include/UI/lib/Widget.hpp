@@ -88,6 +88,8 @@ namespace UI
             handle the input of the keyboard/keypad
         */
         virtual void send_input(char _input_data) {}
+        virtual void send_backspace() {} // handle backspace signal keypad
+        virtual void send_enter() {}     // handle enter signal from keypad
 
         /*
             set is_hidden to true and clear the whole widget from the screen
