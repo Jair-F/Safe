@@ -149,7 +149,7 @@ namespace Lock
         unlock_token(Lock *_lock);
         unlock_token(const unlock_token &) = delete;
         unlock_token &operator=(const unlock_token &) = delete;
-        ~unlock_token() {}
+        virtual ~unlock_token() {}
         /*
             @return true if the lock was unlocked false if forbidden
         */
