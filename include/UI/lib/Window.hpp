@@ -31,17 +31,17 @@ namespace UI
         */
         bool request_focus(Widget *_widget);
 
-        inline uint16_t width() const { return this->_lower_right.x_pos - this->_upper_left.x_pos; }
-        inline uint16_t height() const { return this->_lower_right.y_pos - this->_upper_left.y_pos; }
+        inline uint16_t width() const { return this->lower_right.x_pos - this->upper_left.x_pos; }
+        inline uint16_t height() const { return this->lower_right.y_pos - this->upper_left.y_pos; }
 
         /*
             @return the upper left position(absolute pos)
         */
-        const position &pos() const { return this->_upper_left; }
+        const position &pos() const { return this->upper_left; }
         // (absolute pos)
-        const position &_get_lower_right_pos() const { return this->_lower_right; }
+        const position &_get_lower_right_pos() const { return this->lower_right; }
         // (absolute pos)
-        const position &_get_upper_left_pos() const { return this->_upper_left; }
+        const position &_get_upper_left_pos() const { return this->upper_left; }
 
         /*
             calc the absolute position of the real display
@@ -90,8 +90,8 @@ namespace UI
         SinglyLinkedList<Widget *> registered_widgets;
 
         // window size - rectangle(absolute positions)
-        position _upper_left;
-        position _lower_right;
+        position upper_left;
+        position lower_right;
     };
 
 } // namespace UI

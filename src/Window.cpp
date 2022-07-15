@@ -4,8 +4,8 @@
 
 UI::Window::Window(UI::MainWindow *main_window) : _main_window(main_window), last_focused_widget(nullptr), registered_widgets()
 {
-    this->_upper_left = _main_window->_get_window_upper_left();
-    this->_lower_right = _main_window->_get_window_lower_right();
+    this->upper_left = _main_window->_get_window_upper_left();
+    this->lower_right = _main_window->_get_window_lower_right();
 }
 
 bool UI::Window::request_focus(UI::Widget *_widget)
@@ -16,8 +16,8 @@ bool UI::Window::request_focus(UI::Widget *_widget)
 UI::position UI::Window::_calc_absolute_pos(const position &_pos) const
 {
     position ret_pos;
-    ret_pos.x_pos = this->_upper_left.x_pos + _pos.x_pos;
-    ret_pos.y_pos = this->_upper_left.y_pos + _pos.y_pos;
+    ret_pos.x_pos = this->upper_left.x_pos + _pos.x_pos;
+    ret_pos.y_pos = this->upper_left.y_pos + _pos.y_pos;
 
     // while (!Serial.available())
     //     Serial.begin(9600);
@@ -26,8 +26,8 @@ UI::position UI::Window::_calc_absolute_pos(const position &_pos) const
         Serial.println("start calc absolute pos");
         Serial.println(_pos.x_pos);
         Serial.println(_pos.x_pos);
-        Serial.println(this->_upper_left.x_pos);
-        Serial.println(this->_upper_left.y_pos);
+        Serial.println(this->upper_left.x_pos);
+        Serial.println(this->upper_left.y_pos);
         Serial.println(ret_pos.x_pos);
         Serial.println(ret_pos.y_pos);
         Serial.println("end calc absolute pos");
