@@ -120,8 +120,16 @@ UI::position UI::MainWindow::_read_touch()
 {
     position touch_data_ret;
     this->touch->read();
-    touch_data_ret.x_pos = 320 - this->touch->getY();
-    touch_data_ret.y_pos = 240 - this->touch->getX(); // y-axis is rotated on my display and we have 240 pixels
+    if (this->display->orient == PORTRAIT)
+    {
+        touch_data_ret.x_pos = this->display->getDisplayXSize() - this->touch->getX(); // X-axis is mirrored on my display in Portrait
+        touch_data_ret.y_pos = this->touch->getY();
+    }
+    else
+    {
+        touch_data_ret.x_pos = this->touch->getX();
+        touch_data_ret.y_pos = this->display->getDisplayYSize() - this->touch->getY(); // Y-axis is mirrored on my display in Landscape
+    }
     return touch_data_ret;
 }
 
