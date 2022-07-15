@@ -14,7 +14,7 @@ bool UI::MainWindow::request_focus(UI::Widget *_widget)
     return false;
 }
 
-UI::Window *UI::MainWindow::get_active_window() const
+UI::WindowBase *UI::MainWindow::get_active_window() const
 {
     return active_window;
 }
@@ -27,7 +27,23 @@ void UI::MainWindow::send_input(char _input_data)
     }
 }
 
-void UI::MainWindow::set_active_window(Window *_win)
+void UI::MainWindow::send_backspace()
+{
+    if (this->focused_widget != nullptr)
+    {
+        this->focused_widget->send_backspace();
+    }
+}
+
+void UI::MainWindow::send_enter()
+{
+    if (this->focused_widget != nullptr)
+    {
+        this->focused_widget->send_enter();
+    }
+}
+
+void UI::MainWindow::set_active_window(WindowBase *_win)
 {
     if (_win == nullptr)
     {
@@ -70,7 +86,7 @@ void UI::MainWindow::loop()
         if (this->_check_in_display(touch_data))
         {
 
-            // call the on_click func
+            // call the on_touch func
             Widget *clicked_widget = this->active_window->handle_touch_clicked(touch_data);
 
             if (!this->get_focus_frozen()) // if focus isnt frozen do not change the focused_widget

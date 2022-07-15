@@ -44,8 +44,8 @@ namespace UI
         /*
             removes also the focused widget(sets it to nullptr)
         */
-        void set_active_window(Window *_win);
-        Window *get_active_window() const;
+        void set_active_window(WindowBase *_win);
+        WindowBase *get_active_window() const;
 
         Widget *get_focused_widget() const { return this->focused_widget; }
 
@@ -63,6 +63,8 @@ namespace UI
             send the _input_data to the focused widget
         */
         void send_input(char _input_data);
+        void send_backspace();
+        void send_enter();
 
         /*
             need to be called continuously in the main loop of the application
@@ -99,7 +101,7 @@ namespace UI
     private:
         bool focus_frozen; // one widget has the focus and we are not allowed to change the focus
         Widget *focused_widget;
-        Window *active_window;
+        WindowBase *active_window;
 
         UTFT *display;
         URTouch *touch;
