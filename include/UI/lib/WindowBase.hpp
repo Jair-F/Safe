@@ -1,13 +1,19 @@
 #pragma once
 
 #include "LinkedList.hpp"
+
 #include "Widget.hpp"
+#include "MainWindow.hpp"
+#include "PopUp_Window.hpp"
 
 #include <URTouch.h>
 #include <UTFT.h>
 
 namespace UI
 {
+    class MainWindow;
+    class PopUp_Window;
+
     /*
         Base class for window
 
@@ -22,19 +28,8 @@ namespace UI
             @param _upper_left  absolute position
             @param _lower_right absolute position
         */
-        WindowBase(const position &_upper_left, const position &_lower_right) : upper_left(_upper_left), lower_right(_lower_right),
-                                                                                registered_widgets(), last_focused_widget(nullptr) {}
+        WindowBase(const position &_upper_left, const position &_lower_right);
         virtual ~WindowBase() {}
-
-        virtual void show() = 0;
-        virtual void hide() = 0;
-        /*
-            function which inherited classes need to overwrite.
-            It is to update the window for example with sensor values - actions which are not controlled/depend
-            on touch actions.
-            This function will be called from the main_window-loop - so be shure to call the main_window loop in a loop!
-        */
-        virtual void loop() {}
 
         // functions which derived classes need to implement with their pointer to the parent_window
 
@@ -43,15 +38,33 @@ namespace UI
         virtual bool request_focus(Widget *_widget) = 0;
         virtual UTFT *_get_display() const = 0;
         virtual URTouch *_get_touch() const = 0;
+        virtual MainWindow *_get_main_window() const = 0;
+
+        /*
+            show all the widgets
+        */
+        virtual void show();
+        /*
+            hide all the widgets
+        */
+        virtual void hide();
+
+        /*
+            function which inherited classes need to overwrite.
+            It is to update the window for example with sensor values - actions which are not controlled/depend
+            on touch actions.
+            This function will be called from the main_window-loop - so be shure to call the main_window loop in a loop!
+        */
+        virtual void loop() {}
+
+        void show_pop_up_window(PopUp_Window *_pop_up_window);
+        void hide_pop_up_window();
 
         //
         // base functions of a window which are implementet by default by the WindowBase
 
-        inline uint16_t width() const
-        {
-            return this->lower_right.x_pos - this->upper_left.x_pos;
-        }
-        inline uint16_t height() const { return this->lower_right.y_pos - this->upper_left.y_pos; }
+        inline uint16_t width() const;
+        inline uint16_t height() const;
         /*
             for widgets in the window to get the absolute pos on the display
             @param _pos the relative pos from the widget
@@ -61,11 +74,11 @@ namespace UI
         /*
             @return the upper left position(absolute pos)
         */
-        const position &pos() const { return this->upper_left; }
+        const position &pos() const;
         // (absolute pos)
-        const position &_get_lower_right_pos() const { return this->lower_right; }
+        const position &_get_lower_right_pos() const;
         // (absolute pos)
-        const position &_get_upper_left_pos() const { return this->upper_left; }
+        const position &_get_upper_left_pos() const;
 
         /*
             register a new widget in the list of widgets in the window to which the touch_data
@@ -78,13 +91,28 @@ namespace UI
         Widget *handle_touch_clicked(const position &_touch_data);
         void handle_touch_released(const position &_touch_data);
 
+        void set_background_color(unsigned int _background_color) { this->background_color = _background_color; }
+        inline unsigned int get_background_color() const { return this->background_color; }
+
+        /*
+            redraw the whole window - after closing pop_up...
+        */
+        void _redraw_window();
+
     protected:
         // window size - rectangle(absolute positions)
         position upper_left;
         position lower_right;
 
+        unsigned int background_color = VGA_BLACK;
+
     private:
         SinglyLinkedList<Widget *> registered_widgets;
+
+        /*
+            set(not nullptr) if a pop_up window is currently showed on the window
+        */
+        PopUp_Window *active_pop_up_window;
 
         /*
             last focused widget in the window

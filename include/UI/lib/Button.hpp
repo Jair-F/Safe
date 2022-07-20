@@ -13,7 +13,7 @@ namespace UI
     class Button : public Touch_Widget<CALL_OBJECT_TYPE>
     {
     public:
-        Button(Window *parent, position _upper_left, position _lower_right,
+        Button(WindowBase *parent, position _upper_left, position _lower_right,
                CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(parent, _upper_left, _lower_right, _call_object)
         {
             // this->_draw_released_widget();

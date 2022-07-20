@@ -10,6 +10,7 @@ namespace UI
 {
     class Window;
     class Widget;
+    class WindowBase;
     /*
         the display-window. everytime one window can be displayed on the main-window
     */
@@ -20,23 +21,7 @@ namespace UI
             @param window_upper_left size - the upper left position of the "normal windows" which are shown on the main_window
             @param window_lower_right size - the lower right position of the "normal windows" which are shown on the main_window
         */
-        MainWindow(UTFT *_display, URTouch *_touch, position _window_upper_left, position _window_lower_right) : focused_widget(nullptr),
-                                                                                                                 active_window(nullptr), display(_display), touch(_touch),
-                                                                                                                 window_upper_left(_window_upper_left), window_lower_right(_window_lower_right)
-        {
-            Serial.println("Mainwindow window shift: ");
-            Serial.print('(');
-            Serial.print(window_upper_left.x_pos);
-            Serial.print(",");
-            Serial.print(window_upper_left.y_pos);
-            Serial.println(')');
-
-            Serial.print('(');
-            Serial.print(window_lower_right.x_pos);
-            Serial.print(",");
-            Serial.print(window_lower_right.y_pos);
-            Serial.println(')');
-        }
+        MainWindow(UTFT *_display, URTouch *_touch, position _window_upper_left, position _window_lower_right);
         virtual ~MainWindow() {}
 
         // String get_input() { return this->keypad.get_buffer(); }

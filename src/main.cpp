@@ -46,7 +46,7 @@ URTouch myTouch(6, 5, 4, 3, 2);
 
 #include "UI/lock_screen.hpp"
 
-UI::MainWindow m_window(&myGLCD, &myTouch, {0, 0}, {320, 240});
+UI::MainWindow m_window(&myGLCD, &myTouch, {0, 0}, {320 - 1, 240 - 1}); // "{320 - 1, 240 - 1}" --> we begin to count the pixels at 0,0
 
 lock_screen *l_screen;
 

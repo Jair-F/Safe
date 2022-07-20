@@ -4,6 +4,24 @@
 #include <avr8-stub.h>
 #endif
 
+UI::MainWindow::MainWindow(UTFT *_display, URTouch *_touch, position _window_upper_left, position _window_lower_right) : focused_widget(nullptr),
+                                                                                                                         active_window(nullptr), display(_display), touch(_touch),
+                                                                                                                         window_upper_left(_window_upper_left), window_lower_right(_window_lower_right)
+{
+    // Serial.println("Mainwindow window shift: ");
+    // Serial.print('(');
+    // Serial.print(window_upper_left.x_pos);
+    // Serial.print(",");
+    // Serial.print(window_upper_left.y_pos);
+    // Serial.println(')');
+
+    // Serial.print('(');
+    // Serial.print(window_lower_right.x_pos);
+    // Serial.print(",");
+    // Serial.print(window_lower_right.y_pos);
+    // Serial.println(')');
+}
+
 bool UI::MainWindow::request_focus(UI::Widget *_widget)
 {
     if (!this->focus_frozen)

@@ -5,9 +5,10 @@
 #include "LinkedList.hpp"
 
 #include "position.hpp"
-#include "Widget.hpp"
 #include "WindowBase.hpp"
 #include "MainWindow.hpp"
+
+#include "Widget.hpp"
 
 namespace UI
 {
@@ -34,6 +35,7 @@ namespace UI
         UTFT *_get_display() const;
         URTouch *_get_touch() const;
         Widget *get_focused_widget() const;
+        MainWindow *_get_main_window() const { return _main_window; }
 
 #define WINDOW_BACKGROUND_COLOR VGA_BLACK
         /*
