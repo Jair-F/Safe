@@ -14,7 +14,9 @@ public:
                                                 _button2(this, {this->_get_display()->getDisplayXSize() - 100, this->_get_display()->getDisplayYSize() - 35}, {this->_get_display()->getDisplayXSize() - 1, this->_get_display()->getDisplayYSize() - 1}, this),
                                                 text_feld(this, {0, 0}, this->_get_display()->getDisplayXSize() - 1, "Window title"),
                                                 ch_box(this, {50, 150}, 25, 25, this),
-                                                input_field(this, {150, 150}, 60, 35, this, UI::InputField<20, lock_screen>::IN_INPUT_TYPE::IN_TEXT)
+                                                input_field(this, {150, 150}, 60, 35, this, UI::InputField<20, lock_screen>::IN_INPUT_TYPE::IN_TEXT),
+                                                pop_up_window(this, 150, 100),
+                                                exit_button(&pop_up_window, {1, 1}, {65, 25}, this)
     {
         text_feld.set_border(false);
         text_feld.set_text_alignment(text_feld.AL_CENTER);
@@ -36,36 +38,38 @@ public:
         input_field.set_input_buffer("123");
         input_field.on_enter = &this->update_window_label;
         input_field.on_focus_lose = &this->update_window_label;
+
+        pop_up_window.set_background_color(VGA_GRAY);
+        pop_up_window.set_border_color(VGA_LIME);
+
+        exit_button.setText("exit");
+        exit_button.on_release = &this->exit_pop_up;
     }
     virtual ~lock_screen() {}
 
-    void show() override;
-    void hide() override;
     void loop() override;
 
     friend void func();
 
 protected:
+    void exit_pop_up(UI::Touch_Widget<lock_screen> *_widget)
+    {
+        this->hide_pop_up_window();
+    }
+
     void button_print_clicked(UI::Touch_Widget<lock_screen> *_widget)
     {
-#ifdef DEBUG
-        debug_message("Clicked button");
-#else
         Serial.println("Clicked button");
         text_feld.set_text("button clicked");
-#endif
     }
 
     void button_print_released(UI::Touch_Widget<lock_screen> *_widget)
     {
         // UI::Button *but_ptr = static_cast<UI::Button *>(widget);
-        // but_ptr->
-#ifdef DEBUG
-        debug_message("Released button");
-#else
         Serial.println("Released button");
         text_feld.set_text("button is released");
-#endif
+
+        this->show_pop_up_window(&pop_up_window);
     }
 
     void _handle_check_box(UI::Touch_Widget<lock_screen> *_widget)
@@ -100,24 +104,10 @@ private:
     UI::TextLabel text_feld;
     UI::CheckBox<lock_screen> ch_box;
     UI::InputField<20, lock_screen> input_field;
+    UI::PopUp_Window pop_up_window;
+
+    UI::Button<lock_screen> exit_button;
 };
-
-void lock_screen::show()
-{
-    _button.show();
-    _button2.show();
-    text_feld.show();
-    ch_box.show();
-    input_field.show();
-}
-
-void lock_screen::hide()
-{
-    _button.hide();
-    _button2.hide();
-    text_feld.hide();
-    input_field.hide();
-}
 
 void lock_screen::loop()
 {
