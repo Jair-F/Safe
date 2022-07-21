@@ -75,8 +75,8 @@ void UI::WindowBase::handle_touch_released(const position &_touch_data)
         {
             if (!widget_iterator->is_hidden())
             {
-                // check if we have a widget with this position or if we clicked on "whitespace"
-                if (widget_iterator->_check_pos(_touch_data))
+                // check if we have released on the same widget which we have touched on or if we touched on "whitespace"
+                if (widget_iterator->_check_pos(_touch_data) && last_focused_widget == widget_iterator.data())
                 {
                     touch_data_same_widget = true;
                     // this->last_focused_widget = widget_on_touch_pos;
@@ -147,14 +147,6 @@ void UI::WindowBase::hide()
     }
 }
 
-inline uint16_t UI::WindowBase::width() const
-{
-    return this->lower_right.x_pos - this->upper_left.x_pos;
-}
-inline uint16_t UI::WindowBase::height() const
-{
-    return this->lower_right.y_pos - this->upper_left.y_pos;
-}
 const UI::position &UI::WindowBase::_get_lower_right_pos() const
 {
     return this->lower_right;
