@@ -16,7 +16,9 @@ public:
                                                 ch_box(this, {50, 150}, 25, 25, this),
                                                 input_field(this, {150, 150}, 60, 35, this, UI::InputField<20, lock_screen>::IN_INPUT_TYPE::IN_TEXT),
                                                 pop_up_window(this, 150, 100),
-                                                exit_button(&pop_up_window, {1, 1}, {65, 25}, this)
+                                                exit_button(&pop_up_window, {1, 1}, {65, 25}, this),
+                                                begin(this, {210, 40}, {300, 70}, this),
+                                                c_button(this, {210, 80}, 20, this)
     {
         text_feld.set_border(false);
         text_feld.set_text_alignment(text_feld.AL_CENTER);
@@ -44,6 +46,11 @@ public:
 
         exit_button.setText("exit");
         exit_button.on_release = &this->exit_pop_up;
+
+        begin.setText("Begin");
+        begin.released_background_color = VGA_RED;
+        begin.pressed_background_color = VGA_GREEN;
+        begin.on_release = &this->begin_release;
     }
     virtual ~lock_screen() {}
 
@@ -55,6 +62,11 @@ protected:
     void exit_pop_up(UI::Touch_Widget<lock_screen> *_widget)
     {
         this->hide_pop_up_window();
+    }
+
+    void begin_release(UI::Touch_Widget<lock_screen> *_widget)
+    {
+        this->text_feld.set_text("Begin");
     }
 
     void button_print_clicked(UI::Touch_Widget<lock_screen> *_widget)
@@ -107,6 +119,10 @@ private:
     UI::PopUp_Window pop_up_window;
 
     UI::Button<lock_screen> exit_button;
+
+    UI::Button<lock_screen> begin;
+
+    UI::CloseButton<lock_screen> c_button;
 };
 
 void lock_screen::loop()
