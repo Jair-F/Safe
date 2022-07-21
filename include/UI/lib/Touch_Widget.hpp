@@ -16,23 +16,24 @@ namespace UI
         CALL_OBJECT_TYPE *call_object; // call object which the function pionter will be called with
 
     public:
-        Touch_Widget(Window *_parent, const position &_upper_left,
+        Touch_Widget(WindowBase *_parent, const position &_upper_left,
                      const position &_lower_right, CALL_OBJECT_TYPE *_call_object) : Widget(_parent, _upper_left, _lower_right),
                                                                                      focused(false), touched(false), call_object(_call_object) { assert(this->call_object != nullptr); }
-        Touch_Widget(Window *_parent, const position &_upper_left,
+        Touch_Widget(WindowBase *_parent, const position &_upper_left,
                      const position _lower_right, CALL_OBJECT_TYPE *_call_object,
                      void (CALL_OBJECT_TYPE::*_on_touch)(), void (CALL_OBJECT_TYPE::*_on_release)()) : Widget(_parent, _upper_left, _lower_right),
                                                                                                        on_release(_on_release), focused(false), touched(false),
                                                                                                        on_touch(_on_touch), call_object(_call_object) { assert(this->call_object != nullptr); }
 
-        Touch_Widget(Window *_parent, const position &_upper_left,
+        Touch_Widget(WindowBase *_parent, const position &_upper_left,
                      uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object) : Widget(_parent, _upper_left, _width, _height),
                                                                                           focused(false), touched(false), call_object(_call_object) { assert(this->call_object != nullptr); }
-        Touch_Widget(Window *_parent, const position &_upper_left,
+        Touch_Widget(WindowBase *_parent, const position &_upper_left,
                      uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
                      void (CALL_OBJECT_TYPE::*_on_touch)(), void (CALL_OBJECT_TYPE::*_on_release)()) : Widget(_parent, _upper_left, _width, height),
                                                                                                        focused(false), touched(false), call_object(_call_object),
                                                                                                        on_touch(_on_touch), on_release(_on_release) { assert(this->call_object != nullptr); }
+        virtual ~Touch_Widget() {}
 
         /*
             function to be called if the widget is touched - on touch not bound to a status of the widget except of hidden status!

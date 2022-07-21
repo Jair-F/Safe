@@ -2,8 +2,8 @@
 
 // ---------------- Widget ----------------
 
-UI::Widget::Widget(Window *_parent, const position &_upper_left, const position &_lower_right) : hidden(true), _parent_window(_parent),
-                                                                                                 upper_left(_parent_window->_calc_absolute_pos(_upper_left)), lower_right(_parent_window->_calc_absolute_pos(_lower_right))
+UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const position &_lower_right) : hidden(true), _parent_window(_parent),
+                                                                                                     upper_left(_parent_window->_calc_absolute_pos(_upper_left)), lower_right(_parent_window->_calc_absolute_pos(_lower_right))
 {
     // adjusting the positions in case they not set correctly - if the upper_left is for example the lower_right position
     decltype(upper_left.x_pos) tmp;
@@ -39,11 +39,26 @@ UI::Widget::Widget(Window *_parent, const position &_upper_left, const position 
     this->_parent_window->_register_widget(this);
 }
 
-UI::Widget::Widget(Window *_parent, const position &_upper_left, uint16_t _width, uint16_t _height) : hidden(true), _parent_window(_parent),
-                                                                                                      upper_left(_upper_left)
+UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height) : hidden(true), _parent_window(_parent),
+                                                                                                          upper_left(_upper_left)
 {
     this->lower_right.x_pos = this->upper_left.x_pos + _width;
     this->lower_right.y_pos = this->upper_left.y_pos + _height;
+
+    // adjusting the positions in case they not set correctly - if the upper_left is for example the lower_right position
+    decltype(upper_left.x_pos) tmp;
+    if (this->lower_right.x_pos < this->upper_left.x_pos)
+    {
+        tmp = this->lower_right.x_pos;
+        this->lower_right.x_pos = this->upper_left.x_pos;
+        this->upper_left.x_pos = tmp;
+    }
+    if (this->lower_right.y_pos < this->upper_left.y_pos)
+    {
+        tmp = this->lower_right.y_pos;
+        this->lower_right.y_pos = this->upper_left.y_pos;
+        this->upper_left.y_pos = tmp;
+    }
 
     this->display = this->_parent_window->_get_display();
     this->touch = this->_parent_window->_get_touch();

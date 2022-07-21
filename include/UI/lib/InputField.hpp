@@ -26,6 +26,8 @@ namespace UI
         InputField(Window *_parent, const position _upper_left, uint16_t _width, uint16_t _height,
                    CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type);
 
+        virtual ~InputField() {}
+
         // function called from the keypad from the MainWindow
         void send_input(char _input_data) override;
         void send_backspace() override;

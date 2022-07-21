@@ -19,6 +19,8 @@ namespace UI
             // this->_draw_released_widget();
         }
 
+        virtual ~Button() {}
+
         void setFont(uint8_t *_font)
         {
             this->_text_font = _font;

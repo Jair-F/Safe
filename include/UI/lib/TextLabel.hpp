@@ -27,6 +27,7 @@ namespace UI
             adjust the widget height according to the text_length
         */
         TextLabel(Window *_parent, const position _upper_left, uint16_t _width, String _text, uint8_t *_font = SmallFont);
+        virtual ~TextLabel() {}
 
         void set_font(uint8_t *_font) { this->text_font = _font; }
         void set_text(String _text);

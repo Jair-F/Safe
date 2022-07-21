@@ -10,6 +10,8 @@ namespace UI
         CheckBox(Window *_parent, position _upper_left, position _lower_right, CALL_OBJECT_TYPE *_call_object);
         CheckBox(Window *_parent, position _upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object);
 
+        virtual ~CheckBox(){}
+
         /*
             @return true if the checkbox is checked
         */

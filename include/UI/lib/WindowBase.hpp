@@ -63,8 +63,8 @@ namespace UI
         //
         // base functions of a window which are implementet by default by the WindowBase
 
-        inline uint16_t width() const;
-        inline uint16_t height() const;
+        inline uint16_t width() const { return this->lower_right.x_pos - this->upper_left.x_pos; }
+        inline uint16_t height() const { return this->lower_right.y_pos - this->upper_left.y_pos; }
         /*
             for widgets in the window to get the absolute pos on the display
             @param _pos the relative pos from the widget

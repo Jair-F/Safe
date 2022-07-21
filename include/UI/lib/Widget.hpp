@@ -3,11 +3,11 @@
 #include <URTouch.h>
 #include <UTFT.h>
 #include "position.hpp"
-#include "Window.hpp"
+#include "WindowBase.hpp"
 
 namespace UI
 {
-    class Window;
+    class WindowBase;
 
     /*
         enum Mode
@@ -24,7 +24,7 @@ namespace UI
         bool hidden;
 
     protected:
-        Window *_parent_window;
+        WindowBase *_parent_window;
 
         // getting the display pointers from the parent window in the constructor
         URTouch *touch;
@@ -63,8 +63,8 @@ namespace UI
         /*
             @param _uppser_left_pos upper left corner in relation to the parent window zero point
         */
-        Widget(Window *_parent, const position &_upper_left, const position &_lower_right);
-        Widget(Window *_parent, const position &_upper_left, uint16_t _width, uint16_t _height);
+        Widget(WindowBase *_parent, const position &_upper_left, const position &_lower_right);
+        Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height);
         virtual ~Widget() {}
 
         inline uint16_t width() const { return lower_right.x_pos - upper_left.x_pos; }
@@ -152,6 +152,6 @@ namespace UI
         */
         bool _check_pos(const position &_pos) const;
 
-        inline Window *_get_parent_window() const { return this->_parent_window; }
+        inline WindowBase *_get_parent_window() const { return this->_parent_window; }
     };
 }
