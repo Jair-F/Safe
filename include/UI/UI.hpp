@@ -7,6 +7,7 @@
 
 #include "lib/Widget.hpp"
 #include "lib/Button.hpp"
+#include "lib/CloseButtons.hpp"
 #include "lib/TextLabel.hpp"
 #include "lib/CheckBox.hpp"
 #include "lib/InputField.hpp"

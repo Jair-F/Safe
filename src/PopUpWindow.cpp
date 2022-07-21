@@ -1,15 +1,15 @@
 #include "UI/lib/PopUp_Window.hpp"
 
-UI::PopUp_Window::PopUp_Window(WindowBase *_parent_window, uint16_t _width, uint16_t _height) : parent_window(_parent_window), UI::WindowBase({0, 0}, {1, 1})
+UI::PopUp_Window::PopUp_Window(WindowBase *_parent_window, uint16_t _width, uint16_t _height,
+                               uint16_t _close_button_size = 22) : UI::WindowBase({(_parent_window->_get_display()->getDisplayXSize() / 2 - _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 - _height / 2)},
+                                                                                  {(_parent_window->_get_display()->getDisplayXSize() / 2 + _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 + _height / 2)}),
+                                                                   parent_window(_parent_window), close_button_size(_close_button_size),
+                                                                   close_button(this, {this->width() - 1 - this->close_button_size, 0 + 1}, close_button_size, this)
 {
+    this->close_button.on_release = &this->_exit_pop_up_window;
 
-    UTFT *display = this->_get_display();
-    URTouch *touch = this->_get_touch();
-
-    this->upper_left.x_pos = display->getDisplayXSize() / 2 - _width / 2;
-    this->upper_left.y_pos = display->getDisplayYSize() / 2 - _height / 2;
-    this->lower_right.x_pos = this->upper_left.x_pos + _width;
-    this->lower_right.y_pos = this->upper_left.y_pos + _height;
+    // UTFT *display = this->_get_display();
+    // URTouch *touch = this->_get_touch();
 }
 
 UI::PopUp_Window::~PopUp_Window()
@@ -62,4 +62,9 @@ void UI::PopUp_Window::hide()
     // display->drawRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
 
     WindowBase::hide();
+}
+
+void UI::PopUp_Window::_exit_pop_up_window(Touch_Widget<PopUp_Window> *_widget)
+{
+    this->parent_window->hide_pop_up_window();
 }
