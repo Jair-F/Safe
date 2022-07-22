@@ -69,21 +69,19 @@ void UI::Button<CALL_OBJECT_TYPE>::_draw_pressed_widget()
     this->display->drawRect(this->upper_left.x_pos, this->upper_left.y_pos,
                             this->lower_right.x_pos, this->lower_right.y_pos);
 
+    this->display->setFont(this->_text_font);
     uint8_t font_height = this->display->getFontYsize();
     uint8_t font_width = this->display->getFontXsize();
 
     // print the button-label
-    this->display->setFont(this->_text_font);
     this->display->setColor(this->pressed_text_color);
     this->display->setBackColor(this->pressed_background_color);
-    this->display->setFont(this->_text_font);
     this->display->print(this->text, this->upper_left.x_pos + (this->width() / 2) - (font_width * text.length() / 2), this->lower_right.y_pos - (this->height() / 2) - font_height / 2);
 }
 
 template <typename CALL_OBJECT_TYPE>
 void UI::Button<CALL_OBJECT_TYPE>::_draw_released_widget()
 {
-
     // this->_clear_widget_space();
 
     // draw background-color
@@ -96,14 +94,13 @@ void UI::Button<CALL_OBJECT_TYPE>::_draw_released_widget()
     this->display->drawRect(this->upper_left.x_pos, this->upper_left.y_pos,
                             this->lower_right.x_pos, this->lower_right.y_pos);
 
+    this->display->setFont(this->_text_font);
     uint8_t font_height = this->display->getFontYsize();
     uint8_t font_width = this->display->getFontXsize();
 
     // print the button-label
-    this->display->setFont(this->_text_font);
     this->display->setBackColor(this->released_background_color);
     this->display->setColor(this->released_text_color);
-    this->display->setFont(this->_text_font);
     this->display->print(this->text,
                          this->upper_left.x_pos + (this->width() / 2) - (font_width * text.length() / 2),
                          this->lower_right.y_pos - (this->height() / 2) - font_height / 2);

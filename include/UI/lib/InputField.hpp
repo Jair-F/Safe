@@ -210,10 +210,10 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_released_widget()
     // print the print the text in the InputField if there is text in the buffer
     if (!this->buffer_is_empty())
     {
+        this->display->setFont(this->_text_font);
         uint8_t font_height = this->display->getFontYsize();
         uint8_t font_width = this->display->getFontXsize();
 
-        this->display->setFont(this->_text_font);
         this->display->setBackColor(this->released_background_color);
         this->display->setColor(this->released_text_color);
 
@@ -264,6 +264,7 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_pressed_widget()
     this->display->drawRect(this->upper_left.x_pos, this->upper_left.y_pos,
                             this->lower_right.x_pos, this->lower_right.y_pos);
 
+    this->display->setFont(this->_text_font);
     uint8_t font_height = this->display->getFontYsize();
     uint8_t font_width = this->display->getFontXsize();
 
@@ -272,7 +273,6 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_pressed_widget()
     // print the print the text in the InputField if there is text in the buffer
     if (!this->buffer_is_empty())
     {
-        this->display->setFont(this->_text_font);
         this->display->setBackColor(this->pressed_background_color);
         this->display->setColor(this->pressed_text_color);
 
