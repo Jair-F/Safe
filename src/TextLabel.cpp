@@ -15,7 +15,7 @@ UI::TextLabel::TextLabel(Window *_parent, const position _upper_left,
 */
 
 UI::TextLabel::TextLabel(Window *_parent, const position _upper_left, uint16_t _width,
-                         String _text, uint8_t *_text_font) : Widget(_parent, _upper_left, {_width, 1}),
+                         String _text, uint8_t *_text_font) : Widget(_parent, _upper_left, {_width, _upper_left.y_pos + 1}),
                                                               background_color(VGA_BLACK), text_color(VGA_WHITE), border_color(VGA_WHITE),
                                                               text(_text), text_font(_text_font), text_align(text_alignment::AL_LEFT), draw_border(false)
 {
@@ -31,59 +31,64 @@ UI::TextLabel::TextLabel(Window *_parent, const position _upper_left, uint16_t _
 
 void UI::TextLabel::_draw_widget()
 {
-    // fill the widget_space with the background_color
-    this->display->setColor(background_color);
-    this->display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos,
-                            this->lower_right.x_pos, this->lower_right.y_pos);
-
-    this->display->setFont(text_font);
-    this->display->setBackColor(this->background_color);
-    this->display->setColor(this->text_color);
-
-    this->_calc_widget();
-
-    position text_starting_pos = {this->upper_left.x_pos, this->upper_left.y_pos + text_gap_height};
-
-    for (unsigned short i = 0; i < this->text_lines; ++i)
+    if (!this->is_hidden())
     {
-        String line_to_print = this->text.substring(i * this->chars_in_line, (i + 1) * this->chars_in_line);
+        // fill the widget_space with the background_color
+        this->display->setColor(background_color);
+        this->display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos,
+                                this->lower_right.x_pos, this->lower_right.y_pos);
 
-        // adjusting the x_pos of the text_starting_pos to move it that it is aligned correctly
-        switch (this->text_align)
-        {
-        case text_alignment::AL_LEFT:
-        {
-            text_starting_pos.x_pos = this->upper_left.x_pos + this->text_gap_length;
-            break;
-        }
-        case text_alignment::AL_CENTER:
-        {
-            // remaining space at the sides if the text length and the gap at the side is considered (!! sum of the space of both sides !!)
-            uint16_t remaining_space = ((this->width() - 2 * text_gap_length) - line_to_print.length() * this->display->getFontXsize());
-            text_starting_pos.x_pos = this->upper_left.x_pos + this->text_gap_length + remaining_space / 2;
-            break;
-        }
-        case text_alignment::AL_RIGHT:
-        {
-            // remaining space at the sides if the text length and the gap at the side is considered (!! sum of the space of both sides !!)
-            uint16_t remaining_space = ((this->width() - 2 * text_gap_length) - line_to_print.length() * this->display->getFontXsize());
-            text_starting_pos.x_pos = this->upper_left.x_pos + this->text_gap_length + remaining_space;
-            break;
-        }
-        }
-        this->display->print(line_to_print, text_starting_pos.x_pos, text_starting_pos.y_pos);
+        this->display->setFont(text_font);
+        this->display->setBackColor(this->background_color);
+        this->display->setColor(this->text_color);
 
-        // pushing the next text line down by the size of the text_font and the vertical gap between the lines
-        text_starting_pos.y_pos = text_starting_pos.y_pos + this->display->getFontYsize() + text_gap_height;
-    }
+        this->_calc_widget();
 
-    if (this->has_border())
-    { // border of the widget
-        this->display->setColor(this->border_color);
-        this->display->drawHLine(this->upper_left.x_pos, this->upper_left.y_pos, this->width());
-        this->display->drawHLine(this->upper_left.x_pos, this->lower_right.y_pos, this->width());
-        this->display->drawVLine(this->upper_left.x_pos, this->upper_left.y_pos, this->height());
-        this->display->drawVLine(this->lower_right.x_pos, this->upper_left.y_pos, this->height());
+        position text_starting_pos = {this->upper_left.x_pos, this->upper_left.y_pos + text_gap_height};
+
+        for (unsigned short i = 0; i < this->text_lines; ++i)
+        {
+            String line_to_print = this->text.substring(i * this->chars_in_line, (i + 1) * this->chars_in_line);
+
+            // adjusting the x_pos of the text_starting_pos to move it that it is aligned correctly
+            switch (this->text_align)
+            {
+            case text_alignment::AL_LEFT:
+            {
+                text_starting_pos.x_pos = this->upper_left.x_pos + this->text_gap_length;
+                break;
+            }
+            case text_alignment::AL_CENTER:
+            {
+                // remaining space at the sides if the text length and the gap at the side is considered (!! sum of the space of both sides !!)
+                uint16_t remaining_space = ((this->width() - 2 * text_gap_length) - line_to_print.length() * this->display->getFontXsize());
+                text_starting_pos.x_pos = this->upper_left.x_pos + this->text_gap_length + remaining_space / 2;
+                break;
+            }
+            case text_alignment::AL_RIGHT:
+            {
+                // remaining space at the sides if the text length and the gap at the side is considered (!! sum of the space of both sides !!)
+                uint16_t remaining_space = ((this->width() - 2 * text_gap_length) - line_to_print.length() * this->display->getFontXsize());
+                text_starting_pos.x_pos = this->upper_left.x_pos + this->text_gap_length + remaining_space;
+                break;
+            }
+            }
+            this->display->print(line_to_print, text_starting_pos.x_pos, text_starting_pos.y_pos);
+
+            // pushing the next text line down by the size of the text_font and the vertical gap between the lines
+            text_starting_pos.y_pos = text_starting_pos.y_pos + this->display->getFontYsize() + text_gap_height;
+        }
+
+        if (this->has_border())
+        { // border of the widget
+            this->display->setColor(this->border_color);
+            this->display->drawRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
+
+            // this->display->drawHLine(this->upper_left.x_pos, this->upper_left.y_pos, this->width());
+            // this->display->drawHLine(this->upper_left.x_pos, this->lower_right.y_pos, this->width());
+            // this->display->drawVLine(this->upper_left.x_pos, this->upper_left.y_pos, this->height());
+            // this->display->drawVLine(this->lower_right.x_pos, this->upper_left.y_pos, this->height());
+        }
     }
 }
 
@@ -94,6 +99,13 @@ void UI::TextLabel::set_text(String _text)
 
     this->_calc_widget();
 
+    this->_draw_widget();
+}
+
+void UI::TextLabel::set_font(uint8_t *_font)
+{
+    this->text_font = _font;
+    this->_calc_widget();
     this->_draw_widget();
 }
 
