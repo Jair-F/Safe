@@ -50,11 +50,11 @@ namespace UI
         unsigned int border_color;
 
     protected:
-        void _draw_widget();
+        void _draw_widget() override;
 
         // those two are doing the same - call _draw_widget
-        void _draw_released_widget() { this->_draw_widget(); }
-        void _draw_pressed_widget() { this->_draw_widget(); }
+        void _draw_released_widget() override { this->_draw_widget(); }
+        void _draw_pressed_widget() override { this->_draw_widget(); }
 
         /*
             calculate the positions and text gaps according to the upper_left_pos, lower_right_pos, the text and the font
