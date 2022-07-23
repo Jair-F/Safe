@@ -1,4 +1,4 @@
-#include "UI/lib/PopUp_Window.hpp"
+#include "UI/UI.hpp"
 
 UI::PopUp_Window::PopUp_Window(WindowBase *_parent_window, uint16_t _width, uint16_t _height,
                                uint16_t _close_button_size = 22) : UI::WindowBase({(_parent_window->_get_display()->getDisplayXSize() / 2 - _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 - _height / 2)},
@@ -41,7 +41,7 @@ UI::Widget *UI::PopUp_Window::get_focused_widget() const
 void UI::PopUp_Window::show()
 {
     UTFT *display = this->_get_display();
-    URTouch *touch = this->_get_touch();
+    // URTouch *touch = this->_get_touch();
 
     // draw the background color
     display->setColor(this->background_color);
@@ -56,8 +56,8 @@ void UI::PopUp_Window::show()
 
 void UI::PopUp_Window::hide()
 {
-    UTFT *display = this->_get_display();
-    URTouch *touch = this->_get_touch();
+    // UTFT *display = this->_get_display();
+    // URTouch *touch = this->_get_touch();
 
     // display->setColor(VGA_WHITE);
     // display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
