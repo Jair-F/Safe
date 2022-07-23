@@ -4,7 +4,7 @@ UI::PopUp_Window::PopUp_Window(WindowBase *_parent_window, uint16_t _width, uint
                                uint16_t _close_button_size = 22) : UI::WindowBase({(_parent_window->_get_display()->getDisplayXSize() / 2 - _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 - _height / 2)},
                                                                                   {(_parent_window->_get_display()->getDisplayXSize() / 2 + _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 + _height / 2)}),
                                                                    parent_window(_parent_window), close_button_size(_close_button_size),
-                                                                   close_button(this, {this->width() - 1 - this->close_button_size, 0 + 1}, close_button_size, this)
+                                                                   close_button(this, {this->width() - this->close_button_size, 0}, close_button_size, this)
 {
     this->close_button.on_release = &this->_exit_pop_up_window;
 
@@ -43,11 +43,13 @@ void UI::PopUp_Window::show()
     UTFT *display = this->_get_display();
     URTouch *touch = this->_get_touch();
 
+    // draw the background color
     display->setColor(this->background_color);
     display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
 
+    // draw the border
     display->setColor(this->border_color);
-    display->drawRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
+    display->drawRect(this->upper_left.x_pos - 1, this->upper_left.y_pos - 1, this->lower_right.x_pos + 1, this->lower_right.y_pos + 1);
 
     WindowBase::show();
 }
