@@ -48,7 +48,6 @@ namespace UI
             this->display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
         }
         void _draw_pressed_widget() override { this->_draw_released_widget(); }
-        void _draw_widget() override { this->_draw_released_widget(); }
 
     private:
         uint8_t thickness;
