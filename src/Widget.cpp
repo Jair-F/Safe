@@ -2,7 +2,7 @@
 
 // ---------------- Widget ----------------
 
-UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const position &_lower_right) : hidden(true), _parent_window(_parent),
+UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const position &_lower_right) : _parent_window(_parent), hidden(true),
                                                                                                      upper_left(_parent_window->_calc_absolute_pos(_upper_left)), lower_right(_parent_window->_calc_absolute_pos(_lower_right))
 {
     // adjusting the positions in case they not set correctly - if the upper_left is for example the lower_right position
