@@ -148,6 +148,11 @@ void UI::MainWindow::loop()
             }
         }
     }
+
+    if (this->active_window != nullptr)
+    {
+        this->active_window->loop();
+    }
 }
 
 UI::position UI::MainWindow::_read_touch()
