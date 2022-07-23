@@ -83,15 +83,28 @@ bool UI::Widget::_check_pos(const position &_pos) const
 
 void UI::Widget::_clear_widget_space()
 {
-    // clear the space where the widget is(background-color)
-    this->display->setColor(this->_parent_window->get_background_color());
-    this->display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos,
-                            this->lower_right.x_pos, this->lower_right.y_pos);
-    // this->display->drawRoundRect(asd, )
+    if (!this->is_hidden())
+    {
+        // clear the space where the widget is(background-color)
+        this->display->setColor(this->_parent_window->get_background_color());
+        this->display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos,
+                                this->lower_right.x_pos, this->lower_right.y_pos);
+        // this->display->drawRoundRect(asd, )
+    }
 }
 
 void UI::Widget::set_size(uint16_t _width, uint16_t _height)
 {
+    this->_clear_widget_space();
     this->lower_right.x_pos = this->upper_left.x_pos + _width;
     this->lower_right.y_pos = this->upper_left.y_pos + _height;
+    this->update_widget();
+}
+
+void UI::Widget::update_widget()
+{
+    if (!this->is_hidden())
+    {
+        this->_draw_widget();
+    }
 }

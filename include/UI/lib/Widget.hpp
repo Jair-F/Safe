@@ -20,11 +20,9 @@ namespace UI
 
     class Widget
     {
-    private:
-        bool hidden;
-
     protected:
         WindowBase *_parent_window;
+        bool hidden;
 
         // getting the display pointers from the parent window in the constructor
         URTouch *touch;
@@ -103,7 +101,7 @@ namespace UI
         /*
             wrapper for redrawing the widget from outside
         */
-        void update_widget() { this->_draw_widget(); }
+        void update_widget();
 
         /*
             @return the upper left position
