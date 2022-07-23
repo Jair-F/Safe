@@ -10,8 +10,8 @@ namespace UI
     public:
         BitMapButton(WindowBase *_parent, position _upper_left,
                      uint16_t _bitmap_width, uint16_t _bitmap_height, CALL_OBJECT_TYPE *_call_object,
-                     const unsigned short *_on_touch_bitmap, const unsigned short *_on_release_bitmap) : ButtonBase<CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _bitmap_width - 1 + 2, _upper_left.y_pos + _bitmap_height - 1 + 2}, _call_object), // +2 for the border... -1 we start counting the pixels at 0...
-                                                                                                         on_touch_bitmap(_on_touch_bitmap), on_release_bitmap(_on_release_bitmap)
+                     const unsigned int *_on_touch_bitmap, const unsigned int *_on_release_bitmap) : ButtonBase<CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _bitmap_width - 1 + 2, _upper_left.y_pos + _bitmap_height - 1 + 2}, _call_object), // +2 for the border... -1 we start counting the pixels at 0...
+                                                                                                     on_touch_bitmap(_on_touch_bitmap), on_release_bitmap(_on_release_bitmap)
         {
         }
 
