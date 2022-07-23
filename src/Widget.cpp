@@ -39,7 +39,7 @@ UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const posit
     this->_parent_window->_register_widget(this);
 }
 
-UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height) : hidden(true), _parent_window(_parent),
+UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height) : _parent_window(_parent), hidden(true),
                                                                                                           upper_left(_upper_left)
 {
     this->lower_right.x_pos = this->upper_left.x_pos + _width;

@@ -88,8 +88,7 @@ namespace RFID
 // ------------ Implementations ------------
 
 RFID::RFID::RFID(byte chipSelectPin, byte resetPowerDownPin,
-                 Lock::unlock_token *_utoken, bool _enabled = true) : rfid(chipSelectPin, resetPowerDownPin),
-                                                                      Unlock_Object(_utoken, _enabled)
+                 Lock::unlock_token *_utoken, bool _enabled) : Unlock_Object(_utoken, _enabled), rfid(chipSelectPin, resetPowerDownPin)
 {
     for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
     {
@@ -222,6 +221,8 @@ RFID::UID &RFID::RFID::get_tag_uid(unsigned short id)
         return;
         // throw error tag isnt set...
     }
+
+    // return this->allowed_tags[id].operator bool();
     return this->allowed_tags[id];
 }
 
