@@ -10,7 +10,7 @@ namespace UI
         CheckBox(Window *_parent, position _upper_left, position _lower_right, CALL_OBJECT_TYPE *_call_object);
         CheckBox(Window *_parent, position _upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object);
 
-        virtual ~CheckBox(){}
+        virtual ~CheckBox() {}
 
         /*
             @return true if the checkbox is checked
@@ -96,15 +96,18 @@ void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_pressed_widget()
 template <typename CALL_OBJECT_TYPE>
 void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_widget()
 {
-    // change the state only on touche. otherwise it would change on touch to checked and on release return to not checked!
-    if (this->is_checked())
+    if (!this->is_hidden())
     {
-        // this->_clear_widget_space();
-        this->_draw_pressed_widget();
-    }
-    else
-    {
-        this->_draw_released_widget();
+        // change the state only on touche. otherwise it would change on touch to checked and on release return to not checked!
+        if (this->is_checked())
+        {
+            // this->_clear_widget_space();
+            this->_draw_pressed_widget();
+        }
+        else
+        {
+            this->_draw_released_widget();
+        }
     }
 }
 

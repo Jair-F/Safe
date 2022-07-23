@@ -79,12 +79,15 @@ void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_pressed_widget()
 template <typename CALL_OBJECT_TYPE>
 void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_widget()
 {
-    if (this->is_touched())
+    if (!this->is_hidden())
     {
-        this->_draw_pressed_widget();
-    }
-    else
-    {
-        this->_draw_released_widget();
+        if (this->is_touched())
+        {
+            this->_draw_pressed_widget();
+        }
+        else
+        {
+            this->_draw_released_widget();
+        }
     }
 }

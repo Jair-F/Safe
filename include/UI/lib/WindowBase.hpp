@@ -41,7 +41,7 @@ namespace UI
         virtual MainWindow *_get_main_window() const = 0;
 
         /*
-            show all the widgets
+            show all the widgets and draw the window if required(PopUpWindow)
         */
         virtual void show();
         /*

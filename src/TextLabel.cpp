@@ -42,7 +42,7 @@ void UI::TextLabel::_draw_widget()
         this->display->setBackColor(this->background_color);
         this->display->setColor(this->text_color);
 
-        this->_calc_widget();
+        // this->_calc_widget();
 
         position text_starting_pos = {this->upper_left.x_pos, this->upper_left.y_pos + text_gap_height};
 
