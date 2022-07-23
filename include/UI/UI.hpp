@@ -13,3 +13,4 @@
 #include "lib/CheckBox.hpp"
 #include "lib/InputField.hpp"
 #include "lib/Divider.hpp"
+#include "lib/ProgressBar.hpp"
