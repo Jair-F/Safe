@@ -34,14 +34,16 @@ namespace UI
             the color values are RGB-565 values(16-bit value)
             RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
         */
-        unsigned int background_color = VGA_BLACK;
         unsigned int check_sign_color = VGA_WHITE;
-        unsigned int border_color = VGA_WHITE;
 
     protected:
         void _draw_widget() override;
-        void _draw_pressed_widget() override;
-        void _draw_released_widget() override;
+        void _draw_touched_content() override;
+
+        void _draw_touched_background() override;
+        void _draw_released_background() override;
+        void _draw_touched_border() override;
+        void _draw_released_border() override;
 
     private:
         bool checked; // true if the checkbox is checked, false if not
@@ -63,24 +65,48 @@ UI::CheckBox<CALL_OBJECT_TYPE>::CheckBox(Window *_parent, const position _upper_
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_released_widget()
+void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_released_border()
 {
-    this->display->setColor(this->background_color);
-    this->display->fillRoundRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
-
-    this->display->setColor(this->border_color);
-    this->display->drawRoundRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
+    this->display->setColor(this->released_border_color);
+    for (uint8_t i = 0; i < this->get_border_weight(); ++i)
+    {
+        this->display->drawRoundRect(this->upper_left.x_pos + i, this->upper_left.y_pos + i, this->lower_right.x_pos - i, this->lower_right.y_pos - i);
+    }
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_pressed_widget()
+void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_touched_border()
 {
-    this->display->setColor(this->background_color);
-    this->display->fillRoundRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
+    this->display->setColor(this->touched_border_color);
+    for (uint8_t i = 0; i < this->get_border_weight(); ++i)
+    {
+        this->display->drawRoundRect(this->upper_left.x_pos + i, this->upper_left.y_pos + i, this->lower_right.x_pos - i, this->lower_right.y_pos - i);
+    }
+}
 
-    this->display->setColor(this->border_color);
-    this->display->drawRoundRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
+template <typename CALL_OBJECT_TYPE>
+void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_touched_background()
+{
+    position background_upper_left = this->get_content_upper_left();
+    position background_lower_right = this->get_content_lower_right();
 
+    this->display->setColor(this->touched_background_color);
+    this->display->fillRoundRect(background_upper_left.x_pos, background_upper_left.y_pos, background_lower_right.x_pos, background_lower_right.y_pos);
+}
+
+template <typename CALL_OBJECT_TYPE>
+void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_released_background()
+{
+    position background_upper_left = this->get_content_upper_left();
+    position background_lower_right = this->get_content_lower_right();
+
+    this->display->setColor(this->released_background_color);
+    this->display->fillRoundRect(background_upper_left.x_pos, background_upper_left.y_pos, background_lower_right.x_pos, background_lower_right.y_pos);
+}
+
+template <typename CALL_OBJECT_TYPE>
+void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_touched_content()
+{
     uint8_t gap_from_box = 2; // the gap between the box and the begin of the check mark
 
     this->display->setColor(this->check_sign_color);
@@ -98,15 +124,24 @@ void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {
-        // change the state only on touche. otherwise it would change on touch to checked and on release return to not checked!
+        // change the state only on touch. otherwise it would change on touch to checked and on release return to not checked!
         if (this->is_checked())
         {
-            // this->_clear_widget_space();
-            this->_draw_pressed_widget();
+            if (this->get_draw_border())
+            {
+                this->_draw_touched_border();
+            }
+            this->_draw_touched_background();
+            this->_draw_touched_content();
         }
         else
         {
-            this->_draw_released_widget();
+            if (this->get_draw_border())
+            {
+                this->_draw_released_border();
+            }
+            this->_draw_released_background();
+            this->_draw_released_content();
         }
     }
 }

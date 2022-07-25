@@ -20,9 +20,14 @@ namespace UI
 
     class Widget
     {
+    private:
+        bool hidden = true;
+
+        bool draw_border = true;
+        uint8_t border_weight;
+
     protected:
-        WindowBase *_parent_window;
-        bool hidden;
+        WindowBase *parent_window;
 
         // getting the display pointers from the parent window in the constructor
         URTouch *touch;
@@ -35,14 +40,15 @@ namespace UI
 
         /*
             for touch_widgets we need released and pressed widget... on normal widget - which can not be touched
-            this function and teh pressed widget are doing the same
+            this function and the pressed widget are doing the same
         */
-        virtual void _draw_released_widget() = 0;
+        virtual void _draw_released_content();
+
         /*
-            for touch_widgets we need released and pressed widget... on normal widget - which can not be touched
-            this function and teh released widget are doing the same
+            draws the widget on the screen - according to his actual status it calls _draw_released_widget or
+            _draw_touched_content
         */
-        virtual void _draw_pressed_widget() = 0;
+        virtual void _draw_widget() { this->_draw_released_content(); }
 
         /*
             hide the widget - clear the space where the widget is drawn
@@ -51,19 +57,25 @@ namespace UI
         */
         virtual void _clear_widget_space();
 
-        /*
-            draws the widget on the screen - according to his actual status it calls _draw_released_widget or
-            _draw_pressed_widget
-        */
-        virtual void _draw_widget() = 0;
+        virtual void _draw_released_border();
+        virtual void _draw_released_background();
 
     public:
         /*
             @param _uppser_left_pos upper left corner in relation to the parent window zero point
         */
-        Widget(WindowBase *_parent, const position &_upper_left, const position &_lower_right);
-        Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height);
+        Widget(WindowBase *_parent, const position &_upper_left, const position &_lower_right,
+               uint8_t _border_weight = 1);
+        Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height,
+               uint8_t _border_weight = 1);
         virtual ~Widget() {}
+
+        /*
+            the color values are RGB-565 values(16-bit value)
+            RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
+        */
+        unsigned int released_border_color = VGA_WHITE;
+        unsigned int released_background_color = VGA_BLACK;
 
         inline uint16_t width() const { return lower_right.x_pos - upper_left.x_pos; }
         inline uint16_t height() const { return lower_right.y_pos - upper_left.y_pos; }
@@ -73,6 +85,24 @@ namespace UI
             the widget isnt update until the show_function is called again
         */
         void set_size(uint16_t _width, uint16_t _height);
+
+        inline void set_border_weight(uint8_t _border_weight) { this->border_weight = _border_weight; }
+        inline uint8_t get_border_weight() const { return this->border_weight; }
+
+        // get the upper_left position of the content - calculated the border_weight out
+        position get_content_upper_left() const;
+        // get the lower_right position of the content - calculated the border_weight out
+        position get_content_lower_right() const;
+        // get the content_width - calculated the border_weight out
+        uint16_t get_content_width() const;
+        // get the content_height - calculated the border_weight out
+        uint16_t get_content_height() const;
+
+        /*
+            @param _draw_border true if the button should have a border - false if not
+        */
+        void set_draw_border(bool _draw_border) { this->draw_border = _draw_border; }
+        bool get_draw_border() const { return this->draw_border; }
 
         /*
             if the element has focus it gets the input of the keypad - the last element that was touched
@@ -150,6 +180,6 @@ namespace UI
         */
         bool _check_pos(const position &_pos) const;
 
-        inline WindowBase *_get_parent_window() const { return this->_parent_window; }
+        inline WindowBase *_get_parent_window() const { return this->parent_window; }
     };
 }

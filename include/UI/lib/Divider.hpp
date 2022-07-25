@@ -20,13 +20,10 @@ namespace UI
         }
 
     protected:
-        void _draw_released_widget() override;
-        void _draw_pressed_widget() override { this->_draw_released_widget(); }
-        void _draw_widget() override { this->_draw_released_widget(); }
+        void _draw_released_content() override;
 
     private:
         uint8_t thickness;
         d_alignment alignment;
-        unsigned int color;
     };
 }

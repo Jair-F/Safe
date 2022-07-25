@@ -111,15 +111,17 @@ void UI::MainWindow::loop()
             {
                 if (this->focused_widget != clicked_widget) // focused widget change
                 {
-                    if (this->focused_widget != nullptr)
+                    Widget *last_focused_widget = this->focused_widget;
+                    this->focused_widget = clicked_widget;
+                    if (last_focused_widget != nullptr)
                     {
-                        this->focused_widget->_focus_lose(); // call focus_lose for the previous focused widget
+                        last_focused_widget->_focus_lose(); // call focus_lose for the previous focused widget
                     }
 #ifndef DEBUG
                     // Serial.println("focused widget changed...");
 #endif
                 }
-                this->focused_widget = clicked_widget;
+                // this->focused_widget = clicked_widget;
             }
 
             if (clicked_widget != nullptr)

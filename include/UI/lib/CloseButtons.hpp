@@ -16,8 +16,8 @@ namespace UI
         {
             this->released_border_color = VGA_WHITE;
             this->released_background_color = VGA_BLACK;
-            this->pressed_border_color = VGA_WHITE;
-            this->pressed_background_color = VGA_RED;
+            this->touched_border_color = VGA_WHITE;
+            this->touched_background_color = VGA_RED;
         }
 
         virtual ~CloseButton() {}
@@ -26,8 +26,8 @@ namespace UI
         unsigned int pressed_cross_color = VGA_BLACK;
 
     protected:
-        void _draw_released_widget() override;
-        void _draw_pressed_widget() override;
+        void _draw_released_content() override;
+        void _draw_touched_content() override;
         void _draw_widget() override;
 
     private:
@@ -35,7 +35,7 @@ namespace UI
 } // namespace UI
 
 template <typename CALL_OBJECT_TYPE>
-void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_released_widget()
+void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_released_content()
 {
     // draw the background color
     this->display->setColor(this->released_background_color);
@@ -56,15 +56,15 @@ void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_released_widget()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_pressed_widget()
+void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_touched_content()
 {
     // draw the background color
-    this->display->setColor(this->pressed_background_color);
+    this->display->setColor(this->touched_background_color);
     this->display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos,
                             this->lower_right.x_pos, this->lower_right.y_pos);
 
     // draw the border
-    this->display->setColor(this->pressed_border_color);
+    this->display->setColor(this->touched_border_color);
     this->display->drawRect(this->upper_left.x_pos, this->upper_left.y_pos,
                             this->lower_right.x_pos, this->lower_right.y_pos);
 
@@ -83,11 +83,11 @@ void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_widget()
     {
         if (this->is_touched())
         {
-            this->_draw_pressed_widget();
+            this->_draw_touched_content();
         }
         else
         {
-            this->_draw_released_widget();
+            this->_draw_released_content();
         }
     }
 }

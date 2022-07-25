@@ -33,10 +33,11 @@ void UI::TextLabel::_draw_widget()
 {
     if (!this->is_hidden())
     {
-        // fill the widget_space with the background_color
-        this->display->setColor(background_color);
-        this->display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos,
-                                this->lower_right.x_pos, this->lower_right.y_pos);
+        if (this->get_draw_border())
+        {
+            this->_draw_released_border();
+        }
+        this->_draw_released_background();
 
         this->display->setFont(text_font);
         this->display->setBackColor(this->background_color);
@@ -77,17 +78,6 @@ void UI::TextLabel::_draw_widget()
 
             // pushing the next text line down by the size of the text_font and the vertical gap between the lines
             text_starting_pos.y_pos = text_starting_pos.y_pos + this->display->getFontYsize() + text_gap_height;
-        }
-
-        if (this->has_border())
-        { // border of the widget
-            this->display->setColor(this->border_color);
-            this->display->drawRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
-
-            // this->display->drawHLine(this->upper_left.x_pos, this->upper_left.y_pos, this->width());
-            // this->display->drawHLine(this->upper_left.x_pos, this->lower_right.y_pos, this->width());
-            // this->display->drawVLine(this->upper_left.x_pos, this->upper_left.y_pos, this->height());
-            // this->display->drawVLine(this->lower_right.x_pos, this->upper_left.y_pos, this->height());
         }
     }
 }

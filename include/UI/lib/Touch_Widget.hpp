@@ -15,25 +15,57 @@ namespace UI
     protected:
         CALL_OBJECT_TYPE *call_object; // call object which the function pionter will be called with
 
+        virtual void _draw_touched_border();
+        virtual void _draw_touched_background();
+        /*
+            for touch_widgets we need released and pressed widget...
+        */
+        virtual void _draw_touched_content() {}
+
+        void _draw_widget() override;
+
     public:
         Touch_Widget(WindowBase *_parent, const position &_upper_left,
-                     const position &_lower_right, CALL_OBJECT_TYPE *_call_object) : Widget(_parent, _upper_left, _lower_right),
-                                                                                     focused(false), touched(false), call_object(_call_object) { assert(this->call_object != nullptr); }
+                     const position &_lower_right, CALL_OBJECT_TYPE *_call_object,
+                     uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _lower_right, _border_weight),
+                                                   focused(false),
+                                                   touched(false),
+                                                   call_object(_call_object)
+        {
+            assert(this->call_object != nullptr);
+        }
         Touch_Widget(WindowBase *_parent, const position &_upper_left,
                      const position _lower_right, CALL_OBJECT_TYPE *_call_object,
-                     void (CALL_OBJECT_TYPE::*_on_touch)(), void (CALL_OBJECT_TYPE::*_on_release)()) : Widget(_parent, _upper_left, _lower_right),
-                                                                                                       on_release(_on_release), focused(false), touched(false),
-                                                                                                       on_touch(_on_touch), call_object(_call_object) { assert(this->call_object != nullptr); }
-
-        Touch_Widget(WindowBase *_parent, const position &_upper_left,
-                     uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object) : Widget(_parent, _upper_left, _width, _height),
-                                                                                          focused(false), touched(false), call_object(_call_object) { assert(this->call_object != nullptr); }
+                     void (CALL_OBJECT_TYPE::*_on_touch)(), void (CALL_OBJECT_TYPE::*_on_release)(),
+                     uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _lower_right, _border_weight),
+                                                   on_release(_on_release), focused(false), touched(false),
+                                                   on_touch(_on_touch), call_object(_call_object)
+        {
+            assert(this->call_object != nullptr);
+        }
+        Touch_Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object, uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _width, _height, _border_weight),
+                                                                                                                                                                        focused(false), touched(false), call_object(_call_object)
+        {
+            assert(this->call_object != nullptr);
+        }
         Touch_Widget(WindowBase *_parent, const position &_upper_left,
                      uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
-                     void (CALL_OBJECT_TYPE::*_on_touch)(), void (CALL_OBJECT_TYPE::*_on_release)()) : Widget(_parent, _upper_left, _width, height),
-                                                                                                       focused(false), touched(false), call_object(_call_object),
-                                                                                                       on_touch(_on_touch), on_release(_on_release) { assert(this->call_object != nullptr); }
+                     void (CALL_OBJECT_TYPE::*_on_touch)(), void (CALL_OBJECT_TYPE::*_on_release)(),
+                     uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _width, height, _border_weight),
+                                                   focused(false), touched(false), call_object(_call_object),
+                                                   on_touch(_on_touch), on_release(_on_release)
+        {
+            assert(this->call_object != nullptr);
+        }
+
         virtual ~Touch_Widget() {}
+
+        /*
+            the color values are RGB-565 values(16-bit value)
+            RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
+        */
+        unsigned int touched_background_color = VGA_WHITE;
+        unsigned int touched_border_color = VGA_WHITE;
 
         /*
             function to be called if the widget is touched - on touch not bound to a status of the widget except of hidden status!
@@ -66,7 +98,7 @@ namespace UI
         /*
             if the element has focus it gets the input of the keypad - the last element that was touched
         */
-        inline bool is_focused() const { return this->_parent_window->get_focused_widget() == this; }
+        inline bool is_focused() const { return this->parent_window->get_focused_widget() == this; }
 
         /*
             @return true if the widget is touched at the time, else false
@@ -116,4 +148,50 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_focus_lose()
 {
     if (this->on_focus_lose != nullptr)
         (this->call_object->*this->on_focus_lose)(this);
+}
+
+template <typename CALL_OBJECT_TYPE>
+void UI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_touched_border()
+{
+    this->display->setColor(this->touched_border_color);
+    for (uint8_t i = 0; i < this->get_border_weight(); ++i)
+    {
+        this->display->drawRect(this->upper_left.x_pos + i, this->upper_left.y_pos + i, this->lower_right.x_pos - i, this->lower_right.y_pos - i);
+    }
+}
+
+template <typename CALL_OBJECT_TYPE>
+void UI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_touched_background()
+{
+    position background_upper_left = this->get_content_upper_left();
+    position background_lower_right = this->get_content_lower_right();
+
+    this->display->setColor(this->touched_background_color);
+    this->display->fillRect(background_upper_left.x_pos, background_upper_left.y_pos, background_lower_right.x_pos, background_lower_right.y_pos);
+}
+
+template <typename CALL_OBJECT_TYPE>
+void UI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_widget()
+{
+    if (!this->is_hidden())
+    {
+        if (this->is_touched())
+        {
+            if (this->get_draw_border())
+            {
+                this->_draw_touched_border();
+            }
+            this->_draw_touched_background();
+            this->_draw_touched_content();
+        }
+        else
+        {
+            if (this->get_draw_border())
+            {
+                this->_draw_released_border();
+            }
+            this->_draw_released_background();
+            this->_draw_released_content();
+        }
+    }
 }

@@ -2,8 +2,9 @@
 
 // ---------------- Widget ----------------
 
-UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const position &_lower_right) : _parent_window(_parent), hidden(true),
-                                                                                                     upper_left(_parent_window->_calc_absolute_pos(_upper_left)), lower_right(_parent_window->_calc_absolute_pos(_lower_right))
+UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const position &_lower_right,
+                   uint8_t _border_weight) : hidden(true), border_weight(_border_weight), parent_window(_parent),
+                                             upper_left(parent_window->_calc_absolute_pos(_upper_left)), lower_right(parent_window->_calc_absolute_pos(_lower_right))
 {
     // adjusting the positions in case they not set correctly - if the upper_left is for example the lower_right position
     decltype(upper_left.x_pos) tmp;
@@ -34,13 +35,14 @@ UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const posit
     }
     */
 
-    this->display = this->_parent_window->_get_display();
-    this->touch = this->_parent_window->_get_touch();
-    this->_parent_window->_register_widget(this);
+    this->display = this->parent_window->_get_display();
+    this->touch = this->parent_window->_get_touch();
+    this->parent_window->_register_widget(this);
 }
 
-UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height) : _parent_window(_parent), hidden(true),
-                                                                                                          upper_left(_upper_left)
+UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height,
+                   uint8_t _border_weight) : hidden(true), border_weight(_border_weight), parent_window(_parent),
+                                             upper_left(_upper_left)
 {
     this->lower_right.x_pos = this->upper_left.x_pos + _width;
     this->lower_right.y_pos = this->upper_left.y_pos + _height;
@@ -60,15 +62,18 @@ UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, uint16_t _w
         this->upper_left.y_pos = tmp;
     }
 
-    this->display = this->_parent_window->_get_display();
-    this->touch = this->_parent_window->_get_touch();
-    this->_parent_window->_register_widget(this);
+    this->display = this->parent_window->_get_display();
+    this->touch = this->parent_window->_get_touch();
+    this->parent_window->_register_widget(this);
 }
 
 void UI::Widget::hide()
 {
-    this->hidden = true;
-    this->_clear_widget_space();
+    if (!this->hidden)
+    {
+        this->_clear_widget_space();
+        this->hidden = true;
+    }
 }
 void UI::Widget::show()
 {
@@ -86,10 +91,9 @@ void UI::Widget::_clear_widget_space()
     if (!this->is_hidden())
     {
         // clear the space where the widget is(background-color)
-        this->display->setColor(this->_parent_window->get_background_color());
+        this->display->setColor(this->parent_window->get_background_color());
         this->display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos,
                                 this->lower_right.x_pos, this->lower_right.y_pos);
-        // this->display->drawRoundRect(asd, )
     }
 }
 
@@ -107,4 +111,52 @@ void UI::Widget::update_widget()
     {
         this->_draw_widget();
     }
+}
+
+void UI::Widget::_draw_released_content()
+{
+    if (this->get_draw_border())
+    {
+        this->_draw_released_border();
+    }
+    this->_draw_released_background();
+}
+
+void UI::Widget::_draw_released_background()
+{
+    position background_upper_left = this->get_content_upper_left();
+    position background_lower_right = this->get_content_lower_right();
+
+    this->display->setColor(this->released_background_color);
+    this->display->fillRect(background_upper_left.x_pos, background_upper_left.y_pos, background_lower_right.x_pos, background_lower_right.y_pos);
+}
+
+void UI::Widget::_draw_released_border()
+{
+    this->display->setColor(this->released_border_color);
+    for (uint8_t i = 0; i < this->border_weight; ++i)
+    {
+        this->display->drawRect(this->upper_left.x_pos + i, this->upper_left.y_pos + i, this->lower_right.x_pos - i, this->lower_right.y_pos - i);
+    }
+    // this->display->drawLine()
+}
+
+UI::position UI::Widget::get_content_upper_left() const
+{
+    return {this->upper_left.x_pos + this->border_weight, this->upper_left.y_pos + this->border_weight};
+}
+
+UI::position UI::Widget::get_content_lower_right() const
+{
+    return {this->lower_right.x_pos - this->border_weight, this->lower_right.y_pos - this->border_weight};
+}
+
+uint16_t UI::Widget::get_content_height() const
+{
+    return this->lower_right.y_pos - this->upper_left.y_pos - this->border_weight * 2;
+}
+
+uint16_t UI::Widget::get_content_width() const
+{
+    return this->lower_right.x_pos - this->upper_left.x_pos - this->border_weight * 2;
 }

@@ -51,11 +51,11 @@ namespace UI
 
     protected:
         void _draw_widget() override;
-        void _draw_released_widget() override;
+        void _draw_released_content() override;
         /*
             at this time this isnt when the widget is pressed. its when the widget is focused and ready for input - then we show the cursor
         */
-        void _draw_pressed_widget() override;
+        void _draw_touched_content() override;
 
         void _focus_lose() override;
 
@@ -74,14 +74,9 @@ namespace UI
             the color values are RGB-565 values(16-bit value)
             RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
         */
-        unsigned int pressed_background_color = 0xb5b6;
-        unsigned int pressed_text_color = VGA_BLACK;
-        unsigned int pressed_cursor_color = VGA_BLACK;
-        unsigned int pressed_border_color = VGA_WHITE;
-
-        unsigned int released_background_color = VGA_BLACK;
+        unsigned int touched_text_color = VGA_BLACK;
+        unsigned int touched_cursor_color = VGA_BLACK;
         unsigned int released_text_color = VGA_WHITE;
-        unsigned int released_border_color = VGA_WHITE;
 
         uint8_t *_text_font = SmallFont;
 
@@ -195,18 +190,8 @@ bool UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::buffer_is_empty()
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_released_widget()
+void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_released_content()
 {
-    // draw background-color
-    this->display->setColor(this->released_background_color);
-    this->display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos,
-                            this->lower_right.x_pos, this->lower_right.y_pos);
-
-    // draw the border
-    this->display->setColor(this->released_border_color);
-    this->display->drawRect(this->upper_left.x_pos, this->upper_left.y_pos,
-                            this->lower_right.x_pos, this->lower_right.y_pos);
-
     // print the print the text in the InputField if there is text in the buffer
     if (!this->buffer_is_empty())
     {
@@ -252,18 +237,8 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_released_widget()
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_pressed_widget()
+void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_touched_content()
 {
-    // draw background-color
-    this->display->setColor(this->pressed_background_color);
-    this->display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos,
-                            this->lower_right.x_pos, this->lower_right.y_pos);
-
-    // draw the border
-    this->display->setColor(this->pressed_border_color);
-    this->display->drawRect(this->upper_left.x_pos, this->upper_left.y_pos,
-                            this->lower_right.x_pos, this->lower_right.y_pos);
-
     this->display->setFont(this->_text_font);
     uint8_t font_height = this->display->getFontYsize();
     uint8_t font_width = this->display->getFontXsize();
@@ -273,8 +248,8 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_pressed_widget()
     // print the print the text in the InputField if there is text in the buffer
     if (!this->buffer_is_empty())
     {
-        this->display->setBackColor(this->pressed_background_color);
-        this->display->setColor(this->pressed_text_color);
+        this->display->setBackColor(this->touched_background_color);
+        this->display->setColor(this->touched_text_color);
 
         // calculate the num of chars to print in the field - in case there is more input than the widget ca display
         uint8_t input_buffer_size = strlen(this->input_buffer);
@@ -308,7 +283,7 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_pressed_widget()
                              this->upper_left.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
     }
     // draw the cursor
-    this->display->setColor(this->pressed_cursor_color);
+    this->display->setColor(this->touched_cursor_color);
     this->display->drawVLine(this->upper_left.x_pos + this->_text_gap + font_width * text_to_print.length(),
                              this->upper_left.y_pos + (this->height() / 2) - font_height / 2, font_height); // height of the curser is the font-height and the upper-pos is the upper-pos of the text
 }
@@ -317,7 +292,7 @@ template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
 void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_focus_lose()
 {
     Touch_Widget<CALL_OBJECT_TYPE>::_focus_lose();
-    this->_draw_released_widget();
+    this->_draw_widget();
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
@@ -327,11 +302,21 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_widget()
     {
         if (this->is_touched() || this->is_focused())
         {
-            this->_draw_pressed_widget();
+            if (this->get_draw_border())
+            {
+                this->_draw_touched_border();
+            }
+            this->_draw_touched_background();
+            this->_draw_touched_content();
         }
         else
         {
-            this->_draw_released_widget();
+            if (this->get_draw_border())
+            {
+                this->_draw_released_border();
+            }
+            this->_draw_released_background();
+            this->_draw_released_content();
         }
     }
 }

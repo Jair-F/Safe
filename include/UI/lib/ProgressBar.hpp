@@ -14,21 +14,16 @@ namespace UI
         void set_progress(uint8_t _progress);
         uint8_t get_progress() const { return this->progress; }
 
-        void set_border_weight(uint8_t _border_weight) { this->border_weight = _border_weight; }
-
         void set_border_to_bar_gap(uint8_t _border_to_bar_gap) { this->border_to_bar_gap = _border_to_bar_gap; }
+        inline uint8_t get_border_to_bar_gap() const { return this->border_to_bar_gap; }
 
-        unsigned int border_color = VGA_WHITE;
         unsigned int bar_color = VGA_GREEN;
 
     protected:
-        void _draw_released_widget() override;
-
-        void _draw_pressed_widget() override { this->_draw_released_widget(); }
-        void _draw_widget() override { this->_draw_released_widget(); }
+        void _draw_released_content() override;
+        void _draw_widget() override { this->_draw_released_content(); }
 
     private:
-        uint8_t border_weight;
         uint8_t progress;              // progress of the progress bar in precent(0-100)
         uint8_t border_to_bar_gap = 3; // gap between the border and the progress bar in pixels
     };
