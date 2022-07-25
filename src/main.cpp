@@ -56,6 +56,9 @@ lock_screen *l_screen;
 
 Keypad::Keypad<UI::MainWindow> k_pad(&m_window);
 
+extern const unsigned short settings_white[];
+extern const unsigned short back_sign_white[];
+
 void setup()
 {
 #ifdef DEBUG
@@ -71,6 +74,7 @@ void setup()
     myGLCD.clrScr();
     myTouch.InitTouch(DISPLAY_ORIENTATION);
     myTouch.setPrecision(PREC_MEDIUM);
+    // myGLCD.drawBitmap()
 
     Serial.println("Display-Size: ");
     Serial.print('(');
@@ -80,6 +84,22 @@ void setup()
     Serial.println(')');
 
     l_screen = new lock_screen(&m_window);
+    /*
+    UI::Widget wi(l_screen, {1, 10}, {50, 50}, 3);
+    wi.released_background_color = VGA_RED;
+    wi.released_border_color = VGA_WHITE;
+    Serial.println(wi.get_content_upper_left().x_pos);
+    Serial.println(wi.get_content_upper_left().y_pos);
+    Serial.println(wi.get_content_lower_right().x_pos);
+    Serial.println(wi.get_content_lower_right().y_pos);
+    */
+
+    m_window.set_active_window(l_screen);
+
+    // while (true)
+    // {
+    //     m_window.loop();
+    // }
 
     if (system_clock.lost_power())
     {
@@ -128,7 +148,6 @@ void setup()
     Serial.println(myGLCD.getDisplayYSize());
 
     // logger.serial_dump();
-    m_window.set_active_window(l_screen);
 
     // Serial.println(l_screen.pos().x_pos);
     // Serial.println(l_screen.pos().y_pos);

@@ -21,15 +21,19 @@ public:
                                                 input_field(this, {150, 150}, 60, 35, this, UI::InputField<20, lock_screen>::IN_INPUT_TYPE::IN_TEXT),
                                                 pop_up_window(this, 150, 100),
                                                 status_bar(this, {0, this->_get_display()->getDisplayYSize() - 35}, this->_get_display()->getDisplayXSize() - 110, "ERROR"),
-                                                b_button(this, {160, 40}, 50, 50, this, settings_white, settings_black),
+                                                b_button(this, {160, 32}, 50, 50, this, settings_white, settings_white),
                                                 div(this, {5, 100}, 50, 5, UI::Divider::d_alignment::AL_VERTICAL, VGA_WHITE),
                                                 progressBar(this, {80, 100}, {290, 115}, 1)
     {
-        text_feld.set_border(false);
+        text_feld.set_border(true);
         text_feld.set_text_alignment(text_feld.AL_CENTER);
         text_feld.set_font(SmallFont);
+        text_feld.set_border_weight(3);
 
         _button.setText("Click mich");
+        _button.set_border_weight(3);
+        _button.touched_border_color = VGA_BLUE;
+        _button.touched_background_color = VGA_GREEN;
         _button.on_touch = &this->button_print_clicked;
         _button.on_release = &this->button_print_released;
 
@@ -38,11 +42,16 @@ public:
 
         ch_box.on_release = &this->_handle_check_box;
         ch_box.check_sign_color = VGA_WHITE;
-        ch_box.background_color = VGA_GREEN;
-        ch_box.border_color = VGA_AQUA;
+        ch_box.released_background_color = VGA_GREEN;
+        ch_box.touched_background_color = VGA_GREEN;
+        ch_box.released_border_color = VGA_AQUA;
+        ch_box.touched_border_color = VGA_RED;
+        ch_box.set_border_weight(3);
         ch_box.set_checked(false);
 
         input_field.set_input_buffer("123");
+        input_field.set_border_weight(2);
+        input_field.touched_background_color = VGA_GRAY;
         input_field.on_enter = &this->update_window_label;
         input_field.on_focus_lose = &this->update_window_label;
 
@@ -55,8 +64,10 @@ public:
         status_bar.set_font(SmallFont);
 
         b_button.on_release = &this->button_print_clicked;
-        b_button.pressed_border_color = VGA_GREEN;
-        b_button.set_border(true);
+        b_button.touched_border_color = VGA_GREEN;
+        b_button.set_draw_border(true);
+        b_button.show();
+        b_button._touch({1, 1});
 
         progressBar.set_border_weight(2);
     }
@@ -89,11 +100,11 @@ protected:
 
         String tmp = this->input_field.get_input_buffer();
         uint8_t step = tmp.toInt();
-        this->progressBar.set_progress(this->progressBar.get_progress() + step);
         if (this->progressBar.get_progress() >= 100)
         {
             this->progressBar.set_progress(0);
         }
+        this->progressBar.set_progress(this->progressBar.get_progress() + step);
     }
 
     void button_print_released(UI::Touch_Widget<lock_screen> *_widget)
