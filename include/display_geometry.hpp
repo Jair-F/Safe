@@ -122,14 +122,16 @@ void fill_rect(UTFT *display, UI::position origin_pos, uint16_t width, uint16_t 
         b = intersection with the y-Axis (0 , b)
     */
 
-    if (angle_alpha >= 180)
+    while (angle_alpha >= 180)
         angle_alpha = angle_alpha - 180; // rotating more than 180 deg is also representable by a angle lower than 180 at a rectangle
+
+    // angle_alpha = 180 - angle_alpha; // change direction of turning
 
     /*
         if angle is bigger than 90 deg we change the width and the height so we only need to draw a rect in angle of 90 deg
         and then A y-point is always positive
     */
-    if (angle_alpha >= 90)
+    while (angle_alpha >= 90)
     {
         swap(uint16_t, height, width);
         angle_alpha = angle_alpha - 90;
@@ -143,29 +145,26 @@ void fill_rect(UTFT *display, UI::position origin_pos, uint16_t width, uint16_t 
 
     {
         bool a_pos_x_positive, a_pos_y_positive = true; // the y-pos is always positive at point A
-        bool b_pos_x_positive = true, b_pos_y_positive; // the x-pos is always positive at point B
-        bool c_pos_x_positive, c_pos_y_positive = false;
-        bool d_pos_x_positive = false, d_pos_y_positive;
 
         // point A and C X-Pos  -  positive or negative - slide 2
 
         double angle_beta = 90 - angle_alpha;
         double check_length_2 = double(height) / 2;
 
-        /*
-            tan(𝛽) = AP / PO | *PO
-            PO * tan(𝛽) = AP
-
-            AP = check_length_2
-            PO = width / 2
-        */
         double check_length_1;
         if (angle_alpha == 0)
         {
-            check_length_1 = __DBL_MAX__;
+            check_length_1 = __DBL_MAX__; // if angle is 0 this length would theoretically be ∞(endless), so set it to the max we can
         }
         else
         {
+            /*
+                tan(𝛽) = QP / PO | *PO
+                PO * tan(𝛽) = QP
+
+                QP = check_length_2
+                PO = width / 2
+            */
             check_length_1 = ((double)width / 2) * tan(deg_to_rad(angle_beta));
         }
 
@@ -183,63 +182,6 @@ void fill_rect(UTFT *display, UI::position origin_pos, uint16_t width, uint16_t 
             a_pos_x_positive = true;
             a_pos.x_pos = 0;
         }
-
-        /*
-            C is on the opposite size - the opposite...
-        */
-        c_pos_x_positive = !a_pos_x_positive;
-
-        /*
-
-
-
-
-
-
-
-        */
-
-        // point B and D X-Pos  -  positive or negative - slide 3
-
-        angle_beta = 90 - angle_alpha;
-        check_length_2 = double(width) / 2;
-        /*
-            ∡𝛽 = 90 - ∝
-
-            tan(𝛽) = GH / OG    | * OG
-            OG * tan(𝛽) = GH
-
-            GH = check_length_1
-            OG = height / 2
-        */
-        if (angle_alpha == 0)
-        {
-            check_length_1 = __DBL_MAX__;
-        }
-        else
-        {
-            check_length_1 = ((double)height / 2) * tan(deg_to_rad(angle_beta));
-        }
-
-        // the X-pos is always positive at point B
-        if (check_length_1 > check_length_2) // A-Y-pos is negative
-        {
-            b_pos_y_positive = false;
-        }
-        else if (check_length_1 < check_length_2) // A-Y-pos is positive
-        {
-            b_pos_y_positive = true;
-        }
-        else // check_length_1 and check_length_2 are equal - B-Y-Pos is 0
-        {
-            b_pos_y_positive = true;
-            b_pos.y_pos = 0;
-        }
-
-        /*
-            D is on the opposite size - the opposite...
-        */
-        d_pos_y_positive = !b_pos_y_positive;
 
         /*
 
@@ -261,10 +203,10 @@ void fill_rect(UTFT *display, UI::position origin_pos, uint16_t width, uint16_t 
             AF = height / 2
             OF = width / 2
         */
-        double angle_delta = atan(((double)height / 2) / ((double)width / 2));
+        double angle_delta = atan(((double)height / 2) / ((double)width / 2)); // angle is still in radiands!
         angle_delta = rad_to_deg(angle_delta);
 
-        double angle_gamma = abs(90 - angle_alpha - angle_delta);
+        double angle_gamma = abs(90 - angle_alpha - angle_delta); // if alpha is big enough this could be negative - therefore abs to get the angle
 
         /*
             OA = diagonal_length / 2
@@ -279,8 +221,14 @@ void fill_rect(UTFT *display, UI::position origin_pos, uint16_t width, uint16_t 
             a_pos.x_pos = -a_pos.x_pos;
         c_pos.x_pos = -a_pos.x_pos; // c_pos is the exact opposite of a_pos
 
+        Serial.print("a_pos.x_pos: ");
+        Serial.println(a_pos.x_pos, 5);
+
         a_pos.x_pos = origin_pos.x_pos + a_pos.x_pos;
         c_pos.x_pos = origin_pos.x_pos + c_pos.x_pos;
+
+        Serial.print("a_pos.x_pos - abs: ");
+        Serial.println(a_pos.x_pos, 5);
 
         /*
             AO = diagonal_length / 2
@@ -290,13 +238,20 @@ void fill_rect(UTFT *display, UI::position origin_pos, uint16_t width, uint16_t 
 
             IO = a_pos.y_pos
         */
-        a_pos.y_pos = (cos(deg_to_rad(angle_gamma)) * (diagonal_length / 2));
-        if (!a_pos_y_positive)
-            a_pos.y_pos = -a_pos.y_pos;
+        a_pos.y_pos = (cos(deg_to_rad(angle_gamma)) * (diagonal_length / 2)); // a_pos - y_pos is always positive...
+        // if (!a_pos_y_positive)
+        //     a_pos.y_pos = -a_pos.y_pos;
         c_pos.y_pos = -a_pos.y_pos; // c_pos is the exact opposite of a_pos
 
-        a_pos.y_pos = origin_pos.y_pos + a_pos.y_pos;
-        c_pos.y_pos = origin_pos.y_pos + c_pos.y_pos;
+        Serial.print("a_pos.y_pos: ");
+        Serial.println(a_pos.y_pos, 5);
+
+        a_pos.y_pos = origin_pos.y_pos - a_pos.y_pos; // the y-pos of pos a is above the origin - subtract...
+        c_pos.y_pos = origin_pos.y_pos - c_pos.y_pos;
+
+        Serial.print("a_pos.y_pos - abs: ");
+        Serial.println(a_pos.y_pos, 5);
+        Serial.println();
 
         /*
 
@@ -308,6 +263,11 @@ void fill_rect(UTFT *display, UI::position origin_pos, uint16_t width, uint16_t 
             AB = height
             ∡ABF = ∡∝
 
+            cos(∝) = BF * AB    | * AB
+            BF = AB * cos(∝)
+
+            sin(∝) = AF * AB    | * AB
+            AF = AB * cos(∝)
 
             b_pos.x_pos = a_pos.x_pos + AF
             b_pos.y_pos = a_pos.y_pos - BF
@@ -315,16 +275,12 @@ void fill_rect(UTFT *display, UI::position origin_pos, uint16_t width, uint16_t 
         double BF = cos(deg_to_rad(angle_alpha)) * height;
         double AF = sin(deg_to_rad(angle_alpha)) * height;
         b_pos.x_pos = a_pos.x_pos + AF;
-        b_pos.y_pos = a_pos.y_pos - BF;
-
-        // if (!b_pos_x_positive)
-        //     b_pos.x_pos = -b_pos.x_pos;
-        // if (!b_pos_y_positive)
-        //     b_pos.y_pos = -b_pos.y_pos;
+        b_pos.y_pos = a_pos.y_pos + BF;
 
         d_pos.x_pos = c_pos.x_pos - AF;
-        d_pos.y_pos = c_pos.y_pos + BF;
+        d_pos.y_pos = c_pos.y_pos - BF;
 
+        // round all the positions to get a displayable solution for the display
         a_pos.x_pos = round(a_pos.x_pos);
         a_pos.y_pos = round(a_pos.y_pos);
 
@@ -338,8 +294,8 @@ void fill_rect(UTFT *display, UI::position origin_pos, uint16_t width, uint16_t 
         d_pos.y_pos = round(d_pos.y_pos);
     }
 
+    display->drawLine(d_pos.x_pos, d_pos.y_pos, a_pos.x_pos, a_pos.y_pos);
     display->drawLine(a_pos.x_pos, a_pos.y_pos, b_pos.x_pos, b_pos.y_pos);
     display->drawLine(b_pos.x_pos, b_pos.y_pos, c_pos.x_pos, c_pos.y_pos);
     display->drawLine(c_pos.x_pos, c_pos.y_pos, d_pos.x_pos, d_pos.y_pos);
-    display->drawLine(d_pos.x_pos, d_pos.y_pos, a_pos.x_pos, a_pos.y_pos);
 }
