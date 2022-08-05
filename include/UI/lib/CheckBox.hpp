@@ -1,6 +1,6 @@
 #pragma once
 #include "UI/UI.hpp"
-#include "display_geometry.hpp"
+#include "UI/display_geometry_funcs.hpp"
 
 namespace UI
 {
