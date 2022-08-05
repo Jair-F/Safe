@@ -47,7 +47,7 @@ namespace UI
         }
 
     private:
-        MainWindow *_main_window; // the display itself
+        MainWindow *_main_window;
     };
 
 } // namespace UI

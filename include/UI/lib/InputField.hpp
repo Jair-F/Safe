@@ -231,7 +231,7 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_released_content(
         }
 
         // center the text horizontally in the widget
-        this->display->print(text_to_print, this->upper_left.x_pos + this->_text_gap,
+        this->display->print(text_to_print, this->upper_left.x_pos + this->_text_gap + this->get_border_weight(),
                              this->upper_left.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
     }
 }
@@ -279,12 +279,12 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_touched_content()
         }
 
         // center the text horizontally in the widget
-        this->display->print(text_to_print, this->upper_left.x_pos + this->_text_gap,
+        this->display->print(text_to_print, this->get_content_upper_left().x_pos + this->_text_gap,
                              this->upper_left.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
     }
     // draw the cursor
     this->display->setColor(this->touched_cursor_color);
-    this->display->drawVLine(this->upper_left.x_pos + this->_text_gap + font_width * text_to_print.length(),
+    this->display->drawVLine(this->get_content_upper_left().x_pos + this->_text_gap + font_width * text_to_print.length(),
                              this->upper_left.y_pos + (this->height() / 2) - font_height / 2, font_height); // height of the curser is the font-height and the upper-pos is the upper-pos of the text
 }
 

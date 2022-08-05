@@ -4,7 +4,7 @@
 #include <avr8-stub.h>
 #endif
 
-UI::MainWindow::MainWindow(UTFT *_display, URTouch *_touch, position _window_upper_left, position _window_lower_right) : focused_widget(nullptr),
+UI::MainWindow::MainWindow(UTFT *_display, URTouch *_touch, position _window_upper_left, position _window_lower_right) : focus_frozen(false), focused_widget(nullptr),
                                                                                                                          active_window(nullptr), display(_display), touch(_touch),
                                                                                                                          window_upper_left(_window_upper_left), window_lower_right(_window_lower_right)
 {
@@ -26,7 +26,10 @@ bool UI::MainWindow::request_focus(UI::Widget *_widget)
 {
     if (!this->focus_frozen)
     {
+        if (this->focused_widget != nullptr)
+            this->focused_widget->_focus_lose(); // call the focus loose of the previous widget
         this->focused_widget = _widget;
+        this->focused_widget->update_widget();
         return true;
     }
     return false;
@@ -79,6 +82,7 @@ void UI::MainWindow::set_active_window(WindowBase *_win)
         this->active_window->hide();
     }
 
+    this->unfreeze_focus(); // at every window change the focus will be reseted
     this->active_window = _win;
     this->active_window->show();
 }

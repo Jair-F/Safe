@@ -17,7 +17,7 @@ public:
                                                 _button(this, ::upper_left, ::lower_right, this),
                                                 _button2(this, {this->_get_display()->getDisplayXSize() - 100, this->_get_display()->getDisplayYSize() - 35}, {this->_get_display()->getDisplayXSize() - 1, this->_get_display()->getDisplayYSize() - 1}, this),
                                                 text_feld(this, {0, 0}, this->_get_display()->getDisplayXSize() - 1, "Window title"),
-                                                ch_box(this, {50, 150}, 25, 25, this),
+                                                ch_box(this, {35, 140}, 30, this),
                                                 input_field(this, {150, 150}, 60, 35, this, UI::InputField<20, lock_screen>::IN_INPUT_TYPE::IN_TEXT),
                                                 pop_up_window(this, 150, 100),
                                                 status_bar(this, {0, this->_get_display()->getDisplayYSize() - 35}, this->_get_display()->getDisplayXSize() - 110, "ERROR"),
@@ -47,13 +47,14 @@ public:
         ch_box.released_border_color = VGA_AQUA;
         ch_box.touched_border_color = VGA_RED;
         ch_box.set_border_weight(3);
-        ch_box.set_checked(false);
+        ch_box.set_checked(true);
 
         input_field.set_input_buffer("123");
-        input_field.set_border_weight(2);
+        input_field.set_border_weight(4);
         input_field.touched_background_color = VGA_GRAY;
         input_field.on_enter = &this->update_window_label;
         input_field.on_focus_lose = &this->update_window_label;
+        Serial.println(this->_get_main_window()->request_focus(&input_field) == true ? "focus request successfull" : "focus request failed");
 
         pop_up_window.set_background_color(VGA_GRAY);
         pop_up_window.set_border_color(VGA_LIME);
