@@ -12,18 +12,25 @@ namespace UI
             AL_VERTICAL
         };
         Divider(WindowBase *_parent, position _start_position, uint16_t _length,
-                uint8_t _thickness, d_alignment _alignment, unsigned int _color);
+                uint8_t width, d_alignment _alignment, unsigned int _color);
 
-        inline uint8_t get_thickness() const
+        inline uint8_t get_weight() const
         {
-            return this->thickness;
+            if (this->alignment == d_alignment::AL_HORIZONTAL)
+                return this->get_content_height();
+            else
+                return this->get_content_width();
+            // return this->thickness;
         }
 
-    protected:
-        void _draw_released_content() override;
+        /*
+            wrapper for released_background_color
+            the Divider uses the background_color of the widget as its color value
+        */
+        void set_color(unsigned int color) { this->released_background_color = color; }
 
+    protected:
     private:
-        uint8_t thickness;
         d_alignment alignment;
     };
 }
