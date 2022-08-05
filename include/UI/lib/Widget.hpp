@@ -89,7 +89,7 @@ namespace UI
         /*
             border weight in pixels
         */
-        inline void set_border_weight(uint8_t _border_weight) { this->border_weight = _border_weight; }
+        void set_border_weight(uint8_t _border_weight);
         inline uint8_t get_border_weight() const { return this->border_weight; }
 
         /*

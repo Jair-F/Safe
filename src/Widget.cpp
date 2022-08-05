@@ -172,3 +172,13 @@ uint16_t UI::Widget::get_content_width() const
     else
         return this->width();
 }
+
+void UI::Widget::set_border_weight(uint8_t _border_weight)
+{
+    if (_border_weight * 2 > this->width())
+        this->border_weight = this->width() / 2;
+    else if (_border_weight * 2 > this->height())
+        this->border_weight = this->height() / 2;
+    else
+        this->border_weight = _border_weight;
+}
