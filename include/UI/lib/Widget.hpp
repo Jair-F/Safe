@@ -86,16 +86,31 @@ namespace UI
         */
         void set_size(uint16_t _width, uint16_t _height);
 
+        /*
+            border weight in pixels
+        */
         inline void set_border_weight(uint8_t _border_weight) { this->border_weight = _border_weight; }
         inline uint8_t get_border_weight() const { return this->border_weight; }
 
-        // get the upper_left position of the content - calculated the border_weight out
+        /*
+            get the upper_left position of the content - calculated the border_weight out
+            but only if draw_border is set. If draw_border is not set it returns the same as get_upper_left
+        */
         position get_content_upper_left() const;
-        // get the lower_right position of the content - calculated the border_weight out
+        /*
+            get the lower_right position of the content - calculated the border_weight out
+            but only if draw_border is set. If draw_border is not set it returns the same as lower_right
+        */
         position get_content_lower_right() const;
-        // get the content_width - calculated the border_weight out
+        /*
+            get the content_width - calculated the border_weight out
+            but only if draw_border is set. If draw_border is not set it returns the same as width()
+        */
         uint16_t get_content_width() const;
-        // get the content_height - calculated the border_weight out
+        /*
+            get the content_height - calculated the border_weight out
+            but only if draw_border is set. If draw_border is not set it returns the same as height()
+        */
         uint16_t get_content_height() const;
 
         /*

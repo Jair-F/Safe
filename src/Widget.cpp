@@ -143,20 +143,32 @@ void UI::Widget::_draw_released_border()
 
 UI::position UI::Widget::get_content_upper_left() const
 {
-    return {this->upper_left.x_pos + this->border_weight, this->upper_left.y_pos + this->border_weight};
+    if (this->get_draw_border())
+        return {this->upper_left.x_pos + this->border_weight, this->upper_left.y_pos + this->border_weight};
+    else
+        return this->upper_left;
 }
 
 UI::position UI::Widget::get_content_lower_right() const
 {
-    return {this->lower_right.x_pos - this->border_weight, this->lower_right.y_pos - this->border_weight};
+    if (this->get_draw_border())
+        return {this->lower_right.x_pos - this->border_weight, this->lower_right.y_pos - this->border_weight};
+    else
+        return this->lower_right;
 }
 
 uint16_t UI::Widget::get_content_height() const
 {
-    return this->lower_right.y_pos - this->upper_left.y_pos - this->border_weight * 2;
+    if (this->get_draw_border())
+        return this->lower_right.y_pos - this->upper_left.y_pos - this->border_weight * 2;
+    else
+        return this->height();
 }
 
 uint16_t UI::Widget::get_content_width() const
 {
-    return this->lower_right.x_pos - this->upper_left.x_pos - this->border_weight * 2;
+    if (this->get_draw_border())
+        return this->lower_right.x_pos - this->upper_left.x_pos - this->border_weight * 2;
+    else
+        return this->width();
 }
