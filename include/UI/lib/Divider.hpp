@@ -20,10 +20,9 @@ namespace UI
         inline uint8_t get_width() const
         {
             if (this->alignment == d_alignment::AL_HORIZONTAL)
-                return this->get_content_height();
+                return this->height() + 1;
             else
-                return this->get_content_width();
-            // return this->thickness;
+                return this->width() + 1;
         }
 
         /*
