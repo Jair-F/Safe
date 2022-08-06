@@ -22,9 +22,12 @@ public:
                                                 pop_up_window(this, 150, 100),
                                                 status_bar(this, {0, this->_get_display()->getDisplayYSize() - 35}, this->_get_display()->getDisplayXSize() - 110, "ERROR"),
                                                 b_button(this, {160, 32}, 50, 50, this, settings_white, settings_white),
-                                                div(this, {5, 100}, 50, 5, UI::Divider::d_alignment::AL_VERTICAL, VGA_WHITE),
-                                                progressBar(this, {80, 100}, {290, 115}, 1)
+                                                div(this, {5, 100}, 50, 4, UI::Divider::d_alignment::AL_VERTICAL, VGA_WHITE),
+                                                progressBar(this, {80, 100}, {290, 115}, 1),
+                                                u_giff(this, {225, 125}, 50, 50, 3, 2, 1000, 2, settings_white, settings_black)
     {
+        u_giff.show();
+
         text_feld.set_border(true);
         text_feld.set_text_alignment(text_feld.AL_CENTER);
         text_feld.set_font(SmallFont);
@@ -51,10 +54,10 @@ public:
 
         input_field.set_input_buffer("123");
         input_field.set_border_weight(4);
-        input_field.touched_background_color = VGA_GRAY;
+        input_field.touched_background_color = VGA_RED;
         input_field.on_enter = &this->update_window_label;
         input_field.on_focus_lose = &this->update_window_label;
-        Serial.println(this->_get_main_window()->request_focus(&input_field) == true ? "focus request successfull" : "focus request failed");
+        // Serial.println(this->_get_main_window()->request_focus(&input_field) == true ? "focus request successfull" : "focus request failed");
 
         pop_up_window.set_background_color(VGA_GRAY);
         pop_up_window.set_border_color(VGA_LIME);
@@ -68,9 +71,14 @@ public:
         b_button.touched_border_color = VGA_GREEN;
         b_button.set_draw_border(true);
         b_button.show();
-        b_button._touch({1, 1});
 
         progressBar.set_border_weight(2);
+
+        div.set_draw_border(true);
+        div.set_border_weight(2);
+        div.released_border_color = VGA_GREEN;
+
+        u_giff.released_background_color = VGA_GREEN;
     }
     virtual ~lock_screen() {}
 
@@ -130,6 +138,14 @@ protected:
             // Serial.println("Checkbox isnt checked");
             this->status_bar.set_text("Checkbox is released");
         }
+        if (this->ch_box.is_checked())
+        {
+            this->u_giff.resume();
+        }
+        else
+        {
+            this->u_giff.stop();
+        }
     }
 
     void restart_system(UI::Touch_Widget<lock_screen> *_widget)
@@ -142,6 +158,9 @@ protected:
     {
         this->text_feld.set_text(this->input_field.get_input_buffer());
         this->text_feld.update_widget();
+
+        String tmp = this->input_field.get_input_buffer();
+        this->u_giff.set_bitmap_change_speed(tmp.toInt() * 10);
     }
 
 private:
@@ -157,8 +176,11 @@ private:
     UI::BitMapButton<lock_screen> b_button;
     UI::Divider div;
     UI::ProgressBar progressBar;
+
+    UI::Giff u_giff;
 };
 
 void lock_screen::loop()
 {
+    WindowBase::loop();
 }
