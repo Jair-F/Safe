@@ -184,4 +184,8 @@ void UI::WindowBase::loop()
             ++iterator;
         }
     }
+    else
+    {
+        this->active_pop_up_window->loop();
+    }
 }
