@@ -14,3 +14,4 @@
 #include "lib/InputField.hpp"
 #include "lib/Divider.hpp"
 #include "lib/ProgressBar.hpp"
+#include "lib/Gif.hpp"
