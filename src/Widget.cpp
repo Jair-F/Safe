@@ -21,6 +21,11 @@ UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const posit
         this->upper_left.y_pos = tmp;
     }
 
+    if (this->border_weight > 0)
+    {
+        this->set_draw_border(true);
+    }
+
     /*
     // check that the positions are in the window - if not adjust them to the maximum of the window
     if (this->lower_right.y_pos > this->_parent_window->_get_lower_right_pos().y_pos - 1)
@@ -60,6 +65,11 @@ UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, uint16_t _w
         tmp = this->lower_right.y_pos;
         this->lower_right.y_pos = this->upper_left.y_pos;
         this->upper_left.y_pos = tmp;
+    }
+
+    if (this->border_weight > 0)
+    {
+        this->set_draw_border(true);
     }
 
     this->display = this->parent_window->_get_display();
@@ -113,13 +123,14 @@ void UI::Widget::update_widget()
     }
 }
 
-void UI::Widget::_draw_released_content()
+void UI::Widget::_draw_widget()
 {
     if (this->get_draw_border())
     {
         this->_draw_released_border();
     }
     this->_draw_released_background();
+    this->_draw_released_content();
 }
 
 void UI::Widget::_draw_released_background()

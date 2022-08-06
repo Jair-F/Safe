@@ -41,14 +41,15 @@ namespace UI
         /*
             for touch_widgets we need released and pressed widget... on normal widget - which can not be touched
             this function and the pressed widget are doing the same
+            border and background does the widget base class draw - this is the content
         */
-        virtual void _draw_released_content();
+        virtual void _draw_released_content() {}
 
         /*
             draws the widget on the screen - according to his actual status it calls _draw_released_widget or
             _draw_touched_content
         */
-        virtual void _draw_widget() { this->_draw_released_content(); }
+        virtual void _draw_widget();
 
         /*
             hide the widget - clear the space where the widget is drawn
@@ -142,6 +143,11 @@ namespace UI
             set is_hidden to false and draw the whole widget on the screen
         */
         void show();
+
+        /*
+            loop function that will be called by the active window if the widget is shown/visible
+        */
+        virtual void loop() {}
 
         /*
             wrapper for redrawing the widget from outside
