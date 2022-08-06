@@ -50,12 +50,15 @@ namespace UI
         virtual void hide();
 
         /*
+            the loop function that will call the widgets loop funcions - if you overwrite this function call the base class function
+            in your loop function!
+
             function which inherited classes need to overwrite.
             It is to update the window for example with sensor values - actions which are not controlled/depend
             on touch actions.
             This function will be called from the main_window-loop - so be shure to call the main_window loop in a loop!
         */
-        virtual void loop() {}
+        virtual void loop();
 
         void show_pop_up_window(PopUp_Window *_pop_up_window);
         void hide_pop_up_window();

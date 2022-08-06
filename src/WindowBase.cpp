@@ -169,3 +169,19 @@ void UI::WindowBase::_redraw_window()
 
     this->show();
 }
+
+void UI::WindowBase::loop()
+{
+    if (this->active_pop_up_window == nullptr) // if there is actually no pop up window on the current window - call the widget loop
+    {
+        auto iterator = this->registered_widgets.begin();
+        while (iterator != this->registered_widgets.end())
+        {
+            if (!(iterator.data()->is_hidden()))
+            {
+                iterator.data()->loop();
+            }
+            ++iterator;
+        }
+    }
+}
