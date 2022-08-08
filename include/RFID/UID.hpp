@@ -2,6 +2,9 @@
 #include <MFRC522.h>
 #include <Arduino.h>
 #include "../Helper.hpp"
+#include "logging/Log.hpp"
+
+extern Log::Log logger;
 
 namespace RFID
 {

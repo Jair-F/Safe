@@ -4,7 +4,6 @@
 #include <ThreeWire.h>
 #include <RtcDS1302.h>
 #include "GlobalConstants.hpp"
-#include "GlobalVariables.hpp"
 
 /*
     Documentation: https://github.com/Makuna/Rtc/wiki
@@ -66,80 +65,5 @@ namespace Clock
     - the indexes of the memory are 0-30 each a uint8_t=char
 */
 #define SYSTEM_CLOCK_MEMORY_LENGTH 30
-
-    String time_string(const RtcDateTime &tm)
-    {
-        String ret;
-
-        switch (tm.DayOfWeek())
-        {
-        case 0:
-        {
-            ret += F("Sun");
-            break;
-        }
-        case 1:
-        {
-            ret += F("Mon");
-            break;
-        }
-        case 2:
-        {
-            ret += F("Tue");
-            break;
-        }
-        case 3:
-        {
-            ret += F("Wed");
-            break;
-        }
-        case 4:
-        {
-            ret += F("Thu");
-            break;
-        }
-        case 5:
-        {
-            ret += F("Fri");
-            break;
-        }
-        case 6:
-        {
-            ret += F("Sat");
-            break;
-        }
-        default:
-            break;
-        }
-
-        ret += ' ';
-
-        ret += tm.Day();
-        ret += '/';
-        ret += tm.Month();
-        ret += '/';
-        ret += tm.Year();
-
-        ret += ' ';
-
-        ret += tm.Hour();
-        ret += ':';
-        ret += tm.Minute();
-        ret += ':';
-        ret += tm.Second();
-
-        return ret;
-    }
-
+    String time_string(const RtcDateTime &tm);
 }
-/*
-    Base-Clock-Module:
-        ThreeWire rtc_wire(RTC_DATA, RTC_CLK, RTC_RST); // DATA/IO, CLK/SCLK, RST/CE
-        RtcDS1302<ThreeWire> rtc(rtc_wire);
-*/
-
-/*
-    ready setup clock-object
-    to ensure the battery of the clock is not empty check the lost_power method in the setup.
-*/
-Clock::Clock<ThreeWire> system_clock(RTC_DATA, RTC_CLK, RTC_RST);

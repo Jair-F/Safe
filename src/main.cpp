@@ -8,7 +8,6 @@
 #include <ThreeWire.h>
 #include <RtcDS1302.h>
 
-#include "GlobalVariables.hpp"
 #include "GlobalConstants.hpp"
 #include "Helper.hpp"
 #include "Fingerprint.hpp"
@@ -52,22 +51,34 @@ lock_screen *l_screen;
 
 // -------------
 
-// Fase::Fase fase;
+Fase::Fase fase;
 
 Keypad::Keypad<UI::MainWindow> k_pad(&m_window);
 
 extern const unsigned short settings_white[];
 extern const unsigned short back_sign_white[];
 
+const byte LOGGING_LEVEL = Log::log_level::L_DEBUG;
+
+Log::Log logger(LOGGING_LEVEL);
+
+/*
+    ready setup clock-object
+    to ensure the battery of the clock is not empty check the lost_power method in the setup.
+*/
+Clock::Clock<ThreeWire> system_clock(RTC_DATA, RTC_CLK, RTC_RST);
+
 void setup()
 {
 #ifdef DEBUG
     debug_init();
 #else
-    Serial.begin(9600);
-#endif // DEBUG
 
+#endif // DEBUG
+    Serial.begin(9600);
     EEPROM.begin();
+
+    Serial.println("Startup...");
 
     myGLCD.InitLCD(DISPLAY_ORIENTATION);
     myGLCD.setFont(SmallFont);
@@ -84,22 +95,8 @@ void setup()
     Serial.println(')');
 
     l_screen = new lock_screen(&m_window);
-    /*
-    UI::Widget wi(l_screen, {1, 10}, {50, 50}, 3);
-    wi.released_background_color = VGA_RED;
-    wi.released_border_color = VGA_WHITE;
-    Serial.println(wi.get_content_upper_left().x_pos);
-    Serial.println(wi.get_content_upper_left().y_pos);
-    Serial.println(wi.get_content_lower_right().x_pos);
-    Serial.println(wi.get_content_lower_right().y_pos);
-    */
 
     m_window.set_active_window(l_screen);
-
-    // while (true)
-    // {
-    //     m_window.loop();
-    // }
 
     if (system_clock.lost_power())
     {
@@ -136,7 +133,7 @@ void setup()
     DEBUG_PRINTLN(now.DayOfWeek());
 
     logger.log(F("Started startup"), Log::log_level::L_DEBUG);
-    // fase.begin();
+    fase.begin();
     logger.log(F("Everything initialized"), Log::log_level::L_DEBUG);
 
     k_pad.on_input = &m_window.send_input;
@@ -147,7 +144,7 @@ void setup()
     Serial.println(myGLCD.getDisplayXSize());
     Serial.println(myGLCD.getDisplayYSize());
 
-    // logger.serial_dump();
+    logger.serial_dump();
 
     // Serial.println(l_screen.pos().x_pos);
     // Serial.println(l_screen.pos().y_pos);
@@ -170,5 +167,5 @@ void loop()
     k_pad.loop();
     m_window.loop();
 
-    // fase.loop();
+    fase.loop();
 }

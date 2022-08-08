@@ -2,10 +2,12 @@
 
 #include <Arduino.h>
 #include <Adafruit_Fingerprint.h>
-#include "GlobalVariables.hpp"
 #include "GlobalConstants.hpp"
 #include "Unlock_Object.hpp"
 #include "Lock.hpp"
+#include "logging/Log.hpp"
+
+extern Log::Log logger;
 
 /*
 Fingerprint:
@@ -25,14 +27,13 @@ namespace Fingerprint
     class Fingerprint : public Adafruit_Fingerprint, public Unlock_Object
     {
     public:
-        Fingerprint(SoftwareSerial *my_serial, Lock::unlock_token *utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }
-        Fingerprint(HardwareSerial *my_serial, Lock::unlock_token *utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }
-        Fingerprint(Stream *my_serial, Lock::unlock_token *utoken) : Adafruit_Fingerprint(my_serial), Unlock_Object(utoken) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }
+        Fingerprint(SoftwareSerial *my_serial, Lock *_lock) : Adafruit_Fingerprint(my_serial), Unlock_Object(_lock) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }
+        Fingerprint(HardwareSerial *my_serial, Lock *_lock) : Adafruit_Fingerprint(my_serial), Unlock_Object(_lock) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }
+        Fingerprint(Stream *my_serial, Lock *_lock) : Adafruit_Fingerprint(my_serial), Unlock_Object(_lock) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }
         virtual ~Fingerprint() {}
 
         void begin();
 
-        virtual void loop() override;
         void wake_up()
         {
             digitalWrite(FINGERPRINT_POWER_PIN, HIGH);
@@ -64,6 +65,8 @@ namespace Fingerprint
             @return true if a fingerprint is saved on this id otherwise false
         */
         bool check_id_used(uint16_t id);
+
+        unlock_authentication_reports read() override;
 
     protected:
         void _initialize_sensor()
@@ -98,6 +101,7 @@ void Fingerprint::Fingerprint::enable()
 {
     Unlock_Object::enable();
     this->wake_up();
+    this->LEDcontrol(FINGERPRINT_LED_BREATHING, 4000, FINGERPRINT_LED_PURPLE);
 }
 void Fingerprint::Fingerprint::disable()
 {
@@ -105,46 +109,65 @@ void Fingerprint::Fingerprint::disable()
     this->send_sleep();
 }
 
-void Fingerprint::Fingerprint::loop()
+Unlock_Object::unlock_authentication_reports Fingerprint::Fingerprint::read()
 {
-    if (this->is_enabled())
+    if (!this->is_enabled())
     {
-        uint8_t err_code = this->getImage();
-        if (err_code != FINGERPRINT_OK) // if a error occourd on scanning
-        {
-            return;
-        }
+        return Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_DISABLED;
+    }
 
-        /*
-        slot in the fingerprint_class for storing the image and for
-        comparision afterwards with the fingerprint database
-        */
-        constexpr unsigned short finger_template_slot = 1;
-
-        // convert the image to a feature template to compare it afterwards with fingers in the database
-        err_code = this->image2Tz(finger_template_slot);
-        if (err_code) // error_handling - maybe output on display...
+    uint8_t err_code = this->getImage();
+    if (err_code == FINGERPRINT_OK) // finger is on the sensor - give feedback we read the finger with flashing LED
+    {
+        this->LEDcontrol(FINGERPRINT_LED_FLASHING, 10, FINGERPRINT_LED_PURPLE);
+    }
+    else // if a error occourd on scanning
+    {
+        if (err_code == FINGERPRINT_NOFINGER)
         {
-            logger.log(F("FINGERPRINT: error converting fingerprint-image to feature template"), Log::log_level::L_DEBUG);
-            return;
-        }
-
-        err_code = this->fingerSearch(finger_template_slot);
-        if (err_code == FINGERPRINT_OK) // found a match
-        {
-            this->utoken->request_unlock();
-        }
-        else if (err_code == FINGERPRINT_NOMATCH)
-        {
-            // maybe set a timer for locking the lock?
+            return Unlock_Object::unlock_authentication_reports::NO_UNLOCK_OBJECT_PRESENT;
         }
         else
         {
-            // Serial.println("prints didnt matched");
-            // Serial.println(err_code, HEX);
-            this->utoken->report_unauthorized_unlock_try();
-            // print the err_message on the display
+            return Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR;
         }
+    }
+
+    /*
+    slot in the fingerprint_class for storing the image and for
+    comparision afterwards with the fingerprint database
+    */
+    constexpr unsigned short finger_template_slot = 1;
+
+    // convert the image to a feature template to compare it afterwards with fingers in the database
+    err_code = this->image2Tz(finger_template_slot);
+    if (err_code == FINGERPRINT_OK)
+    {
+        err_code = this->fingerSearch(finger_template_slot);
+        if (err_code == FINGERPRINT_OK) // found a match
+        {
+            this->LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_BLUE);
+            delay(1000);
+            this->LEDcontrol(FINGERPRINT_LED_BREATHING, 4000, FINGERPRINT_LED_PURPLE);
+            return Unlock_Object::unlock_authentication_reports::AUTHORIZED_UNLOCK_OBJECT;
+        }
+        else
+        {
+            this->LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_RED);
+            delay(1000);
+            this->LEDcontrol(FINGERPRINT_LED_BREATHING, 4000, FINGERPRINT_LED_PURPLE);
+            return Unlock_Object::unlock_authentication_reports::UNAUTHORIZED_UNLOCK_OBJECT;
+        }
+    }
+    else if (err_code == FINGERPRINT_PACKETRECIEVEERR) // error_handling - maybe output on display...
+    {
+        logger.log(F("FINGERPRINT: error converting fingerprint-image to feature template"), Log::log_level::L_DEBUG);
+        return Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR;
+    }
+    else
+    {
+        // on every other error just return unauthorized
+        return Unlock_Object::unlock_authentication_reports::UNAUTHORIZED_UNLOCK_OBJECT;
     }
 }
 

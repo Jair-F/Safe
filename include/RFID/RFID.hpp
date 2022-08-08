@@ -5,6 +5,9 @@
 #include "../Unlock_Object.hpp"
 #include "../Helper.hpp"
 #include "UID.hpp"
+#include "logging/Log.hpp"
+
+extern Log::Log logger;
 
 /*
 RFID:
@@ -20,16 +23,10 @@ namespace RFID
     class RFID : public Unlock_Object
     {
     public:
-        RFID(byte chipSelectPin, byte resetPowerDownPin, Lock::unlock_token *_utoken, bool _enabled = true);
+        RFID(byte chipSelectPin, byte resetPowerDownPin, Lock *_lock, bool _enabled = true);
         virtual ~RFID() { this->rfid.PCD_SoftPowerDown(); }
 
         void begin();
-
-        /*
-            func to call in a loop - it reads for a tag and if there is a card present it searches in
-            allowed tags for a match. If a match was found it makes a unlock_request to the lock
-        */
-        virtual void loop() override;
 
         /*
             read for a tag id
@@ -78,6 +75,9 @@ namespace RFID
         // get_used_ids
         bool id_used(unsigned short id) const;
         // bool in_database(String uid);
+
+        unlock_authentication_reports read() override;
+
     private:
         MFRC522 rfid;
         UID allowed_tags[NUM_OF_TAGS];
@@ -88,7 +88,7 @@ namespace RFID
 // ------------ Implementations ------------
 
 RFID::RFID::RFID(byte chipSelectPin, byte resetPowerDownPin,
-                 Lock::unlock_token *_utoken, bool _enabled) : Unlock_Object(_utoken, _enabled), rfid(chipSelectPin, resetPowerDownPin)
+                 Lock *_lock, bool _enabled) : Unlock_Object(_lock, _enabled), rfid(chipSelectPin, resetPowerDownPin)
 {
     for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
     {
@@ -112,32 +112,43 @@ void RFID::RFID::begin()
     logger.log(F("RFID: status ready..."), Log::log_level::L_INFO);
 }
 
-void RFID::RFID::loop()
+Unlock_Object::unlock_authentication_reports RFID::RFID::read()
 {
-    if (this->is_enabled())
+    if (!this->is_enabled())
     {
-        UID tag_uid = this->read_Tag_UID(true);
-        if (tag_uid)
+        return Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_DISABLED;
+    }
+
+    UID tag_uid;
+    if (this->rfid.PICC_IsNewCardPresent())
+    {
+        if (this->rfid.PICC_ReadCardSerial()) // successfully read the card UID
         {
+            tag_uid = this->rfid.uid;
+
             DEBUG_PRINT(F("Read tag with UID: "));
             DEBUG_PRINTLN(tag_uid.to_string());
-            bool matching_tag_found = false; // if the tag is authorized
+
+            // iterate over the stored allowed tags and check for a matching tag
             for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
             {
                 if (this->allowed_tags[i] == tag_uid)
                 {
-                    matching_tag_found = true;
-                    this->utoken->request_unlock();
-                    break;
+                    return Unlock_Object::unlock_authentication_reports::AUTHORIZED_UNLOCK_OBJECT;
                 }
             }
-            if (!matching_tag_found)
-            {
-                this->utoken->report_unauthorized_unlock_try();
-            }
         }
-        delay(500);
+        else // error while reading the card UID
+        {
+            return Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR;
+        }
     }
+    else
+    {
+        return Unlock_Object::unlock_authentication_reports::NO_UNLOCK_OBJECT_PRESENT;
+    }
+
+    return Unlock_Object::unlock_authentication_reports::UNAUTHORIZED_UNLOCK_OBJECT;
 }
 
 bool RFID::RFID::id_used(unsigned short id) const

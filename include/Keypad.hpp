@@ -1,7 +1,6 @@
 #pragma once
 #include <Arduino.h>
 #include <Adafruit_Keypad.h>
-#include "GlobalVariables.hpp"
 #include "GlobalConstants.hpp"
 
 /*
