@@ -30,7 +30,6 @@ namespace UI
         void setText(String _text)
         {
             text = _text;
-            this->_draw_widget();
         }
 
         /*
