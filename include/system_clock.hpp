@@ -29,6 +29,10 @@ namespace Clock
         Clock(unsigned short data, unsigned short clk, unsigned short rst) : wiring(data, clk, rst), RtcDS1302<WIRING_METHOD>(wiring)
         {
             this->start_clock();
+            if (this->GetIsRunning())
+            {
+                this->SetIsRunning(true);
+            }
         }
 
         /*

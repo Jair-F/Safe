@@ -30,6 +30,10 @@ namespace UI
         virtual ~TextLabel() {}
 
         void set_font(uint8_t *_font);
+        /*
+            \n are interpreted as newlines!!
+            no tabs(\t) or other special caracters
+        */
         void set_text(String _text);
 
         /*
@@ -56,7 +60,8 @@ namespace UI
         void _draw_released_content() override { this->_draw_widget(); }
 
         /*
-            calculate the positions and text gaps according to the upper_left_pos, lower_right_pos, the text and the font
+            calculate the positions and text gaps according to the upper_left_pos, lower_right_pos,
+            the text, the font and the newlines defined by the user
             and store the values
         */
         void _calc_widget();
@@ -66,10 +71,10 @@ namespace UI
         uint8_t *text_font = SmallFont;
         text_alignment text_align; // text_alignment
 
-        uint8_t text_gap_height; // gap between the lines of text in pixels
-        uint8_t text_gap_length; // gap between the begin of the widget and begin of the text and end of the widget and end of the text in pixels
-        uint8_t chars_in_line;   // number of characters in one line
-        uint8_t text_lines;      // number of text lines
+        uint8_t text_gap_height;   // gap between the lines of text in pixels
+        uint8_t text_gap_length;   // gap between the begin of the widget and begin of the text and end of the widget and end of the text in pixels
+        uint8_t max_chars_in_line; // number of characters in one line
+        uint8_t text_lines;        // number of text lines
 
         bool draw_border;
     };
