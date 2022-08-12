@@ -89,6 +89,7 @@ namespace UI
 
         /*
             border weight in pixels
+            redraw the widget manually
         */
         void set_border_weight(uint8_t _border_weight);
         inline uint8_t get_border_weight() const { return this->border_weight; }
@@ -96,11 +97,13 @@ namespace UI
         /*
             get the upper_left position of the content - calculated the border_weight out
             but only if draw_border is set. If draw_border is not set it returns the same as get_upper_left
+            !! absolute position!!!
         */
         position get_content_upper_left() const;
         /*
             get the lower_right position of the content - calculated the border_weight out
             but only if draw_border is set. If draw_border is not set it returns the same as lower_right
+            !! absolute position!!!
         */
         position get_content_lower_right() const;
         /*
