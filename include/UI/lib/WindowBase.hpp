@@ -28,7 +28,7 @@ namespace UI
             @param _upper_left  absolute position
             @param _lower_right absolute position
         */
-        WindowBase(const position &_upper_left, const position &_lower_right);
+        WindowBase(const position &_upper_left, const position &_lower_right, uint8_t _border_weight = 0);
         virtual ~WindowBase() {}
 
         // functions which derived classes need to implement with their pointer to the parent_window
@@ -84,6 +84,23 @@ namespace UI
         const position &_get_upper_left_pos() const;
 
         /*
+            the lower right position of the content - calculated
+            the border out
+            !! absolute position!!!
+        */
+        position get_content_lower_right() const;
+
+        /*
+            the upper left position of the content - calculated
+            the border out
+            !! absolute position!!!
+        */
+        position get_content_upper_left() const;
+
+        uint16_t get_content_width() const;
+        uint16_t get_content_height() const;
+
+        /*
             register a new widget in the list of widgets in the window to which the touch_data
             will be passed.
         */
@@ -97,16 +114,30 @@ namespace UI
         void set_background_color(unsigned int _background_color) { this->background_color = _background_color; }
         inline unsigned int get_background_color() const { return this->background_color; }
 
+        uint8_t get_border_weight() const { return this->border_weight; }
+
+        void set_border_color(unsigned int _border_color) { this->border_color = _border_color; }
+        unsigned int get_border_color() const { return this->border_color; }
         /*
-            redraw the whole window - after closing pop_up...
+            @return true if a border is drawed, false if not
+        */
+        bool get_draw_border() const { return this->border_weight != 0; }
+
+        /*
+            draw the window only things - the border and background of the window
         */
         void _redraw_window();
 
     protected:
+        void _draw_background();
+        void _draw_border();
+
         // window size - rectangle(absolute positions)
         position upper_left;
         position lower_right;
 
+        uint8_t border_weight;
+        unsigned int border_color = VGA_WHITE;
         unsigned int background_color = VGA_BLACK;
 
     private:

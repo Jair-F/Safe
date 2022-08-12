@@ -1,15 +1,18 @@
 #include "UI/UI.hpp"
 
-UI::WindowBase::WindowBase(const position &_upper_left, const position &_lower_right) : upper_left(_upper_left), lower_right(_lower_right),
-                                                                                        registered_widgets(), active_pop_up_window(nullptr), last_focused_widget(nullptr)
+UI::WindowBase::WindowBase(const position &_upper_left, const position &_lower_right,
+                           uint8_t _border_weight) : upper_left(_upper_left), lower_right(_lower_right),
+                                                     border_weight(_border_weight), border_color(VGA_WHITE),
+                                                     registered_widgets(), active_pop_up_window(nullptr),
+                                                     last_focused_widget(nullptr)
 {
 }
 
 UI::position UI::WindowBase::_calc_absolute_pos(const position &_pos) const
 {
-    position ret_pos;
-    ret_pos.x_pos = this->upper_left.x_pos + _pos.x_pos;
-    ret_pos.y_pos = this->upper_left.y_pos + _pos.y_pos;
+    position ret_pos = this->get_content_upper_left();
+    ret_pos.x_pos += _pos.x_pos;
+    ret_pos.y_pos += _pos.y_pos;
 
     // while (!Serial.available())
     //     Serial.begin(9600);
@@ -130,11 +133,22 @@ void UI::WindowBase::hide_pop_up_window()
 
 void UI::WindowBase::show()
 {
-    auto iterator = this->registered_widgets.begin();
-    while (iterator != this->registered_widgets.end())
+    // no pop_up window is shown actually
+    if (this->active_pop_up_window == nullptr)
     {
-        iterator->show();
-        ++iterator;
+        this->_draw_border();
+        this->_draw_background();
+
+        auto iterator = this->registered_widgets.begin();
+        while (iterator != this->registered_widgets.end())
+        {
+            iterator->show();
+            ++iterator;
+        }
+    }
+    else
+    {
+        this->active_pop_up_window->show();
     }
 }
 void UI::WindowBase::hide()
@@ -162,11 +176,12 @@ const UI::position &UI::WindowBase::pos() const
 
 void UI::WindowBase::_redraw_window()
 {
+    /*
     UTFT *display = this->_get_display();
 
     display->setColor(this->background_color);
     display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
-
+    */
     this->show();
 }
 
@@ -187,5 +202,78 @@ void UI::WindowBase::loop()
     else
     {
         this->active_pop_up_window->loop();
+    }
+}
+
+UI::position UI::WindowBase::get_content_upper_left() const
+{
+    if (this->get_draw_border())
+    {
+        return {this->upper_left.x_pos + this->border_weight,
+                this->upper_left.y_pos + this->border_weight};
+    }
+    else
+    {
+        return this->upper_left;
+    }
+}
+
+UI::position UI::WindowBase::get_content_lower_right() const
+{
+    if (this->get_draw_border())
+    {
+        return {this->lower_right.x_pos - this->border_weight,
+                this->lower_right.y_pos - this->border_weight};
+    }
+    else
+    {
+        return this->lower_right;
+    }
+}
+
+uint16_t UI::WindowBase::get_content_height() const
+{
+    if (this->get_draw_border())
+    {
+        return this->lower_right.y_pos - this->upper_left.y_pos - this->border_weight * 2;
+    }
+    else
+    {
+        return this->height();
+    }
+}
+
+uint16_t UI::WindowBase::get_content_width() const
+{
+    if (this->get_draw_border())
+    {
+        return this->lower_right.x_pos - this->upper_left.x_pos - this->border_weight * 2;
+    }
+    else
+    {
+        return this->width();
+    }
+}
+
+void UI::WindowBase::_draw_background()
+{
+    UTFT *display = this->_get_display();
+    position content_upper_left = this->get_content_upper_left();
+    position content_lower_right = this->get_content_lower_right();
+
+    display->setColor(this->background_color);
+    display->fillRect(content_upper_left.x_pos, content_upper_left.y_pos,
+                      content_lower_right.x_pos, content_lower_right.y_pos);
+}
+
+void UI::WindowBase::_draw_border()
+{
+    UTFT *display = this->_get_display();
+
+    display->setColor(this->border_color);
+    for (uint8_t i = 0; i < this->border_weight; ++i)
+    {
+        display->drawRect(this->upper_left.x_pos + i, this->upper_left.y_pos + i,
+                          this->lower_right.x_pos - i, this->lower_right.y_pos - i);
     }
 }
