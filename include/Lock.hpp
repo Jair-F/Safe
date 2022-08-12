@@ -62,7 +62,7 @@ public:
     bool request_unlock();
 
     // allow unlocking_requests
-    void allow_unlocking() { this->unlocking_allowed = true; }
+    void allow_unlocking();
 
     // forbid unlocking_requests
     void forbid_unlocking() { this->unlocking_allowed = false; }

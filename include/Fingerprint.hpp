@@ -34,16 +34,6 @@ namespace Fingerprint
 
         void begin();
 
-        void wake_up()
-        {
-            digitalWrite(FINGERPRINT_POWER_PIN, HIGH);
-            this->_initialize_sensor();
-        }
-        /*
-            disable the sensor - save power and dont burn the LED
-        */
-        void send_sleep() { digitalWrite(FINGERPRINT_POWER_PIN, LOW); }
-
         /*
             enable the sensor and wake him up
         */
@@ -69,19 +59,7 @@ namespace Fingerprint
         unlock_authentication_reports read() override;
 
     protected:
-        void _initialize_sensor()
-        {
-            Adafruit_Fingerprint::begin(default_baudrate);
-            if (this->verifyPassword())
-            {
-                logger.log(F("FINGERPRINT: found fingerprint"), Log::log_level::L_INFO);
-            }
-            else
-            {
-                logger.log(F("FINGERPRINT: didnt found fingerprint-sensor"), Log::log_level::L_ERROR);
-                // exit(-1);
-            }
-        }
+        void _initialize_sensor();
 
     private:
     };
@@ -92,21 +70,33 @@ namespace Fingerprint
 
 // ------------- Implementation -------------
 
+void Fingerprint::Fingerprint::_initialize_sensor()
+{
+    Adafruit_Fingerprint::begin(default_baudrate);
+    if (this->verifyPassword())
+    {
+        logger.log(F("FINGERPRINT: found fingerprint"), Log::log_level::L_INFO);
+    }
+    else
+    {
+        logger.log(F("FINGERPRINT: didnt found fingerprint-sensor"), Log::log_level::L_ERROR);
+        // exit(-1);
+    }
+}
+
 void Fingerprint::Fingerprint::begin()
 {
-    this->wake_up();
+    this->_initialize_sensor();
 }
 
 void Fingerprint::Fingerprint::enable()
 {
     Unlock_Object::enable();
-    this->wake_up();
     this->LEDcontrol(FINGERPRINT_LED_BREATHING, 4000, FINGERPRINT_LED_PURPLE);
 }
 void Fingerprint::Fingerprint::disable()
 {
     Unlock_Object::disable();
-    this->send_sleep();
 }
 
 Unlock_Object::unlock_authentication_reports Fingerprint::Fingerprint::read()

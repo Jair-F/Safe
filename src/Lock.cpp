@@ -5,9 +5,10 @@
 extern Log::Log logger;
 extern Clock::Clock<ThreeWire> system_clock;
 
-Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool _allow_unlocking) : state(_lock_state), unlocking_allowed(_allow_unlocking),
+Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool _allow_unlocking) : unlock_object_ids(), unlock_objects(),
+                                                                                                    state(_lock_state), unlocking_allowed(_allow_unlocking),
                                                                                                     unauthorized_unlock_try_counter(0), lock_timer(_lock_timer),
-                                                                                                    unlock_time_point(0), unlock_object_ids(), unlock_objects()
+                                                                                                    unlock_time_point(0)
 {
     if (!system_clock.lost_power()) // if system_clock lost power the data we will read isnt valid - skipp
     {
@@ -71,8 +72,8 @@ Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool 
 
 uint16_t Lock::_register_unlock_object(Unlock_Object *_unlock_object)
 {
-    uint16_t unlock_object_id = this->unlock_objects.size();
-    this->unlock_object_ids.push_back(unlock_object_id); // please make better ids!!!!
+    uint16_t unlock_object_id = this->unlock_objects.size(); // please make better ids!!!!
+    this->unlock_object_ids.push_back(unlock_object_id);
     this->unlock_objects.push_back(_unlock_object);
     return unlock_object_id;
 }
@@ -209,6 +210,16 @@ enum lock_state Lock::get_state()
     return this->state;
 }
 
+void Lock::allow_unlocking()
+{
+    if (this->locked_until_time_point != nullptr)
+    {
+        delete this->locked_until_time_point;
+        this->locked_until_time_point = nullptr;
+    }
+    this->unlocking_allowed = true;
+}
+
 void Lock::loop()
 {
     RtcDateTime now = system_clock.GetDateTime();
@@ -261,17 +272,20 @@ void Lock::loop()
                 }
                 case Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_DISABLED:
                 {
-                    DEBUG_PRINTLN("Unlock_Object is disabled")
+                    // DEBUG_PRINTLN()
+                    logger.log("Unlock_Object is disabled", Log::log_level::L_DEBUG);
                     break;
                 }
                 case Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR:
                 {
-                    DEBUG_PRINTLN("Error while reading Unlock_Object!!!!")
+                    // DEBUG_PRINTLN("Error while reading Unlock_Object!!!!")
+                    logger.log("Error while reading Unlock_Object!!!!", Log::log_level::L_WARNING);
                     break;
                 }
                 case Unlock_Object::unlock_authentication_reports::NO_UNLOCK_OBJECT_PRESENT:
                 {
-                    DEBUG_PRINTLN("No Unlock_Object available")
+                    // DEBUG_PRINTLN("No Unlock_Object available")
+                    logger.log("No Unlock_Object available", Log::log_level::L_DEBUG);
                     break;
                 }
                 default:
