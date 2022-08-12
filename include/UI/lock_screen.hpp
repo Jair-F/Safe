@@ -16,17 +16,17 @@ public:
     lock_screen(UI::MainWindow *_main_window) : UI::Window(_main_window),
                                                 _button(this, ::upper_left, ::lower_right, this),
                                                 _button2(this, {this->_get_display()->getDisplayXSize() - 100, this->_get_display()->getDisplayYSize() - 35}, {this->_get_display()->getDisplayXSize() - 1, this->_get_display()->getDisplayYSize() - 1}, this),
-                                                text_feld(this, {0, 0}, this->_get_display()->getDisplayXSize() - 1, "Window title"),
+                                                text_feld(this, {0, 0}, this->_get_display()->getDisplayXSize() - 1, "Window\n title"),
                                                 ch_box(this, {35, 140}, 30, this),
                                                 input_field(this, {150, 150}, 60, 35, this, UI::InputField<20, lock_screen>::IN_INPUT_TYPE::IN_TEXT),
-                                                pop_up_window(this, 150, 100),
+                                                pop_up_window(this, 150, 100, 3),
                                                 status_bar(this, {0, this->_get_display()->getDisplayYSize() - 35}, this->_get_display()->getDisplayXSize() - 110, "ERROR"),
                                                 b_button(this, {160, 32}, 50, 50, this, settings_white, settings_white),
                                                 div(this, {5, 100}, 50, 4, UI::Divider::d_alignment::AL_VERTICAL, VGA_WHITE),
                                                 progressBar(this, {80, 100}, {290, 115}, 1),
-                                                u_giff(this, {225, 125}, 50, 50, 3, 2, 1000, 2, settings_white, settings_black)
+                                                u_giff(this, {225, 125}, 50, 50, 3, 2, 1000, 2, settings_white, settings_black),
+                                                p_button(&pop_up_window, {10, 20}, {100, 45}, this)
     {
-        u_giff.show();
 
         text_feld.set_border(true);
         text_feld.set_text_alignment(text_feld.AL_CENTER);
@@ -60,7 +60,13 @@ public:
         // Serial.println(this->_get_main_window()->request_focus(&input_field) == true ? "focus request successfull" : "focus request failed");
 
         pop_up_window.set_background_color(VGA_GRAY);
-        pop_up_window.set_border_color(VGA_LIME);
+        pop_up_window.set_border_color(VGA_YELLOW);
+
+        p_button.setText("uncheck_box");
+        p_button.released_text_color = VGA_WHITE;
+        p_button.set_border_weight(2);
+        p_button.released_border_color = VGA_BLUE;
+        p_button.on_release = &this->uncheck_check_box_pop_up;
 
         status_bar.set_text("ERROR");
         status_bar.set_text_alignment(UI::TextLabel::text_alignment::AL_CENTER);
@@ -70,7 +76,6 @@ public:
         b_button.on_release = &this->button_print_clicked;
         b_button.touched_border_color = VGA_GREEN;
         b_button.set_draw_border(true);
-        b_button.show();
 
         progressBar.set_border_weight(2);
 
@@ -87,6 +92,10 @@ public:
     friend void func();
 
 protected:
+    void uncheck_check_box_pop_up(UI::Touch_Widget<lock_screen> *_widget)
+    {
+        this->ch_box.set_checked(!this->ch_box.is_checked());
+    }
     void update_status_bar(UI::Touch_Widget<lock_screen> *_widget)
     {
         this->status_bar.set_text(this->input_field.get_input_buffer());
@@ -178,6 +187,8 @@ private:
     UI::ProgressBar progressBar;
 
     UI::Giff u_giff;
+
+    UI::Button<lock_screen> p_button;
 };
 
 void lock_screen::loop()
