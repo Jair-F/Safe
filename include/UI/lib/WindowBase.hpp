@@ -105,6 +105,14 @@ namespace UI
             will be passed.
         */
         void _register_widget(Widget *_widget);
+
+        /*
+            the reverse function of _register_widget - removes a registered widget if its
+            in the registered_widgets list
+            @return true if a widget was removed, false if not
+        */
+        bool _unregister_widget(Widget *_widget);
+
         /*
             @return the pointer to the widget which will get the focus - nullptr if none.
         */

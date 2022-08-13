@@ -36,6 +36,23 @@ void UI::WindowBase::_register_widget(Widget *_widget)
     this->registered_widgets.push_back(_widget);
 }
 
+bool UI::WindowBase::_unregister_widget(Widget *_widget)
+{
+    bool found_match = false; // found a matching widget to remove in the list
+
+    uint16_t i = 0;
+    for (; i < this->registered_widgets.size(); ++i)
+    {
+        if (this->registered_widgets[i] == _widget)
+        {
+            found_match = true;
+            break;
+        }
+    }
+    this->registered_widgets.erase(i);
+    return found_match;
+}
+
 UI::Widget *UI::WindowBase::handle_touch_clicked(const position &_touch_data)
 {
     if (this->active_pop_up_window != nullptr)

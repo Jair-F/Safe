@@ -69,7 +69,7 @@ namespace UI
                uint8_t _border_weight = 1);
         Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height,
                uint8_t _border_weight = 1);
-        virtual ~Widget() {}
+        virtual ~Widget();
 
         /*
             the color values are RGB-565 values(16-bit value)

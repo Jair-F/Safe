@@ -77,6 +77,11 @@ UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, uint16_t _w
     this->parent_window->_register_widget(this);
 }
 
+UI::Widget::~Widget()
+{
+    this->_get_parent_window()->_unregister_widget(this);
+}
+
 void UI::Widget::hide()
 {
     if (!this->hidden)
