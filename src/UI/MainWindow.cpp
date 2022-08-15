@@ -37,7 +37,7 @@ bool UI::MainWindow::request_focus(UI::Widget *_widget)
 
 UI::WindowBase *UI::MainWindow::get_active_window() const
 {
-    return active_window;
+    return this->active_window;
 }
 
 void UI::MainWindow::send_input(char _input_data)
@@ -74,7 +74,7 @@ void UI::MainWindow::set_active_window(WindowBase *_win)
     {
         // Serial.println("win is not nullptr");
     }
-    assert(_win != nullptr);
+    // assert(_win != nullptr);
 
     // clear space of previous window
     if (this->active_window != nullptr)
@@ -107,50 +107,52 @@ void UI::MainWindow::loop()
         // if the touch-data is in the display
         if (this->_check_in_display(touch_data))
         {
-
-            // call the on_touch func
-            Widget *clicked_widget = this->active_window->handle_touch_clicked(touch_data);
-
-            if (!this->get_focus_frozen()) // if focus isnt frozen do not change the focused_widget
+            if (this->active_window != nullptr)
             {
-                if (this->focused_widget != clicked_widget) // focused widget change
+                // call the on_touch func
+                Widget *clicked_widget = this->active_window->handle_touch_clicked(touch_data);
+
+                if (!this->get_focus_frozen()) // if focus isnt frozen do not change the focused_widget
                 {
-                    Widget *last_focused_widget = this->focused_widget;
-                    this->focused_widget = clicked_widget;
-                    if (last_focused_widget != nullptr)
+                    if (this->focused_widget != clicked_widget) // focused widget change
                     {
-                        last_focused_widget->_focus_lose(); // call focus_lose for the previous focused widget
-                    }
+                        Widget *last_focused_widget = this->focused_widget;
+                        this->focused_widget = clicked_widget;
+                        if (last_focused_widget != nullptr)
+                        {
+                            last_focused_widget->_focus_lose(); // call focus_lose for the previous focused widget
+                        }
 #ifndef DEBUG
-                    // Serial.println("focused widget changed...");
+                        // Serial.println("focused widget changed...");
 #endif
-                }
-                // this->focused_widget = clicked_widget;
-            }
-
-            if (clicked_widget != nullptr)
-            {
-                // delay(250);
-                while (this->touch->dataAvailable())
-                {
-                    position tmp = this->_read_touch();
-                    if (this->_check_in_display(tmp))
-                    {
-                        touch_data = tmp;
                     }
-
-#ifndef DEBUG
-                    // Serial.print("X_POS: ");
-                    // Serial.println(touch_data.x_pos);
-                    // Serial.print("Y_POS: ");
-                    // Serial.println(touch_data.y_pos);
-#endif
-
-                    // delay(100); // bisschen warten, damit die Werte nicht so extrem schwanken...
+                    // this->focused_widget = clicked_widget;
                 }
 
-                //  touch was released at this point...
-                this->active_window->handle_touch_released(touch_data);
+                if (clicked_widget != nullptr)
+                {
+                    // delay(250);
+                    while (this->touch->dataAvailable())
+                    {
+                        position tmp = this->_read_touch();
+                        if (this->_check_in_display(tmp))
+                        {
+                            touch_data = tmp;
+                        }
+
+#ifndef DEBUG
+                        // Serial.print("X_POS: ");
+                        // Serial.println(touch_data.x_pos);
+                        // Serial.print("Y_POS: ");
+                        // Serial.println(touch_data.y_pos);
+#endif
+
+                        // delay(100); // bisschen warten, damit die Werte nicht so extrem schwanken...
+                    }
+
+                    //  touch was released at this point...
+                    this->active_window->handle_touch_released(touch_data);
+                }
             }
         }
     }
