@@ -8,7 +8,7 @@ extern Clock::Clock<ThreeWire> system_clock;
 Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool _allow_unlocking) : unlock_object_ids(), unlock_objects(),
                                                                                                     state(_lock_state), unlocking_allowed(_allow_unlocking),
                                                                                                     unauthorized_unlock_try_counter(0), lock_timer(_lock_timer),
-                                                                                                    unlock_time_point(0)
+                                                                                                    unlock_time_point(0), locked_until_time_point(nullptr)
 {
     if (!system_clock.lost_power()) // if system_clock lost power the data we will read isnt valid - skipp
     {
@@ -23,7 +23,7 @@ Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool 
                 logger.log(F("LOCK: Failed to read locked_until_timepoint from the system_clock"), Log::log_level::L_WARNING);
             }
             locked_until_time_point = reinterpret_cast<RtcDateTime *>(buffer); // RtcDateTime is exactly 6*sizeof(uint8_t)=48 bits
-
+            Serial.println("setting locked_until_time_point to nullptr for debugging");
             RtcDateTime now = system_clock.GetDateTime();
 
             if ((*locked_until_time_point) > now)
@@ -223,6 +223,8 @@ void Lock::allow_unlocking()
 void Lock::loop()
 {
     RtcDateTime now = system_clock.GetDateTime();
+    Serial.println(Clock::time_string(now));
+    delay(1000);
     if (state == lock_state::UNLOCKED)
     {
         RtcDateTime lock_time_point(this->unlock_time_point); // when this timepoint is passed the lock has to be locked (lock_time_point+lock_timer)
@@ -252,6 +254,7 @@ void Lock::loop()
         SinglyListNodeIterator<Unlock_Object *> iterator = this->unlock_objects.begin();
         while (iterator != this->unlock_objects.end())
         {
+            Serial.println(iterator.data()->is_enabled());
             if (iterator.data()->is_enabled())
             {
                 // DEBUG_PRINT(F("Reading Unlock Object with ID: "))
