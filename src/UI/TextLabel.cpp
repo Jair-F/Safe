@@ -156,8 +156,8 @@ void UI::TextLabel::_calc_widget()
         }
     }
 
-    // if we didnt added the last part of the text
-    if (last_newline_pos < this->text.length() - 1)
+    // if we didnt added the last part of the text or the text is only i char long
+    if (last_newline_pos < this->text.length() - 1 || this->text.length() == 1)
     {
         tmp += this->text.substring(last_newline_pos, this->text.length());
         // Serial.print("Text-Label Debug-Print-newlines: ");
