@@ -23,7 +23,6 @@ Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool 
                 logger.log(F("LOCK: Failed to read locked_until_timepoint from the system_clock"), Log::log_level::L_WARNING);
             }
             locked_until_time_point = reinterpret_cast<RtcDateTime *>(buffer); // RtcDateTime is exactly 6*sizeof(uint8_t)=48 bits
-            Serial.println("setting locked_until_time_point to nullptr for debugging");
             RtcDateTime now = system_clock.GetDateTime();
 
             if ((*locked_until_time_point) > now)
@@ -223,8 +222,6 @@ void Lock::allow_unlocking()
 void Lock::loop()
 {
     RtcDateTime now = system_clock.GetDateTime();
-    Serial.println(Clock::time_string(now));
-    delay(1000);
     if (state == lock_state::UNLOCKED)
     {
         RtcDateTime lock_time_point(this->unlock_time_point); // when this timepoint is passed the lock has to be locked (lock_time_point+lock_timer)
