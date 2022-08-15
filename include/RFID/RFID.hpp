@@ -158,7 +158,7 @@ bool RFID::RFID::id_used(unsigned short id) const
         DEBUG_PRINT(F("id is out of range"))
         // throw an error
     }
-    return this->allowed_tags[id].operator bool();
+    return this->allowed_tags[id].is_set();
 }
 
 bool RFID::RFID::read_add_tag(unsigned short id)
@@ -223,18 +223,21 @@ RFID::UID &RFID::RFID::get_tag_uid(unsigned short id)
     if (id > NUM_OF_TAGS - 1)
     {
         DEBUG_PRINTLN(F("id is out of range"));
-        return;
+        // return;
         // throw an error
     }
+
     if (!this->allowed_tags[id])
     {
         DEBUG_PRINTLN(F("tag isnt set"));
-        return;
+        // return;
         // throw error tag isnt set...
     }
-
-    // return this->allowed_tags[id].operator bool();
-    return this->allowed_tags[id];
+    else
+    {
+        // return this->allowed_tags[id].operator bool();
+        return this->allowed_tags[id];
+    }
 }
 
 int RFID::RFID::get_tag_id(UID tag_uid)

@@ -130,12 +130,12 @@ private:
         function which will be called when lock will be locked
         @return true if locking was successful
     */
-    bool (*on_locking)(void) = []()
+    bool (*on_locking)(void) = [](void) -> bool
     {DEBUG_PRINT("locking the lock"); return true; };
     /*
         function which will be called when lock will be unlocked
         @return true if unlocking was successful
     */
-    bool (*on_unlocking)(void) = []()
+    bool (*on_unlocking)(void) = []() -> bool
     {DEBUG_PRINT("unlocking the lock"); return true; };
 };

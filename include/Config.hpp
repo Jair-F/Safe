@@ -1,6 +1,7 @@
 #pragma once
+#include <Arduino.h>
 
-#include <EEPROM.h>
+//#include <EEPROM.h>
 
 namespace Config
 {
@@ -29,9 +30,9 @@ namespace Config
         unsigned int iterator;
         for (iterator = 0; iterator < data.length() || iterator < EEPROM_SIZE - 1; ++iterator)
         {
-            EEPROM.update(iterator, data[iterator]);
+            // EEPROM.update(iterator, data[iterator]);
         }
-        EEPROM.update(iterator, '\0');
+        // EEPROM.update(iterator, '\0');
         return error::NO_ERROR;
     }
 
@@ -47,7 +48,7 @@ namespace Config
         unsigned int iterator = 0;
         while (tmp != '\0' && iterator < EEPROM_SIZE - 1)
         {
-            tmp = EEPROM.read(iterator++);
+            // tmp = EEPROM.read(iterator++);
             ret += tmp;
         }
         return ret;

@@ -4,15 +4,15 @@
 #include <MFRC522.h>
 #include <stdlib.h>
 #include <ArduinoJson.h>
-#include <EEPROM.h>
 #include <ThreeWire.h>
 #include <RtcDS1302.h>
+//#include <SD.h>
 
 #include "GlobalConstants.hpp"
 #include "Helper.hpp"
 #include "Fingerprint.hpp"
 #include "RFID/RFID.hpp"
-#include "Fase.hpp"
+//#include "Fase.hpp"
 #include "Keypad.hpp"
 #include "system_clock.hpp"
 #include "logging/Log.hpp"
@@ -20,12 +20,11 @@
 //#define DEBUG
 
 #ifdef DEBUG
-#include "avr8-stub.h"
-#include "app_api.h" // only needed with flash breakpoints
-#endif               // SERIAL_DEBUG
+//#include "avr8-stub.h"
+//#include "app_api.h" // only needed with flash breakpoints
+#endif // SERIAL_DEBUG
 
 #include "UI/UI.hpp"
-#include <MemoryFree.h>
 
 /*
     Touch-Display:  https://www.youtube.com/watch?v=9Ms59ofSJIY
@@ -51,9 +50,8 @@ lock_screen *l_screen;
 
 // -------------
 
-Fase::Fase fase;
-
-Keypad::Keypad<UI::MainWindow> k_pad(&m_window);
+key_board::key_board<UI::MainWindow> k_pad(&m_window);
+// Adafruit_Keypad keypad(makeKeymap(Keypad::KEYS), Keypad::ROW_PINS, Keypad::COLUMN_PINS, ROWS, COLUMNS);
 
 extern const unsigned short settings_white[];
 extern const unsigned short back_sign_white[];
@@ -76,7 +74,7 @@ void setup()
 
 #endif // DEBUG
     Serial.begin(9600);
-    EEPROM.begin();
+    // EEPROM.begin();
 
     Serial.println("Startup...");
 
@@ -96,7 +94,9 @@ void setup()
 
     l_screen = new lock_screen(&m_window);
 
+    Serial.println("Created lock_screen...");
     m_window.set_active_window(l_screen);
+    Serial.println("set active_window");
 
     if (system_clock.lost_power())
     {
@@ -133,18 +133,32 @@ void setup()
     DEBUG_PRINTLN(now.DayOfWeek());
 
     logger.log(F("Started startup"), Log::log_level::L_DEBUG);
-    fase.begin();
+    // Fase::Fase fase;
+    // fase.begin();
     logger.log(F("Everything initialized"), Log::log_level::L_DEBUG);
 
-    k_pad.on_input = &m_window.send_input;
-    k_pad.on_enter = &m_window.send_enter;
-    k_pad.on_backspace = &m_window.send_backspace;
-    k_pad.begin();
+    k_pad.on_input = &UI::MainWindow::send_input;
+    k_pad.on_enter = &UI::MainWindow::send_enter;
+    k_pad.on_backspace = &UI::MainWindow::send_backspace;
 
     Serial.println(myGLCD.getDisplayXSize());
     Serial.println(myGLCD.getDisplayYSize());
 
     logger.serial_dump();
+
+    /*
+    Adafruit_Fingerprint finger(&Serial3);
+    finger.begin(57600);
+    if (finger.verifyPassword())
+    {
+        Serial.println(F("FINGERPRINT: found fingerprint"));
+    }
+    else
+    {
+        Serial.println(F("FINGERPRINT: didnt found fingerprint-sensor"));
+    }
+    finger.LEDcontrol(FINGERPRINT_LED_ON, 2, FINGERPRINT_LED_RED, 2);
+    */
 
     // Serial.println(l_screen.pos().x_pos);
     // Serial.println(l_screen.pos().y_pos);
@@ -153,6 +167,12 @@ void setup()
 
     // Serial.println("Free memory: ");
     // Serial.println(freeMemory());
+    while (true)
+    {
+        k_pad.loop();
+        m_window.loop();
+        // fase.loop();
+    }
 }
 
 void loop()
@@ -164,8 +184,4 @@ void loop()
         Serial.println(key);
     }
     */
-    k_pad.loop();
-    m_window.loop();
-
-    fase.loop();
 }

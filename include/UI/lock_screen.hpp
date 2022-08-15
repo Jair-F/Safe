@@ -37,13 +37,13 @@ public:
         _button.set_border_weight(3);
         _button.touched_border_color = VGA_BLUE;
         _button.touched_background_color = VGA_GREEN;
-        _button.on_touch = &this->button_print_clicked;
-        _button.on_release = &this->button_print_released;
+        _button.on_touch = &lock_screen::button_print_clicked;
+        _button.on_release = &lock_screen::button_print_released;
 
-        _button2.on_release = &this->restart_system;
+        _button2.on_release = &lock_screen::restart_system;
         _button2.setText("Restart");
 
-        ch_box.on_release = &this->_handle_check_box;
+        ch_box.on_release = &lock_screen::_handle_check_box;
         ch_box.check_sign_color = VGA_WHITE;
         ch_box.released_background_color = VGA_GREEN;
         ch_box.touched_background_color = VGA_GREEN;
@@ -55,8 +55,8 @@ public:
         input_field.set_input_buffer("123");
         input_field.set_border_weight(4);
         input_field.touched_background_color = VGA_RED;
-        input_field.on_enter = &this->update_window_label;
-        input_field.on_focus_lose = &this->update_window_label;
+        input_field.on_enter = &lock_screen::update_window_label;
+        input_field.on_focus_lose = &lock_screen::update_window_label;
         // Serial.println(this->_get_main_window()->request_focus(&input_field) == true ? "focus request successfull" : "focus request failed");
 
         pop_up_window.set_background_color(VGA_GRAY);
@@ -66,14 +66,14 @@ public:
         p_button.released_text_color = VGA_WHITE;
         p_button.set_border_weight(2);
         p_button.released_border_color = VGA_BLUE;
-        p_button.on_release = &this->uncheck_check_box_pop_up;
+        p_button.on_release = &lock_screen::uncheck_check_box_pop_up;
 
         status_bar.set_text("ERROR");
         status_bar.set_text_alignment(UI::TextLabel::text_alignment::AL_CENTER);
         status_bar.set_border(true);
         status_bar.set_font(SmallFont);
 
-        b_button.on_release = &this->button_print_clicked;
+        b_button.on_release = &lock_screen::button_print_clicked;
         b_button.touched_border_color = VGA_GREEN;
         b_button.set_draw_border(true);
 

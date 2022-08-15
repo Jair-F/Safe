@@ -27,9 +27,15 @@ namespace Fingerprint
     class Fingerprint : public Adafruit_Fingerprint, public Unlock_Object
     {
     public:
-        Fingerprint(SoftwareSerial *my_serial, Lock *_lock) : Adafruit_Fingerprint(my_serial), Unlock_Object(_lock) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }
-        Fingerprint(HardwareSerial *my_serial, Lock *_lock) : Adafruit_Fingerprint(my_serial), Unlock_Object(_lock) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }
-        Fingerprint(Stream *my_serial, Lock *_lock) : Adafruit_Fingerprint(my_serial), Unlock_Object(_lock) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }
+        /*Fingerprint(SoftwareSerial *my_serial, Lock *_lock) : Adafruit_Fingerprint(my_serial), Unlock_Object(_lock) { pinMode(FINGERPRINT_POWER_PIN, OUTPUT); }*/
+        Fingerprint(HardwareSerial *my_serial, Lock *_lock) : Adafruit_Fingerprint(my_serial), Unlock_Object(_lock)
+        { /*pinMode(FINGERPRINT_POWER_PIN, OUTPUT);*/
+        }
+        /*
+        Fingerprint(Stream *my_serial, Lock *_lock) : Adafruit_Fingerprint(my_serial), Unlock_Object(_lock)
+        { pinMode(FINGERPRINT_POWER_PIN, OUTPUT);
+        }
+        */
         virtual ~Fingerprint() {}
 
         void begin();
@@ -76,17 +82,20 @@ void Fingerprint::Fingerprint::_initialize_sensor()
     if (this->verifyPassword())
     {
         logger.log(F("FINGERPRINT: found fingerprint"), Log::log_level::L_INFO);
+        // Serial.println(F("FINGERPRINT: found fingerprint"));
     }
     else
     {
         logger.log(F("FINGERPRINT: didnt found fingerprint-sensor"), Log::log_level::L_ERROR);
-        // exit(-1);
+        // Serial.println(F("FINGERPRINT: didnt found fingerprint-sensor"));
+        //  exit(-1);
     }
 }
 
 void Fingerprint::Fingerprint::begin()
 {
     this->_initialize_sensor();
+    this->enable();
 }
 
 void Fingerprint::Fingerprint::enable()

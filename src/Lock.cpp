@@ -251,7 +251,6 @@ void Lock::loop()
         SinglyListNodeIterator<Unlock_Object *> iterator = this->unlock_objects.begin();
         while (iterator != this->unlock_objects.end())
         {
-            Serial.println(iterator.data()->is_enabled());
             if (iterator.data()->is_enabled())
             {
                 // DEBUG_PRINT(F("Reading Unlock Object with ID: "))

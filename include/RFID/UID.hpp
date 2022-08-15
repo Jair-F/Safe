@@ -39,6 +39,8 @@ namespace RFID
         */
         operator bool();
 
+        bool is_set() const;
+
         // delete the
         void clear();
 
@@ -196,6 +198,11 @@ bool RFID::UID::_check_adjust_format(String &_uid) const
 }
 
 RFID::UID::operator bool()
+{
+    return this->is_set();
+}
+
+bool RFID::UID::is_set() const
 {
     for (unsigned short i = 0; i < UID_BLOCKS; ++i)
     {

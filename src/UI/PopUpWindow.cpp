@@ -1,14 +1,14 @@
 #include "UI/UI.hpp"
 
 UI::PopUp_Window::PopUp_Window(WindowBase *_parent_window, uint16_t _width, uint16_t _height, uint8_t _border_weight,
-                               uint16_t _close_button_size = 22) : UI::WindowBase({(_parent_window->_get_display()->getDisplayXSize() / 2 - _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 - _height / 2)},
-                                                                                  {(_parent_window->_get_display()->getDisplayXSize() / 2 + _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 + _height / 2)},
-                                                                                  _border_weight),
-                                                                   parent_window(_parent_window),
-                                                                   close_button_size(_close_button_size),
-                                                                   close_button(this, {this->get_content_width() - close_button_size, 0}, close_button_size, this)
+                               uint16_t _close_button_size) : UI::WindowBase({(_parent_window->_get_display()->getDisplayXSize() / 2 - _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 - _height / 2)},
+                                                                             {(_parent_window->_get_display()->getDisplayXSize() / 2 + _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 + _height / 2)},
+                                                                             _border_weight),
+                                                              parent_window(_parent_window),
+                                                              close_button_size(_close_button_size),
+                                                              close_button(this, {this->get_content_width() - close_button_size, 0}, close_button_size, this)
 {
-    this->close_button.on_release = &this->_exit_pop_up_window;
+    this->close_button.on_release = &PopUp_Window::_exit_pop_up_window;
 
     // UTFT *display = this->_get_display();
     // URTouch *touch = this->_get_touch();

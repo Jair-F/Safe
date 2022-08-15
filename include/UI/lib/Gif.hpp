@@ -45,8 +45,8 @@ namespace UI
 
     private:
         uint8_t border_to_bitmap_gap;
-        SinglyLinkedList<unsigned int *> bitmaps;
-        SinglyListNodeIterator<unsigned int *> current_bitmap; // to loop over the images easily
+        SinglyLinkedList<unsigned short *> bitmaps;
+        SinglyListNodeIterator<unsigned short *> current_bitmap; // to loop over the images easily
         uint16_t bitmap_change_speed;
 
         unsigned long last_bitmap_change_tm_pt = 0; // last bitmap change time point

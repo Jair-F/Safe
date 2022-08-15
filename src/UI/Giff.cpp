@@ -11,7 +11,7 @@ UI::Giff::Giff(WindowBase *_parent, position _upper_left, uint16_t _bitmap_width
     va_start(arguments, num_of_bitmaps);
     for (uint8_t i = 0; i < num_of_bitmaps; ++i)
     {
-        this->bitmaps.push_back(va_arg(arguments, unsigned int *));
+        this->bitmaps.push_back(va_arg(arguments, unsigned short *));
     }
     va_end(arguments);
     this->current_bitmap = this->bitmaps.begin();
