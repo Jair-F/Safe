@@ -33,6 +33,8 @@ class DoublyListNodeIterator
 public:
     DoublyListNodeIterator(DoublyListNode<T> *_ln) : _node(_ln) {}
     DoublyListNodeIterator(DoublyListNode<T> &_ln) : _node(&_ln) {}
+    // DoublyListNodeIterator(DoublyListNodeIterator<T> &_it) : _node(_it.node()) {}
+    // DoublyListNodeIterator(DoublyListNodeIterator<T> *_it) : _node(_it->node()) {}
 
     /*
         post increment-operator(a++) - return the current data - before the switch
@@ -163,11 +165,11 @@ public:
 
     DoublyListNode<T> &front() const { return *(this->_begin->next); }
     DoublyListNode<T> &last() const { return *(this->_end->prev); }
-    DoublyListNodeIterator<T> begin() { return DoublyListNodeIterator<T>(this->_begin->next); }
+    DoublyListNodeIterator<T> begin() const { return DoublyListNodeIterator<T>(*(this->_begin->next)); }
     /*
         @return one element past the last element in the list
     */
-    DoublyListNodeIterator<T> end() { return DoublyListNodeIterator<T>(this->_end); }
+    DoublyListNodeIterator<T> end() const { return DoublyListNodeIterator<T>(*(this->_end)); }
 
 private:
     // SinglyListNodeBase<T> _last; // the element which will be returned in a iterator at calling end(element past the last element of data)
