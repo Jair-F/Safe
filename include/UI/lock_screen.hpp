@@ -9,6 +9,7 @@ UI::position lower_right{130, 70};
 extern const unsigned short settings_white[];
 extern const unsigned short back_sign_white[];
 extern const unsigned short settings_black[];
+extern const unsigned short white_repicthousebase_1484336388[];
 
 class lock_screen : public UI::Window
 {
@@ -21,11 +22,12 @@ public:
                                                 input_field(this, {150, 150}, 60, 35, this, UI::InputField<20, lock_screen>::IN_INPUT_TYPE::IN_TEXT),
                                                 pop_up_window(this, 150, 100, 3),
                                                 status_bar(this, {0, this->_get_display()->getDisplayYSize() - 35}, this->_get_display()->getDisplayXSize() - 110, "ERROR"),
-                                                b_button(this, {160, 32}, 50, 50, this, settings_white, settings_white),
+                                                b_button(this, {160, 32}, 30, 30, this, white_repicthousebase_1484336388, white_repicthousebase_1484336388, 5, 10),
                                                 div(this, {5, 100}, 50, 4, UI::Divider::d_alignment::AL_VERTICAL, VGA_WHITE),
                                                 progressBar(this, {80, 100}, {290, 115}, 1),
                                                 u_giff(this, {225, 125}, 50, 50, 3, 2, 1000, 2, settings_white, settings_black),
-                                                p_button(&pop_up_window, {10, 20}, {100, 45}, this)
+                                                p_button(&pop_up_window, {10, 20}, {100, 45}, this),
+                                                selction_menu(this, {225, 50}, {291, 72}, this)
     {
 
         text_feld.set_border(true);
@@ -84,6 +86,17 @@ public:
         div.released_border_color = VGA_GREEN;
 
         u_giff.released_background_color = VGA_GREEN;
+
+        this->selction_menu.add_entry("INFO");
+        this->selction_menu.add_entry("DEBUG");
+        this->selction_menu.add_entry("WARNING");
+        this->selction_menu.add_entry("ERROR");
+        this->selction_menu.add_entry("CRITICAL");
+        this->selction_menu.add_scroll_forward_key('6');
+        this->selction_menu.add_scroll_forward_key('8');
+        this->selction_menu.add_scroll_backward_key('4');
+        this->selction_menu.add_scroll_backward_key('2');
+        this->selction_menu.set_selection("WARNING");
     }
     virtual ~lock_screen() {}
 
@@ -189,6 +202,7 @@ private:
     UI::Giff u_giff;
 
     UI::Button<lock_screen> p_button;
+    UI::SingleSelectionMenu<lock_screen> selction_menu;
 };
 
 void lock_screen::loop()
