@@ -59,6 +59,7 @@ public:
         input_field.touched_background_color = VGA_RED;
         input_field.on_enter = &lock_screen::update_window_label;
         input_field.on_focus_lose = &lock_screen::update_window_label;
+        input_field.on_typing = &lock_screen::input_field_adjust;
         // Serial.println(this->_get_main_window()->request_focus(&input_field) == true ? "focus request successfull" : "focus request failed");
 
         pop_up_window.set_background_color(VGA_GRAY);
@@ -183,6 +184,18 @@ protected:
 
         String tmp = this->input_field.get_input_buffer();
         this->u_giff.set_bitmap_change_speed(tmp.toInt() * 10);
+    }
+
+    void input_field_adjust(UI::Touch_Widget<lock_screen> *_widget, char *_input_buffer)
+    {
+        if (strcmp(_input_buffer, "1875") == 0)
+        {
+            _widget->touched_background_color = VGA_GREEN;
+        }
+        else
+        {
+            _widget->touched_background_color = VGA_RED;
+        }
     }
 
 private:
