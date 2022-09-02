@@ -21,6 +21,12 @@ namespace UI
 
         void (CALL_OBJECT_TYPE::*on_enter)(Touch_Widget<CALL_OBJECT_TYPE> *_widget) = nullptr;
 
+        /*
+            if the input_buffer has been changed due to and input_send of the user call this func
+            this function is called before the input field is drawn - to allow changing colors etc...
+        */
+        void (CALL_OBJECT_TYPE::*on_typing)(Touch_Widget<CALL_OBJECT_TYPE> *_widget, char *_input_buffer) = nullptr;
+
         InputField(Window *_parent, const position _upper_left, const position _lower_right,
                    CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type);
         InputField(Window *_parent, const position _upper_left, uint16_t _width, uint16_t _height,
@@ -122,6 +128,10 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_input(char _input_
             }
         }
     }
+    if (this->on_typing != nullptr)
+    {
+        (this->call_object->*on_typing)(this, this->input_buffer);
+    }
     this->_draw_widget();
 }
 
@@ -139,6 +149,10 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_backspace()
     }
     --i;
     this->input_buffer[i] = this->INPUT_UNSET_VALUE;
+    if (this->on_typing != nullptr)
+    {
+        (this->call_object->*on_typing)(this, this->input_buffer);
+    }
     this->_draw_widget();
 }
 
