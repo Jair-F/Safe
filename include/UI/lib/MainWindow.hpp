@@ -52,6 +52,19 @@ namespace UI
         void send_enter();
 
         /*
+            @param _fall_asleep_timer set the fall_asleep_timer in seconds
+        */
+        inline void set_fall_asleep_timer(uint16_t _fall_asleep_timer) { this->fall_asleep_timer = _fall_asleep_timer; }
+        /*
+            @return fall_asleep_timer in seconds
+        */
+        inline uint16_t get_fall_aspleep_timer() const { return this->fall_asleep_timer; }
+        /*
+            @return true if in sleep_mode
+        */
+        inline bool get_in_sleep_mode() const { return this->in_sleep_mode; }
+
+        /*
             need to be called continuously in the main loop of the application
             checks for touch data and handles the windows and widgets
         */
@@ -83,6 +96,17 @@ namespace UI
         */
         position _read_touch();
 
+        /*
+            clear the display and send the display to sleep - but only if the display
+            is not waked up already
+        */
+        void _wake_up();
+        /*
+            wake the display up and print the current window again - but only if the display
+            is not send to sleep already
+        */
+        void _send_sleep();
+
     private:
         bool focus_frozen; // one widget has the focus and we are not allowed to change the focus
         Widget *focused_widget;
@@ -95,5 +119,16 @@ namespace UI
             size of the "normal windows" which are shown on the main_window - the windows grab the size in their window-constructor
         */
         position window_upper_left, window_lower_right;
+
+        /*
+            seconds which have to pass until the display falls in a sleep mode -
+            the display will turn black until the next touch
+        */
+        uint16_t fall_asleep_timer = 60;
+        /*
+            last time point the user interacted with the display/keypad
+        */
+        uint32_t last_interact_time_pt = 0;
+        bool in_sleep_mode = false;
     };
 } // namespace UI

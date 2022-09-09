@@ -132,7 +132,7 @@ namespace UI
         bool get_draw_border() const { return this->border_weight != 0; }
 
         /*
-            draw the window only things - the border and background of the window
+            redraw the whole window on the screen
         */
         void _redraw_window();
 

@@ -1,6 +1,4 @@
-#ifndef _LOG_HPP_INCLUDED_
-#define _LOG_HPP_INCLUDED_
-
+#pragma once
 #include <Arduino.h>
 #include "log_message.hpp"
 #include "LinkedList.hpp"
@@ -38,5 +36,3 @@ namespace Log
     };
 
 } // namespace Log
-
-#endif // _LOG_HPP_INCLUDED_

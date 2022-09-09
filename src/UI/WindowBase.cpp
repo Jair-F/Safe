@@ -193,12 +193,6 @@ const UI::position &UI::WindowBase::pos() const
 
 void UI::WindowBase::_redraw_window()
 {
-    /*
-    UTFT *display = this->_get_display();
-
-    display->setColor(this->background_color);
-    display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos, this->lower_right.x_pos, this->lower_right.y_pos);
-    */
     this->show();
 }
 

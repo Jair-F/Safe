@@ -42,6 +42,9 @@ UI::WindowBase *UI::MainWindow::get_active_window() const
 
 void UI::MainWindow::send_input(char _input_data)
 {
+    this->last_interact_time_pt = millis();
+    this->_wake_up();
+
     if (this->focused_widget != nullptr)
     {
         this->focused_widget->send_input(_input_data);
@@ -50,6 +53,9 @@ void UI::MainWindow::send_input(char _input_data)
 
 void UI::MainWindow::send_backspace()
 {
+    this->last_interact_time_pt = millis();
+    this->_wake_up();
+
     if (this->focused_widget != nullptr)
     {
         this->focused_widget->send_backspace();
@@ -58,6 +64,9 @@ void UI::MainWindow::send_backspace()
 
 void UI::MainWindow::send_enter()
 {
+    this->last_interact_time_pt = millis();
+    this->_wake_up();
+
     if (this->focused_widget != nullptr)
     {
         this->focused_widget->send_enter();
@@ -96,17 +105,12 @@ void UI::MainWindow::loop()
         */
         position touch_data = this->_read_touch();
 
-#ifdef DEBUG
-        String tmp;
-        tmp = touch_data.x_pos;
-        debug_message(tmp.c_str());
-        tmp = touch_data.y_pos;
-        debug_message(tmp.c_str());
-#endif
-
         // if the touch-data is in the display
         if (this->_check_in_display(touch_data))
         {
+            this->last_interact_time_pt = millis();
+            this->_wake_up();
+
             if (this->active_window != nullptr)
             {
                 // call the on_touch func
@@ -122,11 +126,7 @@ void UI::MainWindow::loop()
                         {
                             last_focused_widget->_focus_lose(); // call focus_lose for the previous focused widget
                         }
-#ifndef DEBUG
-                        // Serial.println("focused widget changed...");
-#endif
                     }
-                    // this->focused_widget = clicked_widget;
                 }
 
                 if (clicked_widget != nullptr)
@@ -139,15 +139,6 @@ void UI::MainWindow::loop()
                         {
                             touch_data = tmp;
                         }
-
-#ifndef DEBUG
-                        // Serial.print("X_POS: ");
-                        // Serial.println(touch_data.x_pos);
-                        // Serial.print("Y_POS: ");
-                        // Serial.println(touch_data.y_pos);
-#endif
-
-                        // delay(100); // bisschen warten, damit die Werte nicht so extrem schwanken...
                     }
 
                     //  touch was released at this point...
@@ -156,10 +147,19 @@ void UI::MainWindow::loop()
             }
         }
     }
+    else
+    {
+        if (this->last_interact_time_pt + this->fall_asleep_timer * 1000 < millis())
+        {
+            // we turn the display only of if we didnt already do that
+            this->_send_sleep();
+        }
+    }
 
     if (this->active_window != nullptr)
     {
-        this->active_window->loop();
+        if (!this->in_sleep_mode)
+            this->active_window->loop();
     }
 }
 
@@ -194,4 +194,24 @@ const UI::position &UI::MainWindow::_get_window_upper_left() const
 const UI::position &UI::MainWindow::_get_window_lower_right() const
 {
     return this->window_lower_right;
+}
+
+void UI::MainWindow::_wake_up()
+{
+    if (this->in_sleep_mode)
+    {
+        this->display->lcdOn();
+        this->get_active_window()->_redraw_window();
+        this->in_sleep_mode = false;
+    }
+}
+
+void UI::MainWindow::_send_sleep()
+{
+    if (!this->in_sleep_mode)
+    {
+        this->display->clrScr();
+        this->display->lcdOff();
+        this->in_sleep_mode = true;
+    }
 }

@@ -1,6 +1,7 @@
 #include "logging/Log.hpp"
 #include "LinkedList.hpp"
 #include "system_clock.hpp"
+//#define DEBUG
 
 Log::Log::Log(byte _logging_level) : _log_list(), logging_level(_logging_level)
 {
@@ -36,6 +37,7 @@ SinglyListNodeIterator<Log::log_message> Log::Log::end()
 
 void Log::Log::serial_dump()
 {
+#ifndef DEBUG
     Serial.println(F("BEGIN ERROR_OUTPUT:"));
     Serial.println();
 
@@ -84,4 +86,5 @@ void Log::Log::serial_dump()
     }
     Serial.println();
     Serial.println(F("END ERROR_OUTPUT:"));
+#endif
 }
