@@ -15,6 +15,10 @@ namespace FGUI
     public:
         Button(WindowBase *parent, position _upper_left, position _lower_right,
                CALL_OBJECT_TYPE *_call_object) : ButtonBase<CALL_OBJECT_TYPE>(parent, _upper_left, _lower_right, _call_object) {}
+        Button(WindowBase *parent, position _upper_left, uint16_t _width, uint16_t _height,
+               CALL_OBJECT_TYPE *_call_object) : ButtonBase<CALL_OBJECT_TYPE>(parent, _upper_left,
+                                                                              {_upper_left.x_pos + _width, _upper_left.y_pos + _height},
+                                                                              _call_object) {}
 
         virtual ~Button() {}
 
