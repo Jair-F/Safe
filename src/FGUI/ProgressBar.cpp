@@ -1,4 +1,4 @@
-#include "UI/UI.hpp"
+#include "FGUI/FGUI.hpp"
 
 UI::ProgressBar::ProgressBar(WindowBase *_parent, position _upper_left,
                              position _lower_right, uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _lower_right, _border_weight), progress(0)

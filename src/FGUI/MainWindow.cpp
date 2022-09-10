@@ -1,4 +1,4 @@
-#include "UI/UI.hpp"
+#include "FGUI/FGUI.hpp"
 
 #ifdef DEBUG
 #include <avr8-stub.h>

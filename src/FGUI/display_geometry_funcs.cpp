@@ -2,8 +2,8 @@
 #include <math.h>
 #include <limits.h>
 #include <UTFT.h>
-#include "UI/lib/position.hpp"
-#include "UI/display_geometry_funcs.hpp"
+#include "FGUI/lib/position.hpp"
+#include "FGUI/display_geometry_funcs.hpp"
 
 // 1 rad = 57.2958 deg
 #define RAD_DEG_PROPORTION 57.2958 // 1 rad in degrees

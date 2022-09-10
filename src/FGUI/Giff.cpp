@@ -1,4 +1,4 @@
-#include "UI/UI.hpp"
+#include "FGUI/FGUI.hpp"
 #include <stdarg.h>
 
 UI::Giff::Giff(WindowBase *_parent, position _upper_left, uint16_t _bitmap_width, uint16_t _bitmap_height,

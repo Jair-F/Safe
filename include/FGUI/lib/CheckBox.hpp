@@ -1,6 +1,6 @@
 #pragma once
-#include "UI/UI.hpp"
-#include "UI/display_geometry_funcs.hpp"
+#include "Touch_Widget.hpp"
+#include "../display_geometry_funcs.hpp"
 
 namespace UI
 {

@@ -1,4 +1,4 @@
-#include "UI/UI.hpp"
+#include "FGUI/FGUI.hpp"
 
 /*
 UI::TextLabel::TextLabel(Window *_parent, const position _upper_left,

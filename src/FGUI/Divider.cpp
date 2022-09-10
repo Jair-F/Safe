@@ -1,4 +1,4 @@
-#include "UI/UI.hpp"
+#include "FGUI/FGUI.hpp"
 
 UI::Divider::Divider(WindowBase *_parent, position _start_position, uint16_t _length,
                      uint8_t width, d_alignment _alignment, unsigned int _color) : Widget(_parent, _start_position, {_start_position.x_pos, _start_position.y_pos}),

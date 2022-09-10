@@ -1,4 +1,4 @@
-#include "UI/UI.hpp"
+#include "FGUI/FGUI.hpp"
 
 UI::WindowBase::WindowBase(const position &_upper_left, const position &_lower_right,
                            uint8_t _border_weight) : upper_left(_upper_left), lower_right(_lower_right),

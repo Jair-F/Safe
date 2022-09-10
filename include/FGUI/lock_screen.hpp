@@ -1,6 +1,8 @@
 #pragma once
-#include "UI.hpp"
+#include "FGUI.hpp"
 #include <UTFT.h>
+
+#include "rfid_settings_window.hpp"
 
 // for button
 UI::position upper_left{20, 40};
@@ -10,6 +12,8 @@ extern const unsigned short settings_white[];
 extern const unsigned short back_sign_white[];
 extern const unsigned short settings_black[];
 extern const unsigned short white_repicthousebase_1484336388[];
+class RFID_settings_window;
+extern RFID_settings_window *rfid_settings_wnd;
 
 class lock_screen : public UI::Window
 {
@@ -109,6 +113,8 @@ protected:
     void uncheck_check_box_pop_up(UI::Touch_Widget<lock_screen> *_widget)
     {
         this->ch_box.set_checked(!this->ch_box.is_checked());
+        this->hide_pop_up_window();
+        this->_get_main_window()->set_active_window(rfid_settings_wnd);
     }
     void update_status_bar(UI::Touch_Widget<lock_screen> *_widget)
     {
