@@ -23,9 +23,15 @@ namespace FGUI
         Widget *get_focused_widget() const override;
         bool request_focus(Widget *_widget) override;
 
+        void hide_close_button();
+        void show_close_button();
+        bool is_close_button_hidden();
+
         UTFT *_get_display() const override;
         URTouch *_get_touch() const override;
         MainWindow *_get_main_window() const override;
+
+        WindowBase *_get_parent_window() const;
 
     protected:
         /*
