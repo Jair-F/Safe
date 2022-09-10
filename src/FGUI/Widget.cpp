@@ -3,8 +3,8 @@
 // ---------------- Widget ----------------
 
 FGUI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const position &_lower_right,
-                     uint8_t _border_weight) : hidden(true), border_weight(_border_weight), parent_window(_parent),
-                                               upper_left(parent_window->_calc_absolute_pos(_upper_left)), lower_right(parent_window->_calc_absolute_pos(_lower_right))
+                     uint8_t _border_weight) : border_weight(_border_weight), parent_window(_parent),
+                                               upper_left(_parent->_calc_absolute_pos(_upper_left)), lower_right(_parent->_calc_absolute_pos(_lower_right))
 {
     // adjusting the positions in case they not set correctly - if the upper_left is for example the lower_right position
     decltype(upper_left.x_pos) tmp;
@@ -46,8 +46,8 @@ FGUI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const pos
 }
 
 FGUI::Widget::Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height,
-                     uint8_t _border_weight) : hidden(true), border_weight(_border_weight), parent_window(_parent),
-                                               upper_left(_upper_left)
+                     uint8_t _border_weight) : border_weight(_border_weight), parent_window(_parent),
+                                               upper_left(_parent->_calc_absolute_pos(_upper_left))
 {
     this->lower_right.x_pos = this->upper_left.x_pos + _width;
     this->lower_right.y_pos = this->upper_left.y_pos + _height;
@@ -114,28 +114,34 @@ void FGUI::Widget::_clear_widget_space()
 
 void FGUI::Widget::set_size(uint16_t _width, uint16_t _height)
 {
+    // the calc_absolute_pos is already made with the initializtion of the upper_left pos
     this->_clear_widget_space();
     this->lower_right.x_pos = this->upper_left.x_pos + _width;
     this->lower_right.y_pos = this->upper_left.y_pos + _height;
-    this->update_widget();
+    // this->draw();
 }
 
-void FGUI::Widget::update_widget()
+void FGUI::Widget::draw()
 {
-    if (!this->is_hidden())
-    {
-        this->_draw_widget();
-    }
+    this->_draw_widget();
+}
+
+void FGUI::Widget::clear()
+{
+    this->_clear_widget_space();
 }
 
 void FGUI::Widget::_draw_widget()
 {
-    if (this->get_draw_border())
+    if (!this->is_hidden())
     {
-        this->_draw_released_border();
+        if (this->get_draw_border())
+        {
+            this->_draw_released_border();
+        }
+        this->_draw_released_background();
+        this->_draw_released_content();
     }
-    this->_draw_released_background();
-    this->_draw_released_content();
 }
 
 void FGUI::Widget::_draw_released_background()
