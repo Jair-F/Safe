@@ -33,5 +33,5 @@ void FGUI::ProgressBar::set_progress(uint8_t _progress)
 {
     _progress = _progress > 100 ? 100 : _progress; // ensure that _progress isnt more than 100
     this->progress = _progress;
-    this->update_widget(); // maybe draw an animation...
+    this->draw(); // maybe draw an animation...
 }
