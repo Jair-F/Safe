@@ -135,6 +135,7 @@ void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::send_input(char _input_data)
         {
             if (this->actual_entry != nullptr)
             {
+                // if the actual element is not the element past the last - then end node
                 if (this->actual_entry->next() != this->entrys.end().node())
                 {
                     //*(this->actual_entry) = this->actual_entry->next();
@@ -161,7 +162,8 @@ void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::send_input(char _input_data)
         {
             if (actual_entry != nullptr)
             {
-                if (this->actual_entry->prev() != this->entrys.begin().node())
+                // if the actual element is not the before first element - the begin node
+                if (this->actual_entry->prev() != this->entrys.front().prev)
                 {
                     --(*this->actual_entry);
                 }
