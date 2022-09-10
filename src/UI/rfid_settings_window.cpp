@@ -1,30 +1,15 @@
-#pragma once
-#include "FGUI.hpp"
-#include "RFID/RFID.hpp"
-#include "lock_screen.hpp"
+#include "UI/rfid_settings_window.hpp"
 
 extern const unsigned short white_repicthousebase_1484336388[];
 class lock_screen;
 extern lock_screen *l_screen;
-
 extern uint8_t TinyFont[];
 
-class RFID_settings_window : public FGUI::Window
+void RFID_settings_window::_go_home(FGUI::Touch_Widget<RFID_settings_window> *_widget)
 {
-public:
-    RFID_settings_window(FGUI::MainWindow *_main_window);
-
-protected:
-    void _go_home(FGUI::Touch_Widget<RFID_settings_window> *_widget);
-
-private:
-    FGUI::Button<RFID_settings_window> add_tag_btn;
-    FGUI::Button<RFID_settings_window> delete_tag_by_read_btn;
-    FGUI::Button<RFID_settings_window> delete_tag_by_id_btn;
-    FGUI::Button<RFID_settings_window> clear_database_btn;
-
-    FGUI::BitMapButton<RFID_settings_window> home_btn;
-};
+    // switch to home window
+    this->_get_main_window()->set_active_window(l_screen);
+}
 
 RFID_settings_window::RFID_settings_window(FGUI::MainWindow *_main_window) : FGUI::Window(_main_window),
                                                                              add_tag_btn(this, {10, 10}, {80, 30}, this),
