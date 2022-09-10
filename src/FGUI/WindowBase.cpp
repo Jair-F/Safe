@@ -14,20 +14,6 @@ FGUI::position FGUI::WindowBase::_calc_absolute_pos(const position &_pos) const
     ret_pos.x_pos += _pos.x_pos;
     ret_pos.y_pos += _pos.y_pos;
 
-    // while (!Serial.available())
-    //     Serial.begin(9600);
-
-    /*
-        Serial.println("start calc absolute pos");
-        Serial.println(_pos.x_pos);
-        Serial.println(_pos.x_pos);
-        Serial.println(this->upper_left.x_pos);
-        Serial.println(this->upper_left.y_pos);
-        Serial.println(ret_pos.x_pos);
-        Serial.println(ret_pos.y_pos);
-        Serial.println("end calc absolute pos");
-    */
-
     return ret_pos;
 }
 
@@ -159,7 +145,7 @@ void FGUI::WindowBase::show()
         auto iterator = this->registered_widgets.begin();
         while (iterator != this->registered_widgets.end())
         {
-            iterator->show();
+            iterator->draw();
             ++iterator;
         }
     }
@@ -173,7 +159,7 @@ void FGUI::WindowBase::hide()
     auto iterator = this->registered_widgets.begin();
     while (iterator != this->registered_widgets.end())
     {
-        iterator->hide();
+        iterator->clear();
         ++iterator;
     }
 }
