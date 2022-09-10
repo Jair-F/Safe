@@ -29,7 +29,7 @@ bool FGUI::MainWindow::request_focus(FGUI::Widget *_widget)
         if (this->focused_widget != nullptr)
             this->focused_widget->_focus_lose(); // call the focus loose of the previous widget
         this->focused_widget = _widget;
-        this->focused_widget->update_widget();
+        this->focused_widget->draw();
         return true;
     }
     return false;
