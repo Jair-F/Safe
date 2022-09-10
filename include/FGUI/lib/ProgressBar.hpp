@@ -2,7 +2,7 @@
 
 #include "Widget.hpp"
 
-namespace UI
+namespace FGUI
 {
     class ProgressBar : public Widget
     {
@@ -27,4 +27,4 @@ namespace UI
         uint8_t progress;              // progress of the progress bar in precent(0-100)
         uint8_t border_to_bar_gap = 3; // gap between the border and the progress bar in pixels
     };
-} // namespace UI
+} // namespace FGUI

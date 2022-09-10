@@ -1,12 +1,12 @@
 #include "FGUI/FGUI.hpp"
 
-UI::PopUp_Window::PopUp_Window(WindowBase *_parent_window, uint16_t _width, uint16_t _height, uint8_t _border_weight,
-                               uint16_t _close_button_size) : UI::WindowBase({(_parent_window->_get_display()->getDisplayXSize() / 2 - _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 - _height / 2)},
-                                                                             {(_parent_window->_get_display()->getDisplayXSize() / 2 + _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 + _height / 2)},
-                                                                             _border_weight),
-                                                              parent_window(_parent_window),
-                                                              close_button_size(_close_button_size),
-                                                              close_button(this, {this->get_content_width() - close_button_size, 0}, close_button_size, this)
+FGUI::PopUp_Window::PopUp_Window(WindowBase *_parent_window, uint16_t _width, uint16_t _height, uint8_t _border_weight,
+                                 uint16_t _close_button_size) : FGUI::WindowBase({(_parent_window->_get_display()->getDisplayXSize() / 2 - _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 - _height / 2)},
+                                                                                 {(_parent_window->_get_display()->getDisplayXSize() / 2 + _width / 2), (_parent_window->_get_display()->getDisplayYSize() / 2 + _height / 2)},
+                                                                                 _border_weight),
+                                                                parent_window(_parent_window),
+                                                                close_button_size(_close_button_size),
+                                                                close_button(this, {this->get_content_width() - close_button_size, 0}, close_button_size, this)
 {
     this->close_button.on_release = &PopUp_Window::_exit_pop_up_window;
 
@@ -14,34 +14,34 @@ UI::PopUp_Window::PopUp_Window(WindowBase *_parent_window, uint16_t _width, uint
     // URTouch *touch = this->_get_touch();
 }
 
-UI::PopUp_Window::~PopUp_Window()
+FGUI::PopUp_Window::~PopUp_Window()
 {
     parent_window->_get_main_window()->set_active_window(parent_window);
 }
 
-UI::MainWindow *UI::PopUp_Window::_get_main_window() const
+FGUI::MainWindow *FGUI::PopUp_Window::_get_main_window() const
 {
     return this->parent_window->_get_main_window();
 }
-UTFT *UI::PopUp_Window::_get_display() const
+UTFT *FGUI::PopUp_Window::_get_display() const
 {
     return this->parent_window->_get_display();
 }
-URTouch *UI::PopUp_Window::_get_touch() const
+URTouch *FGUI::PopUp_Window::_get_touch() const
 {
     return this->parent_window->_get_touch();
 }
-bool UI::PopUp_Window::request_focus(Widget *_widget)
+bool FGUI::PopUp_Window::request_focus(Widget *_widget)
 {
     this->parent_window->request_focus(_widget);
 }
-UI::Widget *UI::PopUp_Window::get_focused_widget() const
+FGUI::Widget *FGUI::PopUp_Window::get_focused_widget() const
 {
     return this->parent_window->get_focused_widget();
 }
 
 /*
-void UI::PopUp_Window::show()
+void FGUI::PopUp_Window::show()
 {
     // UTFT *display = this->_get_display();
     //  URTouch *touch = this->_get_touch();
@@ -57,7 +57,7 @@ void UI::PopUp_Window::show()
     WindowBase::show();
 }
 
-void UI::PopUp_Window::hide()
+void FGUI::PopUp_Window::hide()
 {
     // UTFT *display = this->_get_display();
     // URTouch *touch = this->_get_touch();
@@ -70,7 +70,7 @@ void UI::PopUp_Window::hide()
 }
 */
 
-void UI::PopUp_Window::_exit_pop_up_window(Touch_Widget<PopUp_Window> *_widget)
+void FGUI::PopUp_Window::_exit_pop_up_window(Touch_Widget<PopUp_Window> *_widget)
 {
     this->parent_window->hide_pop_up_window();
 }

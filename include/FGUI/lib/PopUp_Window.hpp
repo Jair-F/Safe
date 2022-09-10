@@ -4,7 +4,7 @@
 #include "WindowBase.hpp"
 #include "CloseButtons.hpp"
 
-namespace UI
+namespace FGUI
 {
     class MainWindow;
 
@@ -40,4 +40,4 @@ namespace UI
         uint16_t close_button_size = 22; // width and height
         CloseButton<PopUp_Window> close_button;
     };
-} // namespace UI
+} // namespace FGUI

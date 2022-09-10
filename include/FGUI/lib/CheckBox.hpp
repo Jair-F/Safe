@@ -2,7 +2,7 @@
 #include "Touch_Widget.hpp"
 #include "../display_geometry_funcs.hpp"
 
-namespace UI
+namespace FGUI
 {
     template <typename CALL_OBJECT_TYPE>
     class CheckBox : public Touch_Widget<CALL_OBJECT_TYPE>
@@ -47,18 +47,18 @@ namespace UI
     private:
         bool checked; // true if the checkbox is checked, false if not
     };
-} // namespace UI
+} // namespace FGUI
 
 // ------------- template implementation -------------
 
 template <typename CALL_OBJECT_TYPE>
-UI::CheckBox<CALL_OBJECT_TYPE>::CheckBox(Window *_parent, const position _upper_left,
-                                         uint16_t _size, CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _size, _size, _call_object), checked(false)
+FGUI::CheckBox<CALL_OBJECT_TYPE>::CheckBox(Window *_parent, const position _upper_left,
+                                           uint16_t _size, CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _size, _size, _call_object), checked(false)
 {
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_touched_content()
+void FGUI::CheckBox<CALL_OBJECT_TYPE>::_draw_touched_content()
 {
     uint8_t gap_from_box = round(this->width() * 0.035714); // the gap minimal between the box and the begin of the check mark
 
@@ -113,9 +113,9 @@ void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_touched_content()
     // content_upper_left.y_pos = content_upper_left.y_pos + check_sign_weight / 2;
     // content_lower_right.y_pos = content_lower_right.y_pos + check_sign_weight / 2;
 
-    UI::position c_m_lower_peak, // c_m - check_mark
-        c_m_s_line_upper_peak,   // short line...
-        c_m_l_line_upper_peak;   // long line...
+    FGUI::position c_m_lower_peak, // c_m - check_mark
+        c_m_s_line_upper_peak,     // short line...
+        c_m_l_line_upper_peak;     // long line...
 
     c_m_lower_peak.x_pos = content_upper_left.x_pos + (this->get_content_width() - gap_from_box * 2) * 0.3; // end of small check line is 30 % of the content width
     c_m_lower_peak.y_pos = content_lower_right.y_pos;
@@ -146,7 +146,7 @@ void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_touched_content()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_widget()
+void FGUI::CheckBox<CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {
@@ -173,7 +173,7 @@ void UI::CheckBox<CALL_OBJECT_TYPE>::_draw_widget()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::CheckBox<CALL_OBJECT_TYPE>::_release(const position &_touch_data)
+void FGUI::CheckBox<CALL_OBJECT_TYPE>::_release(const position &_touch_data)
 {
     if (!this->is_hidden())
     {

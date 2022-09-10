@@ -2,9 +2,9 @@
 
 // ---------------- Widget ----------------
 
-UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const position &_lower_right,
-                   uint8_t _border_weight) : hidden(true), border_weight(_border_weight), parent_window(_parent),
-                                             upper_left(parent_window->_calc_absolute_pos(_upper_left)), lower_right(parent_window->_calc_absolute_pos(_lower_right))
+FGUI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const position &_lower_right,
+                     uint8_t _border_weight) : hidden(true), border_weight(_border_weight), parent_window(_parent),
+                                               upper_left(parent_window->_calc_absolute_pos(_upper_left)), lower_right(parent_window->_calc_absolute_pos(_lower_right))
 {
     // adjusting the positions in case they not set correctly - if the upper_left is for example the lower_right position
     decltype(upper_left.x_pos) tmp;
@@ -45,9 +45,9 @@ UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, const posit
     this->parent_window->_register_widget(this);
 }
 
-UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height,
-                   uint8_t _border_weight) : hidden(true), border_weight(_border_weight), parent_window(_parent),
-                                             upper_left(_upper_left)
+FGUI::Widget::Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height,
+                     uint8_t _border_weight) : hidden(true), border_weight(_border_weight), parent_window(_parent),
+                                               upper_left(_upper_left)
 {
     this->lower_right.x_pos = this->upper_left.x_pos + _width;
     this->lower_right.y_pos = this->upper_left.y_pos + _height;
@@ -77,12 +77,12 @@ UI::Widget::Widget(WindowBase *_parent, const position &_upper_left, uint16_t _w
     this->parent_window->_register_widget(this);
 }
 
-UI::Widget::~Widget()
+FGUI::Widget::~Widget()
 {
     this->_get_parent_window()->_unregister_widget(this);
 }
 
-void UI::Widget::hide()
+void FGUI::Widget::hide()
 {
     if (!this->hidden)
     {
@@ -90,18 +90,18 @@ void UI::Widget::hide()
         this->hidden = true;
     }
 }
-void UI::Widget::show()
+void FGUI::Widget::show()
 {
     this->hidden = false;
     this->_draw_widget();
 }
-bool UI::Widget::_check_pos(const position &_pos) const
+bool FGUI::Widget::_check_pos(const position &_pos) const
 {
     return (_pos.x_pos >= this->upper_left.x_pos && _pos.y_pos >= this->upper_left.y_pos) &&
            (_pos.x_pos <= this->lower_right.x_pos && _pos.y_pos <= this->lower_right.y_pos);
 }
 
-void UI::Widget::_clear_widget_space()
+void FGUI::Widget::_clear_widget_space()
 {
     if (!this->is_hidden())
     {
@@ -112,7 +112,7 @@ void UI::Widget::_clear_widget_space()
     }
 }
 
-void UI::Widget::set_size(uint16_t _width, uint16_t _height)
+void FGUI::Widget::set_size(uint16_t _width, uint16_t _height)
 {
     this->_clear_widget_space();
     this->lower_right.x_pos = this->upper_left.x_pos + _width;
@@ -120,7 +120,7 @@ void UI::Widget::set_size(uint16_t _width, uint16_t _height)
     this->update_widget();
 }
 
-void UI::Widget::update_widget()
+void FGUI::Widget::update_widget()
 {
     if (!this->is_hidden())
     {
@@ -128,7 +128,7 @@ void UI::Widget::update_widget()
     }
 }
 
-void UI::Widget::_draw_widget()
+void FGUI::Widget::_draw_widget()
 {
     if (this->get_draw_border())
     {
@@ -138,7 +138,7 @@ void UI::Widget::_draw_widget()
     this->_draw_released_content();
 }
 
-void UI::Widget::_draw_released_background()
+void FGUI::Widget::_draw_released_background()
 {
     position background_upper_left = this->get_content_upper_left();
     position background_lower_right = this->get_content_lower_right();
@@ -147,7 +147,7 @@ void UI::Widget::_draw_released_background()
     this->display->fillRect(background_upper_left.x_pos, background_upper_left.y_pos, background_lower_right.x_pos, background_lower_right.y_pos);
 }
 
-void UI::Widget::_draw_released_border()
+void FGUI::Widget::_draw_released_border()
 {
     this->display->setColor(this->released_border_color);
     for (uint8_t i = 0; i < this->border_weight; ++i)
@@ -157,7 +157,7 @@ void UI::Widget::_draw_released_border()
     // this->display->drawLine()
 }
 
-UI::position UI::Widget::get_content_upper_left() const
+FGUI::position FGUI::Widget::get_content_upper_left() const
 {
     if (this->get_draw_border())
         return {this->upper_left.x_pos + this->border_weight, this->upper_left.y_pos + this->border_weight};
@@ -165,7 +165,7 @@ UI::position UI::Widget::get_content_upper_left() const
         return this->upper_left;
 }
 
-UI::position UI::Widget::get_content_lower_right() const
+FGUI::position FGUI::Widget::get_content_lower_right() const
 {
     if (this->get_draw_border())
         return {this->lower_right.x_pos - this->border_weight, this->lower_right.y_pos - this->border_weight};
@@ -173,7 +173,7 @@ UI::position UI::Widget::get_content_lower_right() const
         return this->lower_right;
 }
 
-uint16_t UI::Widget::get_content_height() const
+uint16_t FGUI::Widget::get_content_height() const
 {
     if (this->get_draw_border())
         return this->lower_right.y_pos - this->upper_left.y_pos - this->border_weight * 2;
@@ -181,7 +181,7 @@ uint16_t UI::Widget::get_content_height() const
         return this->height();
 }
 
-uint16_t UI::Widget::get_content_width() const
+uint16_t FGUI::Widget::get_content_width() const
 {
     if (this->get_draw_border())
         return this->lower_right.x_pos - this->upper_left.x_pos - this->border_weight * 2;
@@ -189,7 +189,7 @@ uint16_t UI::Widget::get_content_width() const
         return this->width();
 }
 
-void UI::Widget::set_border_weight(uint8_t _border_weight)
+void FGUI::Widget::set_border_weight(uint8_t _border_weight)
 {
     if (_border_weight * 2 > this->width())
         this->border_weight = this->width() / 2;

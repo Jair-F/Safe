@@ -6,7 +6,7 @@
 extern uint8_t SmallFont[];
 extern uint8_t BigFont[];
 
-namespace UI
+namespace FGUI
 {
     class TextLabel : public Widget
     {
@@ -79,4 +79,4 @@ namespace UI
         bool draw_border;
     };
 
-} // namespace UI
+} // namespace FGUI

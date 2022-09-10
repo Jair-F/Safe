@@ -4,9 +4,9 @@
 #include <avr8-stub.h>
 #endif
 
-UI::MainWindow::MainWindow(UTFT *_display, URTouch *_touch, position _window_upper_left, position _window_lower_right) : focus_frozen(false), focused_widget(nullptr),
-                                                                                                                         active_window(nullptr), display(_display), touch(_touch),
-                                                                                                                         window_upper_left(_window_upper_left), window_lower_right(_window_lower_right)
+FGUI::MainWindow::MainWindow(UTFT *_display, URTouch *_touch, position _window_upper_left, position _window_lower_right) : focus_frozen(false), focused_widget(nullptr),
+                                                                                                                           active_window(nullptr), display(_display), touch(_touch),
+                                                                                                                           window_upper_left(_window_upper_left), window_lower_right(_window_lower_right)
 {
     // Serial.println("Mainwindow window shift: ");
     // Serial.print('(');
@@ -22,7 +22,7 @@ UI::MainWindow::MainWindow(UTFT *_display, URTouch *_touch, position _window_upp
     // Serial.println(')');
 }
 
-bool UI::MainWindow::request_focus(UI::Widget *_widget)
+bool FGUI::MainWindow::request_focus(FGUI::Widget *_widget)
 {
     if (!this->focus_frozen)
     {
@@ -35,12 +35,12 @@ bool UI::MainWindow::request_focus(UI::Widget *_widget)
     return false;
 }
 
-UI::WindowBase *UI::MainWindow::get_active_window() const
+FGUI::WindowBase *FGUI::MainWindow::get_active_window() const
 {
     return this->active_window;
 }
 
-void UI::MainWindow::send_input(char _input_data)
+void FGUI::MainWindow::send_input(char _input_data)
 {
     this->last_interact_time_pt = millis();
     this->_wake_up();
@@ -51,7 +51,7 @@ void UI::MainWindow::send_input(char _input_data)
     }
 }
 
-void UI::MainWindow::send_backspace()
+void FGUI::MainWindow::send_backspace()
 {
     this->last_interact_time_pt = millis();
     this->_wake_up();
@@ -62,7 +62,7 @@ void UI::MainWindow::send_backspace()
     }
 }
 
-void UI::MainWindow::send_enter()
+void FGUI::MainWindow::send_enter()
 {
     this->last_interact_time_pt = millis();
     this->_wake_up();
@@ -73,7 +73,7 @@ void UI::MainWindow::send_enter()
     }
 }
 
-void UI::MainWindow::set_active_window(WindowBase *_win)
+void FGUI::MainWindow::set_active_window(WindowBase *_win)
 {
     if (_win == nullptr)
     {
@@ -96,7 +96,7 @@ void UI::MainWindow::set_active_window(WindowBase *_win)
     this->active_window->show();
 }
 
-void UI::MainWindow::loop()
+void FGUI::MainWindow::loop()
 {
     if (this->touch->dataAvailable())
     {
@@ -163,7 +163,7 @@ void UI::MainWindow::loop()
     }
 }
 
-UI::position UI::MainWindow::_read_touch()
+FGUI::position FGUI::MainWindow::_read_touch()
 {
     position touch_data_ret;
     this->touch->read();
@@ -180,23 +180,23 @@ UI::position UI::MainWindow::_read_touch()
     return touch_data_ret;
 }
 
-bool UI::MainWindow::_check_in_display(const position &_pos) const
+bool FGUI::MainWindow::_check_in_display(const position &_pos) const
 {
     return _pos.x_pos <= this->display->getDisplayXSize() ||
            _pos.y_pos <= this->display->getDisplayYSize();
 }
 
-const UI::position &UI::MainWindow::_get_window_upper_left() const
+const FGUI::position &FGUI::MainWindow::_get_window_upper_left() const
 {
     return this->window_upper_left;
 }
 
-const UI::position &UI::MainWindow::_get_window_lower_right() const
+const FGUI::position &FGUI::MainWindow::_get_window_lower_right() const
 {
     return this->window_lower_right;
 }
 
-void UI::MainWindow::_wake_up()
+void FGUI::MainWindow::_wake_up()
 {
     if (this->in_sleep_mode)
     {
@@ -206,7 +206,7 @@ void UI::MainWindow::_wake_up()
     }
 }
 
-void UI::MainWindow::_send_sleep()
+void FGUI::MainWindow::_send_sleep()
 {
     if (!this->in_sleep_mode)
     {

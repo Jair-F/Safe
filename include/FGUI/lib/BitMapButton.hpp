@@ -2,7 +2,7 @@
 
 #include "ButtonBase.hpp"
 
-namespace UI
+namespace FGUI
 {
     template <typename CALL_OBJECT_TYPE>
     class BitMapButton : public ButtonBase<CALL_OBJECT_TYPE>
@@ -33,10 +33,10 @@ namespace UI
 
         uint8_t border_to_bitmap_gap; // in pixels
     };
-} // namespace UI
+} // namespace FGUI
 
 template <typename CALL_OBJECT_TYPE>
-void UI::BitMapButton<CALL_OBJECT_TYPE>::_draw_released_content()
+void FGUI::BitMapButton<CALL_OBJECT_TYPE>::_draw_released_content()
 {
     /*
         if we subtract the border_weight and the gap between the bitmap and the border we get the bitmap size...
@@ -51,7 +51,7 @@ void UI::BitMapButton<CALL_OBJECT_TYPE>::_draw_released_content()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::BitMapButton<CALL_OBJECT_TYPE>::_draw_touched_content()
+void FGUI::BitMapButton<CALL_OBJECT_TYPE>::_draw_touched_content()
 {
     /*
         if we subtract the border_weight and the gap between the bitmap and the border we get the bitmap size...

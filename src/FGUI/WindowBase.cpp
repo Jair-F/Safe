@@ -1,14 +1,14 @@
 #include "FGUI/FGUI.hpp"
 
-UI::WindowBase::WindowBase(const position &_upper_left, const position &_lower_right,
-                           uint8_t _border_weight) : upper_left(_upper_left), lower_right(_lower_right),
-                                                     border_weight(_border_weight), border_color(VGA_WHITE),
-                                                     registered_widgets(), active_pop_up_window(nullptr),
-                                                     last_focused_widget(nullptr)
+FGUI::WindowBase::WindowBase(const position &_upper_left, const position &_lower_right,
+                             uint8_t _border_weight) : upper_left(_upper_left), lower_right(_lower_right),
+                                                       border_weight(_border_weight), border_color(VGA_WHITE),
+                                                       registered_widgets(), active_pop_up_window(nullptr),
+                                                       last_focused_widget(nullptr)
 {
 }
 
-UI::position UI::WindowBase::_calc_absolute_pos(const position &_pos) const
+FGUI::position FGUI::WindowBase::_calc_absolute_pos(const position &_pos) const
 {
     position ret_pos = this->get_content_upper_left();
     ret_pos.x_pos += _pos.x_pos;
@@ -31,12 +31,12 @@ UI::position UI::WindowBase::_calc_absolute_pos(const position &_pos) const
     return ret_pos;
 }
 
-void UI::WindowBase::_register_widget(Widget *_widget)
+void FGUI::WindowBase::_register_widget(Widget *_widget)
 {
     this->registered_widgets.push_back(_widget);
 }
 
-bool UI::WindowBase::_unregister_widget(Widget *_widget)
+bool FGUI::WindowBase::_unregister_widget(Widget *_widget)
 {
     bool found_match = false; // found a matching widget to remove in the list
 
@@ -53,7 +53,7 @@ bool UI::WindowBase::_unregister_widget(Widget *_widget)
     return found_match;
 }
 
-UI::Widget *UI::WindowBase::handle_touch_clicked(const position &_touch_data)
+FGUI::Widget *FGUI::WindowBase::handle_touch_clicked(const position &_touch_data)
 {
     if (this->active_pop_up_window != nullptr)
     {
@@ -81,7 +81,7 @@ UI::Widget *UI::WindowBase::handle_touch_clicked(const position &_touch_data)
     }
 }
 
-void UI::WindowBase::handle_touch_released(const position &_touch_data)
+void FGUI::WindowBase::handle_touch_released(const position &_touch_data)
 {
     if (this->active_pop_up_window != nullptr)
     {
@@ -130,7 +130,7 @@ void UI::WindowBase::handle_touch_released(const position &_touch_data)
     }
 }
 
-void UI::WindowBase::show_pop_up_window(PopUp_Window *_pop_up_window)
+void FGUI::WindowBase::show_pop_up_window(PopUp_Window *_pop_up_window)
 {
     if (this->active_pop_up_window != nullptr)
     {
@@ -140,7 +140,7 @@ void UI::WindowBase::show_pop_up_window(PopUp_Window *_pop_up_window)
     this->active_pop_up_window->show();
 }
 
-void UI::WindowBase::hide_pop_up_window()
+void FGUI::WindowBase::hide_pop_up_window()
 {
     this->active_pop_up_window->hide();
     this->active_pop_up_window = nullptr;
@@ -148,7 +148,7 @@ void UI::WindowBase::hide_pop_up_window()
     this->_redraw_window(); // redraw the parent window
 }
 
-void UI::WindowBase::show()
+void FGUI::WindowBase::show()
 {
     // no pop_up window is shown actually
     if (this->active_pop_up_window == nullptr)
@@ -168,7 +168,7 @@ void UI::WindowBase::show()
         this->active_pop_up_window->show();
     }
 }
-void UI::WindowBase::hide()
+void FGUI::WindowBase::hide()
 {
     auto iterator = this->registered_widgets.begin();
     while (iterator != this->registered_widgets.end())
@@ -178,25 +178,25 @@ void UI::WindowBase::hide()
     }
 }
 
-const UI::position &UI::WindowBase::_get_lower_right_pos() const
+const FGUI::position &FGUI::WindowBase::_get_lower_right_pos() const
 {
     return this->lower_right;
 }
-const UI::position &UI::WindowBase::_get_upper_left_pos() const
+const FGUI::position &FGUI::WindowBase::_get_upper_left_pos() const
 {
     return this->upper_left;
 }
-const UI::position &UI::WindowBase::pos() const
+const FGUI::position &FGUI::WindowBase::pos() const
 {
     return this->upper_left;
 }
 
-void UI::WindowBase::_redraw_window()
+void FGUI::WindowBase::_redraw_window()
 {
     this->show();
 }
 
-void UI::WindowBase::loop()
+void FGUI::WindowBase::loop()
 {
     if (this->active_pop_up_window == nullptr) // if there is actually no pop up window on the current window - call the widget loop
     {
@@ -216,7 +216,7 @@ void UI::WindowBase::loop()
     }
 }
 
-UI::position UI::WindowBase::get_content_upper_left() const
+FGUI::position FGUI::WindowBase::get_content_upper_left() const
 {
     if (this->get_draw_border())
     {
@@ -229,7 +229,7 @@ UI::position UI::WindowBase::get_content_upper_left() const
     }
 }
 
-UI::position UI::WindowBase::get_content_lower_right() const
+FGUI::position FGUI::WindowBase::get_content_lower_right() const
 {
     if (this->get_draw_border())
     {
@@ -242,7 +242,7 @@ UI::position UI::WindowBase::get_content_lower_right() const
     }
 }
 
-uint16_t UI::WindowBase::get_content_height() const
+uint16_t FGUI::WindowBase::get_content_height() const
 {
     if (this->get_draw_border())
     {
@@ -254,7 +254,7 @@ uint16_t UI::WindowBase::get_content_height() const
     }
 }
 
-uint16_t UI::WindowBase::get_content_width() const
+uint16_t FGUI::WindowBase::get_content_width() const
 {
     if (this->get_draw_border())
     {
@@ -266,7 +266,7 @@ uint16_t UI::WindowBase::get_content_width() const
     }
 }
 
-void UI::WindowBase::_draw_background()
+void FGUI::WindowBase::_draw_background()
 {
     UTFT *display = this->_get_display();
     position content_upper_left = this->get_content_upper_left();
@@ -277,7 +277,7 @@ void UI::WindowBase::_draw_background()
                       content_lower_right.x_pos, content_lower_right.y_pos);
 }
 
-void UI::WindowBase::_draw_border()
+void FGUI::WindowBase::_draw_border()
 {
     UTFT *display = this->_get_display();
 

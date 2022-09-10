@@ -1,7 +1,7 @@
 #pragma once
 #include "Widget.hpp"
 
-namespace UI
+namespace FGUI
 {
     /*
         Widget which can be touched for class member functions
@@ -111,7 +111,7 @@ namespace UI
 // ------------- template implementation -------------
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Touch_Widget<CALL_OBJECT_TYPE>::_touch(const position &_touch_data)
+void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_touch(const position &_touch_data)
 {
     if (!this->is_hidden())
     {
@@ -126,7 +126,7 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_touch(const position &_touch_data)
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Touch_Widget<CALL_OBJECT_TYPE>::_release(const position &_touch_data)
+void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_release(const position &_touch_data)
 {
     this->touched = false; // needs to be set first - the draw_widget draws the widget according to that
     this->_draw_widget();  // draw the widget according to the actual state
@@ -137,21 +137,21 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_release(const position &_touch_data)
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Touch_Widget<CALL_OBJECT_TYPE>::_reset_touch()
+void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_reset_touch()
 {
     this->touched = false;
     this->_draw_widget();
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Touch_Widget<CALL_OBJECT_TYPE>::_focus_lose()
+void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_focus_lose()
 {
     if (this->on_focus_lose != nullptr)
         (this->call_object->*this->on_focus_lose)(this);
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_touched_border()
+void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_touched_border()
 {
     this->display->setColor(this->touched_border_color);
     for (uint8_t i = 0; i < this->get_border_weight(); ++i)
@@ -161,7 +161,7 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_touched_border()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_touched_background()
+void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_touched_background()
 {
     position background_upper_left = this->get_content_upper_left();
     position background_lower_right = this->get_content_lower_right();
@@ -171,7 +171,7 @@ void UI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_touched_background()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_widget()
+void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {

@@ -10,7 +10,7 @@
 
 #include "Widget.hpp"
 
-namespace UI
+namespace FGUI
 {
     class MainWindow;
     class Widget;
@@ -50,4 +50,4 @@ namespace UI
         MainWindow *_main_window;
     };
 
-} // namespace UI
+} // namespace FGUI

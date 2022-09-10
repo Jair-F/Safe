@@ -5,7 +5,7 @@
 #include "Touch_Widget.hpp"
 #include "LinkedList.hpp"
 
-namespace UI
+namespace FGUI
 {
     template <typename CALL_OBJECT_TYPE>
     class SingleSelectionMenu : public Touch_Widget<CALL_OBJECT_TYPE>
@@ -56,22 +56,22 @@ namespace UI
 
         uint8_t *_text_font = SmallFont;
     };
-} // namespace UI
+} // namespace FGUI
 
 // Implementations
 
 template <typename CALL_OBJECT_TYPE>
-UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::SingleSelectionMenu(WindowBase *_parent, const position _upper_left,
-                                                               const position _lower_right, CALL_OBJECT_TYPE *_call_object,
-                                                               uint8_t _border_weight) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right,
-                                                                                                                        _call_object, _border_weight),
-                                                                                         entrys(), actual_entry(nullptr),
-                                                                                         scroll_back_keys(), scroll_forward_keys()
+FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::SingleSelectionMenu(WindowBase *_parent, const position _upper_left,
+                                                                 const position _lower_right, CALL_OBJECT_TYPE *_call_object,
+                                                                 uint8_t _border_weight) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right,
+                                                                                                                          _call_object, _border_weight),
+                                                                                           entrys(), actual_entry(nullptr),
+                                                                                           scroll_back_keys(), scroll_forward_keys()
 {
 }
 
 template <typename CALL_OBJECT_TYPE>
-UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::~SingleSelectionMenu()
+FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::~SingleSelectionMenu()
 {
     if (this->actual_entry != nullptr)
     {
@@ -81,31 +81,31 @@ UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::~SingleSelectionMenu()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_scroll_forward_key(char _key)
+void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_scroll_forward_key(char _key)
 {
     this->scroll_forward_keys.push_back(_key);
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_scroll_backward_key(char _key)
+void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_scroll_backward_key(char _key)
 {
     this->scroll_back_keys.push_back(_key);
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_entry(String &_entry)
+void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_entry(String &_entry)
 {
     this->entrys.push_back(_entry);
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_entry(const char *_entry)
+void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_entry(const char *_entry)
 {
     this->entrys.push_back(_entry);
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_entrys(uint8_t num_of_entrys, ...)
+void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_entrys(uint8_t num_of_entrys, ...)
 {
     va_list arguments;
     va_start(arguments, num_of_entrys);
@@ -120,14 +120,14 @@ void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_entrys(uint8_t num_of_entrys
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_focus_lose()
+void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_focus_lose()
 {
     Touch_Widget<CALL_OBJECT_TYPE>::_focus_lose();
     this->_draw_widget();
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::send_input(char _input_data)
+void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::send_input(char _input_data)
 {
     for (uint8_t i = 0; i < this->scroll_forward_keys.length(); ++i)
     {
@@ -181,7 +181,7 @@ void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::send_input(char _input_data)
 }
 
 template <typename CALL_OBJECT_TYPE>
-bool UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::set_selection(const char *_selection)
+bool FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::set_selection(const char *_selection)
 {
     DoublyListNodeIterator<String> iterator(this->entrys.front());
     while (iterator != this->entrys.end())
@@ -200,19 +200,19 @@ bool UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::set_selection(const char *_selec
 }
 
 template <typename CALL_OBJECT_TYPE>
-bool UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::set_selection(String &_selection)
+bool FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::set_selection(String &_selection)
 {
     return this->set_selection(_selection.c_str());
 }
 
 template <typename CALL_OBJECT_TYPE>
-const String &UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::get_selection() const
+const String &FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::get_selection() const
 {
     return this->actual_entry->data();
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_released_content()
+void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_released_content()
 {
     if (this->actual_entry != nullptr)
     {
@@ -235,7 +235,7 @@ void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_released_content()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_touched_content()
+void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_touched_content()
 {
     if (this->actual_entry != nullptr)
     {
@@ -258,7 +258,7 @@ void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_touched_content()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_widget()
+void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {

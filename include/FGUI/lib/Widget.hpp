@@ -5,7 +5,7 @@
 #include "position.hpp"
 #include "WindowBase.hpp"
 
-namespace UI
+namespace FGUI
 {
     class WindowBase;
 

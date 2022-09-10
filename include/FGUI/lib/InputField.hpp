@@ -3,7 +3,7 @@
 #include "Touch_Widget.hpp"
 #include "Window.hpp"
 
-namespace UI
+namespace FGUI
 {
     /*
         @param MAX_NUM_OF_CHARS maximum number of input-digits/chars/letters that the input_field can storage and will accept. If the user
@@ -88,14 +88,14 @@ namespace UI
 
         uint8_t _text_gap; // gap between the left border and the start of the text and the right border and the end of the text
     };
-} // namespace UI
+} // namespace FGUI
 
 // ------------- template implementation -------------
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left, const position _lower_right,
-                                                               CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right, _call_object),
-                                                                                                                            input_type(_input_type)
+FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left, const position _lower_right,
+                                                                 CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right, _call_object),
+                                                                                                                              input_type(_input_type)
 {
     assert(MAX_NUM_OF_CHARS > 0);
 
@@ -109,13 +109,13 @@ UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(Window *_parent, 
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
-                                                               IN_INPUT_TYPE _input_type) : InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _width, _upper_left.y_pos + _height}, _call_object, _input_type)
+FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
+                                                                 IN_INPUT_TYPE _input_type) : InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _width, _upper_left.y_pos + _height}, _call_object, _input_type)
 {
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_input(char _input_data)
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_input(char _input_data)
 {
     if (_input_data != this->INPUT_UNSET_VALUE) // INPUT_UNSET_VALUE is not allowed...
     {
@@ -136,7 +136,7 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_input(char _input_
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_backspace()
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_backspace()
 {
     // searching for the last set input-pos
     uint8_t i = 0;
@@ -157,14 +157,14 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_backspace()
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_enter()
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::send_enter()
 {
     if (this->on_enter != nullptr)
         (this->call_object->*on_enter)(this);
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::clear_input_buffer()
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::clear_input_buffer()
 {
     for (uint8_t i = 0; i < MAX_NUM_OF_CHARS; ++i)
     {
@@ -173,7 +173,7 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::clear_input_buffer()
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::set_input_buffer(const char *_input_data)
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::set_input_buffer(const char *_input_data)
 {
     size_t _input_data_length = strlen(_input_data);
 
@@ -191,20 +191,20 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::set_input_buffer(const 
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::set_input_buffer(String _input_buffer)
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::set_input_buffer(String _input_buffer)
 {
     this->set_input_buffer(_input_buffer.c_str());
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-bool UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::buffer_is_empty()
+bool FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::buffer_is_empty()
 {
     // we fill the buffer from pos-0 to ...
     return this->input_buffer[0] == this->INPUT_UNSET_VALUE;
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_released_content()
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_released_content()
 {
     // print the print the text in the InputField if there is text in the buffer
     if (!this->buffer_is_empty())
@@ -251,7 +251,7 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_released_content(
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_touched_content()
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_touched_content()
 {
     this->display->setFont(this->_text_font);
     uint8_t font_height = this->display->getFontYsize();
@@ -303,14 +303,14 @@ void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_touched_content()
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_focus_lose()
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_focus_lose()
 {
     Touch_Widget<CALL_OBJECT_TYPE>::_focus_lose();
     this->_draw_widget();
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void UI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_widget()
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {

@@ -7,7 +7,7 @@
 extern uint8_t SmallFont[];
 extern uint8_t BigFont[];
 
-namespace UI
+namespace FGUI
 {
     template <typename CALL_OBJECT_TYPE>
     class Button : public ButtonBase<CALL_OBJECT_TYPE>
@@ -53,7 +53,7 @@ namespace UI
 // ------------- template implementation -------------
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Button<CALL_OBJECT_TYPE>::_draw_touched_content()
+void FGUI::Button<CALL_OBJECT_TYPE>::_draw_touched_content()
 {
     this->display->setFont(this->_text_font);
     uint8_t font_height = this->display->getFontYsize();
@@ -68,7 +68,7 @@ void UI::Button<CALL_OBJECT_TYPE>::_draw_touched_content()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::Button<CALL_OBJECT_TYPE>::_draw_released_content()
+void FGUI::Button<CALL_OBJECT_TYPE>::_draw_released_content()
 {
     this->display->setFont(this->_text_font);
     uint8_t font_height = this->display->getFontYsize();

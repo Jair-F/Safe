@@ -2,7 +2,7 @@
 
 #include "ButtonBase.hpp"
 
-namespace UI
+namespace FGUI
 {
     template <typename CALL_OBJECT_TYPE>
     class CloseButton : public ButtonBase<CALL_OBJECT_TYPE>
@@ -32,10 +32,10 @@ namespace UI
 
     private:
     };
-} // namespace UI
+} // namespace FGUI
 
 template <typename CALL_OBJECT_TYPE>
-void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_released_content()
+void FGUI::CloseButton<CALL_OBJECT_TYPE>::_draw_released_content()
 {
     // draw the background color
     this->display->setColor(this->released_background_color);
@@ -56,7 +56,7 @@ void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_released_content()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_touched_content()
+void FGUI::CloseButton<CALL_OBJECT_TYPE>::_draw_touched_content()
 {
     // draw the background color
     this->display->setColor(this->touched_background_color);
@@ -77,7 +77,7 @@ void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_touched_content()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void UI::CloseButton<CALL_OBJECT_TYPE>::_draw_widget()
+void FGUI::CloseButton<CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {

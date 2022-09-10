@@ -3,7 +3,7 @@
 #include <LinkedList.hpp>
 #include <stdarg.h>
 
-namespace UI
+namespace FGUI
 {
     class Giff : public Widget
     {
@@ -53,4 +53,4 @@ namespace UI
 
         bool running = true; // true if the gif is running(not stopped), false if stopped(resume to continue running)
     };
-} // namespace UI
+} // namespace FGUI

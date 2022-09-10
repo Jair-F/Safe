@@ -1,23 +1,23 @@
 #include "FGUI/FGUI.hpp"
 
 /*
-UI::TextLabel::TextLabel(Window *_parent, const position _upper_left,
+FGUI::TextLabel::TextLabel(Window *_parent, const position _upper_left,
                          const position _lower_right, String _text = "") : Widget(_parent, _upper_left, _lower_right),
                                                                                text(_text)
 {
 }
 
-UI::TextLabel::TextLabel(Window *_parent, const position _upper_left,
+FGUI::TextLabel::TextLabel(Window *_parent, const position _upper_left,
                          unsigned int _width, unsigned int _height, String _text = "") : Widget(_parent, _upper_left, _width, _height),
                                                                                          text(_text)
 {
 }
 */
 
-UI::TextLabel::TextLabel(Window *_parent, const position _upper_left, uint16_t _width,
-                         String _text, uint8_t *_text_font) : Widget(_parent, _upper_left, {_width, _upper_left.y_pos + 1}),
-                                                              background_color(VGA_BLACK), text_color(VGA_WHITE), border_color(VGA_WHITE),
-                                                              text(_text), text_font(_text_font), text_align(text_alignment::AL_LEFT), draw_border(false)
+FGUI::TextLabel::TextLabel(Window *_parent, const position _upper_left, uint16_t _width,
+                           String _text, uint8_t *_text_font) : Widget(_parent, _upper_left, {_width, _upper_left.y_pos + 1}),
+                                                                background_color(VGA_BLACK), text_color(VGA_WHITE), border_color(VGA_WHITE),
+                                                                text(_text), text_font(_text_font), text_align(text_alignment::AL_LEFT), draw_border(false)
 {
     this->display->setFont(text_font);
     uint8_t font_height = this->display->getFontYsize();
@@ -29,7 +29,7 @@ UI::TextLabel::TextLabel(Window *_parent, const position _upper_left, uint16_t _
     this->_calc_widget();
 }
 
-void UI::TextLabel::_draw_widget()
+void FGUI::TextLabel::_draw_widget()
 {
     if (!this->is_hidden())
     {
@@ -106,7 +106,7 @@ void UI::TextLabel::_draw_widget()
     }
 }
 
-void UI::TextLabel::set_text(String _text)
+void FGUI::TextLabel::set_text(String _text)
 {
     this->text = _text;
     this->_clear_widget_space();
@@ -116,14 +116,14 @@ void UI::TextLabel::set_text(String _text)
     this->_draw_widget();
 }
 
-void UI::TextLabel::set_font(uint8_t *_font)
+void FGUI::TextLabel::set_font(uint8_t *_font)
 {
     this->text_font = _font;
     this->_calc_widget();
     this->_draw_widget();
 }
 
-void UI::TextLabel::_calc_widget()
+void FGUI::TextLabel::_calc_widget()
 {
     this->display->setFont(text_font);
     uint8_t font_height = this->display->getFontYsize();

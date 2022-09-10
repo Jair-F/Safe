@@ -1,7 +1,7 @@
 #pragma once
 #include "Widget.hpp"
 
-namespace UI
+namespace FGUI
 {
     class Divider : public Widget
     {

@@ -64,14 +64,14 @@ double l_func_b(double m, floating_position pos)
 };
 
 // calculate the intersection piont of 2 functions
-UI::position l_func_intersection(linerar_function func1, linerar_function func2)
+FGUI::position l_func_intersection(linerar_function func1, linerar_function func2)
 {
     if (func1.m == func2.m)
     {
         // error parallell functions dont have a common point!
     }
 
-    UI::position intersection_point = {0, 0};
+    FGUI::position intersection_point = {0, 0};
 
     // calculate the x_pos
     /*
@@ -106,7 +106,7 @@ UI::position l_func_intersection(linerar_function func1, linerar_function func2)
 
     the 4 positions are stored in the passed parameters
 */
-void calc_turned_rect(const UI::position &origin_pos, uint16_t width, uint16_t height, uint16_t *angle_alpha,
+void calc_turned_rect(const FGUI::position &origin_pos, uint16_t width, uint16_t height, uint16_t *angle_alpha,
                       floating_position *a_pos, floating_position *b_pos, floating_position *c_pos, floating_position *d_pos)
 {
     /*
@@ -276,7 +276,7 @@ void calc_turned_rect(const UI::position &origin_pos, uint16_t width, uint16_t h
     @param the height of the rectangle
     @param the angle the rectangle is rotated(from the center of the rectangle the angle between the X-Axis and the rect) in degrees (0-90)
 */
-void fill_rect(UTFT *display, UI::position origin_pos, uint16_t width, uint16_t height, uint16_t angle_alpha)
+void fill_rect(UTFT *display, FGUI::position origin_pos, uint16_t width, uint16_t height, uint16_t angle_alpha)
 {
     floating_position a_pos, b_pos, c_pos, d_pos; // the corner positions of the rectangle
     calc_turned_rect(origin_pos, width, height, &angle_alpha, &a_pos, &b_pos, &c_pos, &d_pos);

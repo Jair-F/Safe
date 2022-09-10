@@ -1,12 +1,12 @@
 #include "FGUI/FGUI.hpp"
 
-UI::ProgressBar::ProgressBar(WindowBase *_parent, position _upper_left,
-                             position _lower_right, uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _lower_right, _border_weight), progress(0)
+FGUI::ProgressBar::ProgressBar(WindowBase *_parent, position _upper_left,
+                               position _lower_right, uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _lower_right, _border_weight), progress(0)
 {
     this->released_background_color = this->parent_window->get_background_color();
 }
 
-void UI::ProgressBar::_draw_released_content()
+void FGUI::ProgressBar::_draw_released_content()
 {
     if (this->get_draw_border())
     {
@@ -29,7 +29,7 @@ void UI::ProgressBar::_draw_released_content()
     }
 }
 
-void UI::ProgressBar::set_progress(uint8_t _progress)
+void FGUI::ProgressBar::set_progress(uint8_t _progress)
 {
     _progress = _progress > 100 ? 100 : _progress; // ensure that _progress isnt more than 100
     this->progress = _progress;

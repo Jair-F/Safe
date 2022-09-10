@@ -9,7 +9,7 @@
 #include <URTouch.h>
 #include <UTFT.h>
 
-namespace UI
+namespace FGUI
 {
     class MainWindow;
     class PopUp_Window;
@@ -163,4 +163,4 @@ namespace UI
         */
         Widget *last_focused_widget;
     };
-} // namespace UI
+} // namespace FGUI

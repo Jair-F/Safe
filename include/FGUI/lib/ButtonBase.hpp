@@ -2,7 +2,7 @@
 
 #include "Touch_Widget.hpp"
 
-namespace UI
+namespace FGUI
 {
     template <typename CALL_OBJECT_TYPE>
     class ButtonBase : public Touch_Widget<CALL_OBJECT_TYPE>
@@ -25,7 +25,7 @@ namespace UI
 // ------------- template implementation -------------
 
 template <typename CALL_OBJECT_TYPE>
-void UI::ButtonBase<CALL_OBJECT_TYPE>::_draw_widget()
+void FGUI::ButtonBase<CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {

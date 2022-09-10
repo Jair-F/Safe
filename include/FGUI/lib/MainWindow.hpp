@@ -6,7 +6,7 @@
 #include "Window.hpp"
 #include "Widget.hpp"
 
-namespace UI
+namespace FGUI
 {
     class Window;
     class Widget;
@@ -131,4 +131,4 @@ namespace UI
         uint32_t last_interact_time_pt = 0;
         bool in_sleep_mode = false;
     };
-} // namespace UI
+} // namespace FGUI
