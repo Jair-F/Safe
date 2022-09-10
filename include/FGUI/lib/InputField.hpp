@@ -27,9 +27,9 @@ namespace FGUI
         */
         void (CALL_OBJECT_TYPE::*on_typing)(Touch_Widget<CALL_OBJECT_TYPE> *_widget, char *_input_buffer) = nullptr;
 
-        InputField(Window *_parent, const position _upper_left, const position _lower_right,
+        InputField(WindowBase *_parent, const position _upper_left, const position _lower_right,
                    CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type);
-        InputField(Window *_parent, const position _upper_left, uint16_t _width, uint16_t _height,
+        InputField(WindowBase *_parent, const position _upper_left, uint16_t _width, uint16_t _height,
                    CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type);
 
         virtual ~InputField() {}
@@ -66,7 +66,7 @@ namespace FGUI
         void _focus_lose() override;
 
     private:
-        char input_buffer[MAX_NUM_OF_CHARS];
+        char input_buffer[MAX_NUM_OF_CHARS + 1];
 
         IN_INPUT_TYPE input_type;
 
@@ -93,7 +93,7 @@ namespace FGUI
 // ------------- template implementation -------------
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left, const position _lower_right,
+FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(WindowBase *_parent, const position _upper_left, const position _lower_right,
                                                                  CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right, _call_object),
                                                                                                                               input_type(_input_type)
 {
@@ -106,10 +106,13 @@ FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(Window *_parent
     {
         this->input_buffer[i] = this->INPUT_UNSET_VALUE;
     }
+
+    // initialize the last value - we store one value more which indicates the end of the string with a '\0'
+    this->input_buffer[MAX_NUM_OF_CHARS] = INPUT_UNSET_VALUE;
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(Window *_parent, const position _upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
+FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(WindowBase *_parent, const position _upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
                                                                  IN_INPUT_TYPE _input_type) : InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _width, _upper_left.y_pos + _height}, _call_object, _input_type)
 {
 }
@@ -269,7 +272,7 @@ void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_touched_content
         uint8_t input_buffer_size = strlen(this->input_buffer);
 
         uint8_t space_for_text = (this->width() - this->_text_gap * 2); // in pixels
-        uint8_t num_of_chars_to_print = space_for_text / font_width;    // num of characters we can print in the widget
+        uint8_t num_of_chars_to_print = space_for_text / font_width;    // num of characters we have space for to print in the widget
 
         if (input_buffer_size < num_of_chars_to_print) // if the field isnt filled up entirely print out the text just like normal
         {
