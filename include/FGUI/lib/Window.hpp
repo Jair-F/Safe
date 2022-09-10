@@ -31,10 +31,10 @@ namespace FGUI
             @return true if the request was accepted else false
         */
         bool request_focus(Widget *_widget);
+        Widget *get_focused_widget() const;
 
         UTFT *_get_display() const;
         URTouch *_get_touch() const;
-        Widget *get_focused_widget() const;
         MainWindow *_get_main_window() const { return _main_window; }
 
 #define WINDOW_BACKGROUND_COLOR VGA_BLACK
