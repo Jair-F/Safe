@@ -16,24 +16,8 @@ namespace Clock
     class Clock : public RtcDS1302<WIRING_METHOD>
     {
     public:
-        Clock(WIRING_METHOD &wire) : wiring(wire), RtcDS1302<WIRING_METHOD>(wire)
-        {
-            this->start_clock();
-            if (this->lost_power())
-            {
-                // logger needs system-clock - systemclock cant log on failure...
-                // logger.log(F("SYSTEM_CLOCK: RTC-Module lost power - replace battary"), Log::log_level::L_WARNING);
-            }
-            // logger.log(F("Clock module startup"), Log::log_level::L_INFO);
-        }
-        Clock(unsigned short data, unsigned short clk, unsigned short rst) : wiring(data, clk, rst), RtcDS1302<WIRING_METHOD>(wiring)
-        {
-            this->start_clock();
-            if (this->GetIsRunning())
-            {
-                this->SetIsRunning(true);
-            }
-        }
+        Clock(WIRING_METHOD &wire);
+        Clock(unsigned short data, unsigned short clk, unsigned short rst);
 
         /*
             @return true if the clock lost power
@@ -43,20 +27,7 @@ namespace Clock
         virtual ~Clock() {}
 
     protected:
-        void start_clock()
-        {
-            this->Begin();
-
-            if (this->GetIsWriteProtected())
-                this->SetIsWriteProtected(false);
-            if (!this->GetIsRunning())
-                this->SetIsRunning(true);
-
-            if (!this->IsDateTimeValid())
-            {
-                this->lostPower = true;
-            }
-        }
+        void start_clock();
 
     private:
         WIRING_METHOD wiring;
@@ -70,4 +41,38 @@ namespace Clock
 */
 #define SYSTEM_CLOCK_MEMORY_LENGTH 30
     String time_string(const RtcDateTime &tm);
+}
+
+// --------------------- Implementation ---------------------
+
+template <class WIRING_METHOD>
+Clock::Clock<WIRING_METHOD>::Clock(unsigned short data, unsigned short clk, unsigned short rst) : wiring(data, clk, rst), RtcDS1302<WIRING_METHOD>(wiring)
+{
+    this->start_clock();
+    if (this->GetIsRunning())
+    {
+        this->SetIsRunning(true);
+    }
+}
+
+template <class WIRING_METHOD>
+Clock::Clock<WIRING_METHOD>::Clock(WIRING_METHOD &wire) : wiring(wire), RtcDS1302<WIRING_METHOD>(wire)
+{
+    this->start_clock();
+}
+
+template <class WIRING_METHOD>
+void Clock::Clock<WIRING_METHOD>::start_clock()
+{
+    this->Begin();
+
+    if (this->GetIsWriteProtected())
+        this->SetIsWriteProtected(false);
+    if (!this->GetIsRunning())
+        this->SetIsRunning(true);
+
+    if (!this->IsDateTimeValid())
+    {
+        this->lostPower = true;
+    }
 }

@@ -126,8 +126,8 @@ void UI::TextLabel::set_font(uint8_t *_font)
 void UI::TextLabel::_calc_widget()
 {
     this->display->setFont(text_font);
-    uint16_t font_height = this->display->getFontYsize();
-    uint16_t font_width = this->display->getFontXsize();
+    uint8_t font_height = this->display->getFontYsize();
+    uint8_t font_width = this->display->getFontXsize();
 
     this->max_chars_in_line = (this->width() - 2 * this->text_gap_length) / font_width; // cut the digits after the comma - dont print half chars...
 
