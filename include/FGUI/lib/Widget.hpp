@@ -21,7 +21,11 @@ namespace FGUI
     class Widget
     {
     private:
-        bool hidden = true;
+        /*
+            if the window is currently hidden on which the widget is registerd on
+            it will be hidden. changes if the window gets shown and hidden
+        */
+        bool hidden = false;
 
         bool draw_border = true;
         uint8_t border_weight;
@@ -82,7 +86,7 @@ namespace FGUI
         inline uint16_t height() const { return lower_right.y_pos - upper_left.y_pos; }
 
         /*
-            resize the widget
+            resize the widget - only shift the lower_right pos
             the widget isnt update until the show_function is called again
         */
         void set_size(uint16_t _width, uint16_t _height);
@@ -153,14 +157,22 @@ namespace FGUI
         virtual void loop() {}
 
         /*
-            wrapper for redrawing the widget from outside
+            wrapper for redrawing or drawing the widget from outside
+            draw the widget if its not hidden
         */
-        void update_widget();
+        void draw();
+
+        /*
+            wrapper for clear_widget_space
+            clears the widget space with the parents background color if the widget isnt hidden
+        */
+        void clear();
 
         /*
             @return the upper left position
         */
         inline const position &pos() const { return upper_left; }
+        inline const position &get_lower_right_pos() const { return this->lower_right; }
 
         /*
             for sending click-signal
