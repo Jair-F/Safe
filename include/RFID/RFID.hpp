@@ -39,7 +39,9 @@ namespace RFID
             read for a tag id
             @return the tag id if a tag was present else an empty UID-object
         */
-        UID read_Tag_UID();
+        UID read_tag_UID();
+
+        bool tag_present();
 
         /*
             reads from the RFID_module for a tag and adds it to database at id id

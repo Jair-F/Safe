@@ -19,8 +19,11 @@
 #define PIN_R3 A10
 #define PIN_R4 A11
 #define PIN_C1 DAC0
+//#define PIN_C1 A12
 #define PIN_C2 DAC1
+//#define PIN_C2 A13
 #define PIN_C3 CANRX
+//#define PIN_C3 A14
 
 /*
 #define PIN_R1 A0

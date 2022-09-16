@@ -81,13 +81,20 @@ bool RFID::RFID::read_add_tag(unsigned short id)
         DEBUG_PRINTLN(F("id is out of range"));
         // throw an error
     }
-    UID tag_uid = this->read_Tag_UID();
+    UID tag_uid = this->read_tag_UID();
     if (tag_uid.is_set())
     {
         this->allowed_tags[id] = tag_uid;
         return true;
     }
     return false;
+}
+
+bool RFID::RFID::tag_present()
+{
+    uint8_t read_uid[MAX_UID_BLOCKS];
+    uint8_t uid_length = 0;
+    return this->rfid.readDetectedPassiveTargetID(read_uid, &uid_length);
 }
 
 void RFID::RFID::add_tag(unsigned short id, UID tag_uid)
@@ -159,7 +166,7 @@ int RFID::RFID::get_tag_id(UID tag_uid)
     return -1;
 }
 
-RFID::UID RFID::RFID::read_Tag_UID()
+RFID::UID RFID::RFID::read_tag_UID()
 {
     uint8_t read_uid[MAX_UID_BLOCKS];
     uint8_t uid_length = 0;
