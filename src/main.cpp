@@ -49,14 +49,14 @@ URTouch myTouch(6, 5, 4, 3, 2);
 
 #define DISPLAY_ORIENTATION LANDSCAPE
 
-#include "FGUI/lock_screen.hpp"
-#include "FGUI/rfid_settings_window.hpp"
+#include "UI/lock_screen.hpp"
+#include "UI/RFID_Settings.hpp"
 
-UI::MainWindow m_window(&myGLCD, &myTouch, {0, 0}, {320 - 1, 240 - 1}); // "{320 - 1, 240 - 1}" --> we begin to count the pixels at 0,0
+FGUI::MainWindow m_window(&myGLCD, &myTouch, {0, 0}, {320 - 1, 240 - 1}); // "{320 - 1, 240 - 1}" --> we begin to count the pixels at 0,0
 lock_screen *l_screen;
 RFID_settings_window *rfid_settings_wnd;
 
-key_board::key_board<UI::MainWindow> k_pad(&m_window);
+key_board::key_board<FGUI::MainWindow> k_pad(&m_window);
 // Adafruit_Keypad keypad(makeKeymap(key_board::KEYS), key_board::ROW_PINS, key_board::COLUMN_PINS, ROWS, COLUMNS);
 
 extern const unsigned short settings_white[];
@@ -167,9 +167,9 @@ void setup()
     // fase.begin();
     logger.log(F("Everything initialized"), Log::log_level::L_DEBUG);
 
-    k_pad.on_input = &UI::MainWindow::send_input;
-    k_pad.on_enter = &UI::MainWindow::send_enter;
-    k_pad.on_backspace = &UI::MainWindow::send_backspace;
+    k_pad.on_input = &FGUI::MainWindow::send_input;
+    k_pad.on_enter = &FGUI::MainWindow::send_enter;
+    k_pad.on_backspace = &FGUI::MainWindow::send_backspace;
 
     Serial.println(myGLCD.getDisplayXSize());
     Serial.println(myGLCD.getDisplayYSize());
@@ -362,10 +362,4 @@ void loop()
         Serial.println(key);
     }
     */
-}
-
-void RFID_settings_window::_go_home(UI::Touch_Widget<RFID_settings_window> *_widget)
-{
-    // switch to home window
-    this->_get_main_window()->set_active_window(l_screen);
 }

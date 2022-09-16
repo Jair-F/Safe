@@ -1,5 +1,5 @@
 #include "UI/lock_screen.hpp"
-#include "UI/rfid_settings_window.hpp"
+#include "UI/RFID_Settings.hpp"
 
 extern const unsigned short settings_white[];
 extern const unsigned short back_sign_white[];
@@ -20,9 +20,9 @@ lock_screen::lock_screen(FGUI::MainWindow *_main_window) : FGUI::Window(_main_wi
                                                            input_field(this, {150, 150}, 60, 35, this, FGUI::InputField<20, lock_screen>::IN_INPUT_TYPE::IN_TEXT),
                                                            pop_up_window(this, 150, 100, 3),
                                                            status_bar(this, {0, this->_get_display()->getDisplayYSize() - 35}, this->_get_display()->getDisplayXSize() - 110, "ERROR"),
-                                                           b_button(this, {160, 32}, 30, 30, this, white_repicthousebase_1484336388, white_repicthousebase_1484336388, 5, 10),
+                                                           b_button(this, {160, 32}, 30, 30, this, white_repicthousebase_1484336388, white_repicthousebase_1484336388, white_repicthousebase_1484336388, 5, 10),
                                                            div(this, {5, 100}, 50, 4, FGUI::Divider::d_alignment::AL_VERTICAL, VGA_WHITE),
-                                                           progressBar(this, {80, 100}, {290, 115}, 1),
+                                                           progressBar(this, {80, 100}, {290, 115}, 2),
                                                            u_giff(this, {225, 125}, 50, 50, 3, 2, 1000, 2, settings_white, settings_black),
                                                            p_button(&pop_up_window, {10, 20}, {100, 45}, this),
                                                            selction_menu(this, {225, 50}, {291, 72}, this)
@@ -44,7 +44,7 @@ lock_screen::lock_screen(FGUI::MainWindow *_main_window) : FGUI::Window(_main_wi
     _button2.setText("Restart");
 
     ch_box.on_release = &lock_screen::_handle_check_box;
-    ch_box.check_sign_color = VGA_WHITE;
+    ch_box.normal_check_sign_color = VGA_WHITE;
     ch_box.released_background_color = VGA_GREEN;
     ch_box.touched_background_color = VGA_GREEN;
     ch_box.released_border_color = VGA_AQUA;
@@ -77,8 +77,6 @@ lock_screen::lock_screen(FGUI::MainWindow *_main_window) : FGUI::Window(_main_wi
     b_button.on_release = &lock_screen::button_print_clicked;
     b_button.touched_border_color = VGA_GREEN;
     b_button.set_draw_border(true);
-
-    progressBar.set_border_weight(2);
 
     div.set_draw_border(true);
     div.set_border_weight(2);
@@ -163,6 +161,25 @@ void lock_screen::_handle_check_box(FGUI::Touch_Widget<lock_screen> *_widget)
     {
         this->u_giff.stop();
     }
+
+    if (!this->ch_box.is_checked())
+    {
+        this->input_field.set_disabled(true);
+        this->b_button.set_disabled(true);
+        this->_button.set_disabled(true);
+        this->selction_menu.set_disabled(true);
+
+        this->status_bar.set_disabled(true);
+    }
+    else
+    {
+        this->input_field.set_disabled(false);
+        this->b_button.set_disabled(false);
+        this->_button.set_disabled(false);
+        this->selction_menu.set_disabled(false);
+
+        this->status_bar.set_disabled(false);
+    }
 }
 
 void lock_screen::restart_system(FGUI::Touch_Widget<lock_screen> *_widget)
@@ -174,7 +191,7 @@ void lock_screen::restart_system(FGUI::Touch_Widget<lock_screen> *_widget)
 void lock_screen::update_window_label(FGUI::Touch_Widget<lock_screen> *_widget)
 {
     this->text_feld.set_text(this->input_field.get_input_buffer());
-    this->text_feld.update_widget();
+    this->text_feld.draw();
 
     String tmp = this->input_field.get_input_buffer();
     this->u_giff.set_bitmap_change_speed(tmp.toInt() * 10);
