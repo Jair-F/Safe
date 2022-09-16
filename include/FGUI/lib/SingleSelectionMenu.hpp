@@ -38,10 +38,13 @@ namespace FGUI
         void set_font(uint8_t *_font) { this->_text_font = _font; }
         uint8_t *get_font() { return this->_text_font; }
 
+        unsigned int touched_text_color = VGA_BLACK;
+        unsigned int released_text_color = VGA_WHITE;
+        unsigned int disabled_text_color = VGA_GRAY;
+
     protected:
         void _draw_widget() override;
-        void _draw_released_content() override;
-        void _draw_touched_content() override;
+        void _draw_content(Widget::w_status _st) override;
         void _focus_lose() override;
 
     private:
@@ -50,9 +53,6 @@ namespace FGUI
 
         SinglyLinkedList<char> scroll_back_keys;    // scroll to previous selection
         SinglyLinkedList<char> scroll_forward_keys; // scroll to next selection
-
-        unsigned int touched_text_color = VGA_BLACK;
-        unsigned int released_text_color = VGA_WHITE;
 
         uint8_t *_text_font = SmallFont;
     };
@@ -214,31 +214,39 @@ const String &FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::get_selection() const
 }
 
 template <typename CALL_OBJECT_TYPE>
-void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_released_content()
+void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
 {
-    if (this->actual_entry != nullptr)
+    unsigned int *background_color = nullptr,
+                 *text_color = nullptr;
+
+    switch (_st)
     {
-        this->display->setFont(this->_text_font);
-        uint8_t font_height = this->display->getFontYsize();
-        uint8_t font_width = this->display->getFontXsize();
-
-        uint16_t text_pixel_length = this->actual_entry->data().length() * font_width;
-
-        uint16_t absolute_text_starting_x_pos = this->pos().x_pos +
-                                                this->width() / 2 - text_pixel_length / 2;
-        uint16_t absolute_text_starting_y_pos = this->pos().y_pos +
-                                                this->height() / 2 - font_height / 2; // the upper begin_pos of the text
-
-        this->display->setBackColor(this->released_background_color);
-        this->display->setColor(this->released_text_color);
-        this->display->print(this->actual_entry->data(), absolute_text_starting_x_pos,
-                             absolute_text_starting_y_pos);
+    case Widget::w_status::S_DISABLED:
+    {
+        background_color = &this->disabled_background_color;
+        text_color = &this->disabled_text_color;
+        break;
     }
-}
+    case Widget::w_status::S_TOUCHED:
+    {
+        background_color = &this->touched_background_color;
+        text_color = &this->touched_text_color;
+        break;
+    }
+    case Widget::w_status::S_RELEASED:
+    {
+        background_color = &this->released_background_color;
+        text_color = &this->released_text_color;
+        break;
+    }
+    default:
+    {
+        background_color = &this->released_background_color;
+        text_color = &this->released_text_color;
+        break;
+    }
+    }
 
-template <typename CALL_OBJECT_TYPE>
-void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_touched_content()
-{
     if (this->actual_entry != nullptr)
     {
         this->display->setFont(this->_text_font);
@@ -252,8 +260,8 @@ void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_touched_content()
         uint16_t absolute_text_starting_y_pos = this->pos().y_pos +
                                                 this->height() / 2 - font_height / 2; // the upper begin_pos of the text
 
-        this->display->setBackColor(this->touched_background_color);
-        this->display->setColor(this->touched_text_color);
+        this->display->setBackColor(*background_color);
+        this->display->setColor(*text_color);
         this->display->print(this->actual_entry->data(), absolute_text_starting_x_pos,
                              absolute_text_starting_y_pos);
     }
@@ -264,23 +272,32 @@ void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {
-        if (this->is_focused() || this->is_touched())
+        if (this->is_disabled())
         {
             if (this->get_draw_border())
             {
-                this->_draw_touched_border();
+                this->_draw_border(Widget::w_status::S_DISABLED);
             }
-            this->_draw_touched_background();
-            this->_draw_touched_content();
+            this->_draw_background(Widget::w_status::S_DISABLED);
+            this->_draw_content(Widget::w_status::S_DISABLED);
+        }
+        else if (this->is_focused() || this->is_touched())
+        {
+            if (this->get_draw_border())
+            {
+                this->_draw_border(Widget::w_status::S_TOUCHED);
+            }
+            this->_draw_background(Widget::w_status::S_TOUCHED);
+            this->_draw_content(Widget::w_status::S_TOUCHED);
         }
         else
         {
             if (this->get_draw_border())
             {
-                this->_draw_released_border();
+                this->_draw_border(Widget::w_status::S_RELEASED);
             }
-            this->_draw_released_background();
-            this->_draw_released_content();
+            this->_draw_background(Widget::w_status::S_RELEASED);
+            this->_draw_content(Widget::w_status::S_RELEASED);
         }
     }
 }

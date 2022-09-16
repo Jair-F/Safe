@@ -42,10 +42,10 @@ namespace FGUI
         */
         unsigned int released_text_color = VGA_WHITE;
         unsigned int touched_text_color = VGA_BLACK;
+        unsigned int disabled_text_color = VGA_GRAY;
 
     protected:
-        virtual void _draw_released_content() override;
-        virtual void _draw_touched_content() override;
+        void _draw_content(Widget::w_status _st) override;
 
     private:
         String text;
@@ -57,31 +57,38 @@ namespace FGUI
 // ------------- template implementation -------------
 
 template <typename CALL_OBJECT_TYPE>
-void FGUI::Button<CALL_OBJECT_TYPE>::_draw_touched_content()
+void FGUI::Button<CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
 {
+    switch (_st)
+    {
+    case Widget::w_status::S_DISABLED:
+    {
+        this->display->setColor(this->disabled_text_color);
+        this->display->setBackColor(this->disabled_background_color);
+        break;
+    }
+    case Widget::w_status::S_TOUCHED:
+    {
+        this->display->setColor(this->touched_text_color);
+        this->display->setBackColor(this->touched_background_color);
+        break;
+    }
+    case Widget::w_status::S_RELEASED:
+    {
+        this->display->setColor(this->released_text_color);
+        this->display->setBackColor(this->released_background_color);
+        break;
+    }
+    default:
+        break;
+    }
+
     this->display->setFont(this->_text_font);
     uint8_t font_height = this->display->getFontYsize();
     uint8_t font_width = this->display->getFontXsize();
 
     // print the button-label
-    this->display->setBackColor(this->released_background_color);
-    this->display->setColor(this->touched_text_color);
-    this->display->setBackColor(this->touched_background_color);
+
     this->display->print(this->text, this->upper_left.x_pos + (this->width() / 2) - (font_width * text.length() / 2),
-                         this->lower_right.y_pos - (this->height() / 2) - font_height / 2);
-}
-
-template <typename CALL_OBJECT_TYPE>
-void FGUI::Button<CALL_OBJECT_TYPE>::_draw_released_content()
-{
-    this->display->setFont(this->_text_font);
-    uint8_t font_height = this->display->getFontYsize();
-    uint8_t font_width = this->display->getFontXsize();
-
-    // print the button-label
-    this->display->setBackColor(this->released_background_color);
-    this->display->setColor(this->released_text_color);
-    this->display->print(this->text,
-                         this->upper_left.x_pos + (this->width() / 2) - (font_width * text.length() / 2),
                          this->lower_right.y_pos - (this->height() / 2) - font_height / 2);
 }

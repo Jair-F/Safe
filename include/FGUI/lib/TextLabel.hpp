@@ -49,15 +49,13 @@ namespace FGUI
             the color values are RGB-565 values(16-bit value)
             RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
         */
-        unsigned int background_color;
-        unsigned int text_color;
-        unsigned int border_color;
+        unsigned int released_text_color = VGA_WHITE;
 
     protected:
         void _draw_widget() override;
 
         // those two are doing the same - call _draw_widget
-        void _draw_released_content() override { this->_draw_widget(); }
+        void _draw_content(Widget::w_status _st) override { this->_draw_widget(); }
 
         /*
             calculate the positions and text gaps according to the upper_left_pos, lower_right_pos,

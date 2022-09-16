@@ -30,42 +30,20 @@ namespace FGUI
         bool draw_border = true;
         uint8_t border_weight;
 
-    protected:
-        WindowBase *parent_window;
-
-        // getting the display pointers from the parent window in the constructor
-        URTouch *touch;
-        UTFT *display;
-
-        /*
-            absoloute positions on the display
-        */
-        position upper_left, lower_right;
-
-        /*
-            for touch_widgets we need released and pressed widget... on normal widget - which can not be touched
-            this function and the pressed widget are doing the same
-            border and background does the widget base class draw - this is the content
-        */
-        virtual void _draw_released_content() {}
-
-        /*
-            draws the widget on the screen - according to his actual status it calls _draw_released_widget or
-            _draw_touched_content
-        */
-        virtual void _draw_widget();
-
-        /*
-            hide the widget - clear the space where the widget is drawn
-            the widget space is always a rectangle
-            clear the space with the background color of the window in which the widget is registerd tos
-        */
-        virtual void _clear_widget_space();
-
-        virtual void _draw_released_border();
-        virtual void _draw_released_background();
-
     public:
+        /*
+            widget_status -
+            represents the posible status of the widget
+            is also used to pass the draw function which state of the widget should be drawn at touching,
+            disabled or released
+        */
+        enum w_status
+        {
+            S_RELEASED,
+            S_TOUCHED,
+            S_DISABLED
+        };
+
         /*
             @param _uppser_left_pos upper left corner in relation to the parent window zero point
         */
@@ -133,6 +111,15 @@ namespace FGUI
         */
         inline virtual bool is_focused() const { return false; };
         inline bool is_hidden() const { return this->hidden; }
+        virtual inline bool is_disabled() const { return false; }
+
+        /*
+            @param _disabled true if the widget should be disabled
+            the widget will be redrawn automatically with disabled colors
+            if a widget is disabled it cant be touched
+            only here to make it possible to be called on a touche widget - not available for this widget
+        */
+        virtual void set_disabled(bool _disabled) {}
 
         /*
             handle the input of the keyboard/keypad
@@ -217,5 +204,46 @@ namespace FGUI
         bool _check_pos(const position &_pos) const;
 
         inline WindowBase *_get_parent_window() const { return this->parent_window; }
+
+    protected:
+        WindowBase *parent_window;
+
+        // getting the display pointers from the parent window in the constructor
+        URTouch *touch;
+        UTFT *display;
+
+        /*
+            absoloute positions on the display
+        */
+        position upper_left, lower_right;
+
+        /*
+            @param _st whether to draw the status disabled, touched or released
+            draws the content of the widget according to the actual status of the widget - touched, released
+            or disabled...
+        */
+        virtual void _draw_content(w_status _st) {}
+
+        /*
+            draws the widget on the screen - according to his actual status it calls _draw_released_widget or
+            _draw_content or disabled
+        */
+        virtual void _draw_widget();
+
+        /*
+            hide the widget - clear the space where the widget is drawn
+            the widget space is always a rectangle
+            clear the space with the background color of the window in which the widget is registerd tos
+        */
+        virtual void _clear_widget_space();
+
+        /*
+            @param _st whether to draw the status disabled, touched or released
+        */
+        virtual void _draw_border(w_status _st);
+        /*
+            @param _st whether to draw the status disabled, touched or released
+        */
+        virtual void _draw_background(w_status _st);
     };
 }

@@ -77,7 +77,7 @@ namespace Fase
         StaticJsonDocument<1024> config;
 
         Fingerprint::Fingerprint fingerprint;
-        // RFID::RFID rfid;
+        RFID::RFID rfid;
         //   Log::Log log;
     };
 }
@@ -85,9 +85,9 @@ namespace Fase
 // ---------------- Implementations ----------------
 
 Fase::Fase::Fase() : /*_finger_print_serial(SERIAL_RECEIVE_PIN, SERIAL_TRANSMIT_PIN),*/ lock(this->lock_timer),
-                     fingerprint(&_finger_print_serial, &this->lock) /*,
- rfid(MFRC522_SS_PIN, MFRC522_RST_PIN, &this->lock)*/
-                                                                     //, log(Log::log_level::L_WARNING)
+                     fingerprint(&_finger_print_serial, &this->lock),
+                     rfid(A7, 2, &this->lock)
+//, log(Log::log_level::L_WARNING)
 {
     mode = Mode::NORMAL;
 }
@@ -97,9 +97,10 @@ Fase::Fase::~Fase() {}
 void Fase::Fase::begin()
 {
     this->fingerprint.begin();
-    this->fingerprint.LEDcontrol(FINGERPRINT_LED_ON, 2, FINGERPRINT_LED_RED, 2);
-    /*
+    this->fingerprint.LEDcontrol(FINGERPRINT_LED_BREATHING, 4000, FINGERPRINT_LED_PURPLE);
+
     this->rfid.begin();
+    /*
     for (unsigned short i = 0; i < RFID::NUM_OF_TAGS; ++i)
     {
         if (this->rfid.id_used(i)) // id is used
@@ -112,7 +113,7 @@ void Fase::Fase::begin()
         }
     }
     */
-    this->read_config();
+    // this->read_config();
 }
 
 void Fase::Fase::loop()
@@ -253,7 +254,7 @@ void Fase::Fase::loop()
     {
         Serial.println(F("Add tag"));
         RFID::UID tag_uid;
-        tag_uid = this->rfid.read_Tag_UID(false);
+        tag_uid = this->rfid.read_tag_UID(false);
         if (this->rfid.remove_tag(tag_uid))
         {
             Serial.println(F("Tag removed"));
@@ -305,7 +306,7 @@ break;
             if (read == F("help"))
             {
                 Serial.print(F("Commands: "));
-                Serial.println(F("$add_finger, $normal, $rfid_remove_tag, $rfid_add_tag, $rfid_empty_database, $finger_empty_database, $finger_wake_up, $finger_sleep, $remove_finger, $reset_config, $reset_time, $print_logger"));
+                Serial.println(F("$add_finger, allow_unlocking, $normal, $rfid_remove_tag, $rfid_add_tag, $rfid_empty_database, $finger_empty_database, $remove_finger, $reset_config, $reset_time, $print_logger"));
                 Serial.println();
             }
             else if (read == F("remove_finger"))
@@ -321,18 +322,14 @@ break;
             {
                 this->mode = Mode::FINGERPRINT_EMPTY_DATABASE;
             }
-            else if (read == F("finger_sleep"))
-            {
-                this->fingerprint.send_sleep();
-            }
-            else if (read == F("finger_wake_up"))
-            {
-                this->fingerprint.wake_up();
-            }
             else if (read == F("normal"))
             {
                 Serial.println(F("Setting mode to normal"));
                 this->mode = Mode::NORMAL;
+            }
+            else if (read = F("allow_unlocking"))
+            {
+                this->lock.allow_unlocking();
             }
             /*
             else if (read == F("rfid_add_tag"))
@@ -393,7 +390,7 @@ bool Fase::Fase::add_RFID_tag(unsigned short id, bool force_overwrite)
 
 bool Fase::Fase::delete_RFID_tag_by_scan()
 {
-    RFID::UID tag_uid = this->rfid.read_Tag_UID();
+    RFID::UID tag_uid = this->rfid.read_tag_UID();
     if (tag_uid) // no tag was read
     {
         return false;

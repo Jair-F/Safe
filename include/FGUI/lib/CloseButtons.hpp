@@ -23,11 +23,11 @@ namespace FGUI
         virtual ~CloseButton() {}
 
         unsigned int released_cross_color = VGA_RED;
-        unsigned int pressed_cross_color = VGA_BLACK;
+        unsigned int touched_cross_color = VGA_BLACK;
+        unsigned int disabled_cross_color = VGA_GRAY;
 
     protected:
-        void _draw_released_content() override;
-        void _draw_touched_content() override;
+        void _draw_content(Widget::w_status _st) override;
         void _draw_widget() override;
 
     private:
@@ -35,41 +35,56 @@ namespace FGUI
 } // namespace FGUI
 
 template <typename CALL_OBJECT_TYPE>
-void FGUI::CloseButton<CALL_OBJECT_TYPE>::_draw_released_content()
+void FGUI::CloseButton<CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
 {
+    unsigned int *background_color = nullptr,
+                 *border_color = nullptr,
+                 *cross_color = nullptr;
+
+    switch (_st)
+    {
+    case Widget::w_status::S_DISABLED:
+    {
+        background_color = &this->disabled_background_color;
+        border_color = &this->disabled_border_color;
+        cross_color = &this->disabled_cross_color;
+        break;
+    }
+    case Widget::w_status::S_TOUCHED:
+    {
+        background_color = &this->touched_background_color;
+        border_color = &this->touched_border_color;
+        cross_color = &this->touched_cross_color;
+        break;
+    }
+    case Widget::w_status::S_RELEASED:
+    {
+        background_color = &this->released_background_color;
+        border_color = &this->released_border_color;
+        cross_color = &this->released_cross_color;
+        break;
+    }
+    default:
+    {
+        background_color = &this->released_background_color;
+        border_color = &this->released_border_color;
+        cross_color = &this->released_cross_color;
+        break;
+    }
+    }
+
     // draw the background color
-    this->display->setColor(this->released_background_color);
+    this->display->setColor(*background_color);
     this->display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos,
                             this->lower_right.x_pos, this->lower_right.y_pos);
 
     // draw the border
-    this->display->setColor(this->released_border_color);
+    this->display->setColor(*border_color);
     this->display->drawRect(this->upper_left.x_pos, this->upper_left.y_pos,
                             this->lower_right.x_pos, this->lower_right.y_pos);
 
     // draw the X
-    this->display->setColor(this->released_cross_color);
-    this->display->drawLine(this->upper_left.x_pos + this->width() * 0.2, this->upper_left.y_pos + this->height() * 0.2,
-                            this->lower_right.x_pos - this->width() * 0.2, this->lower_right.y_pos - this->height() * 0.2);
-    this->display->drawLine(this->lower_right.x_pos - this->width() * 0.2, this->upper_left.y_pos + this->height() * 0.2,
-                            this->upper_left.x_pos + this->width() * 0.2, this->lower_right.y_pos - this->height() * 0.2);
-}
-
-template <typename CALL_OBJECT_TYPE>
-void FGUI::CloseButton<CALL_OBJECT_TYPE>::_draw_touched_content()
-{
-    // draw the background color
-    this->display->setColor(this->touched_background_color);
-    this->display->fillRect(this->upper_left.x_pos, this->upper_left.y_pos,
-                            this->lower_right.x_pos, this->lower_right.y_pos);
-
-    // draw the border
-    this->display->setColor(this->touched_border_color);
-    this->display->drawRect(this->upper_left.x_pos, this->upper_left.y_pos,
-                            this->lower_right.x_pos, this->lower_right.y_pos);
-
-    // draw the X
-    this->display->setColor(this->pressed_cross_color);
+    this->display->setColor(*cross_color);
     this->display->drawLine(this->upper_left.x_pos + this->width() * 0.2, this->upper_left.y_pos + this->height() * 0.2,
                             this->lower_right.x_pos - this->width() * 0.2, this->lower_right.y_pos - this->height() * 0.2);
     this->display->drawLine(this->lower_right.x_pos - this->width() * 0.2, this->upper_left.y_pos + this->height() * 0.2,
@@ -83,11 +98,11 @@ void FGUI::CloseButton<CALL_OBJECT_TYPE>::_draw_widget()
     {
         if (this->is_touched())
         {
-            this->_draw_touched_content();
+            this->_draw_content(Widget::w_status::S_TOUCHED);
         }
         else
         {
-            this->_draw_released_content();
+            this->_draw_content(Widget::w_status::S_RELEASED);
         }
     }
 }

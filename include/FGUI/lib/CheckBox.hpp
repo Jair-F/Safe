@@ -11,7 +11,7 @@ namespace FGUI
         /*
             @param _size height and width in pixels
         */
-        CheckBox(Window *_parent, position _upper_left, uint16_t _size, CALL_OBJECT_TYPE *_call_object);
+        CheckBox(WindowBase *_parent, position _upper_left, uint16_t _size, CALL_OBJECT_TYPE *_call_object);
 
         virtual ~CheckBox() {}
 
@@ -38,11 +38,12 @@ namespace FGUI
             the color values are RGB-565 values(16-bit value)
             RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
         */
-        unsigned int check_sign_color = VGA_WHITE;
+        unsigned int normal_check_sign_color = VGA_WHITE;
+        unsigned int disabled_check_sign_color = VGA_GRAY;
 
     protected:
         void _draw_widget() override;
-        void _draw_touched_content() override;
+        void _draw_content(Widget::w_status _st) override;
 
     private:
         bool checked; // true if the checkbox is checked, false if not
@@ -52,14 +53,37 @@ namespace FGUI
 // ------------- template implementation -------------
 
 template <typename CALL_OBJECT_TYPE>
-FGUI::CheckBox<CALL_OBJECT_TYPE>::CheckBox(Window *_parent, const position _upper_left,
+FGUI::CheckBox<CALL_OBJECT_TYPE>::CheckBox(WindowBase *_parent, const position _upper_left,
                                            uint16_t _size, CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _size, _size, _call_object), checked(false)
 {
 }
 
 template <typename CALL_OBJECT_TYPE>
-void FGUI::CheckBox<CALL_OBJECT_TYPE>::_draw_touched_content()
+void FGUI::CheckBox<CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
 {
+    switch (_st)
+    {
+    case Widget::w_status::S_DISABLED:
+    {
+        this->display->setColor(this->disabled_check_sign_color);
+        break;
+    }
+    case Widget::w_status::S_TOUCHED:
+    {
+        this->display->setColor(this->normal_check_sign_color);
+        break;
+    }
+    case Widget::w_status::S_RELEASED:
+    {
+        this->display->setColor(this->normal_check_sign_color);
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+
     uint8_t gap_from_box = round(this->width() * 0.035714); // the gap minimal between the box and the begin of the check mark
 
     // upper_left and lower_right of the widget - calculated border_weight out
@@ -72,8 +96,6 @@ void FGUI::CheckBox<CALL_OBJECT_TYPE>::_draw_touched_content()
 
     double content_height = content_lower_right.x_pos - content_upper_left.x_pos; // content width/height - square
     uint8_t check_sign_weight = round(content_height * 0.15);
-
-    this->display->setColor(this->check_sign_color);
 
     double small_check_length = content_height * 0.45195; // length of the small check sign
     double long_check_length = content_height * 1.03413;  // length of the long check sign
@@ -150,24 +172,34 @@ void FGUI::CheckBox<CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {
-        // change the state only on touch. otherwise it would change on touch to checked and on release return to not checked!
-        if (this->is_checked())
+        if (this->is_disabled())
         {
             if (this->get_draw_border())
             {
-                this->_draw_touched_border();
+                this->_draw_border(Widget::w_status::S_DISABLED);
             }
-            this->_draw_touched_background();
-            this->_draw_touched_content();
+            this->_draw_background(Widget::w_status::S_DISABLED);
+            if (this->is_checked())
+                this->_draw_content(Widget::w_status::S_DISABLED);
+        }
+        // change the state only on touch. otherwise it would change on touch to checked and on release return to not checked!
+        else if (this->is_checked())
+        {
+            if (this->get_draw_border())
+            {
+                this->_draw_border(Widget::w_status::S_TOUCHED);
+            }
+            this->_draw_background(Widget::w_status::S_TOUCHED);
+            this->_draw_content(Widget::w_status::S_TOUCHED);
         }
         else
         {
             if (this->get_draw_border())
             {
-                this->_draw_released_border();
+                this->_draw_border(Widget::w_status::S_RELEASED);
             }
-            this->_draw_released_background();
-            this->_draw_released_content();
+            this->_draw_background(Widget::w_status::S_RELEASED);
+            // this->_draw_content(Widget::w_status::S_RELEASED);
         }
     }
 }

@@ -137,15 +137,16 @@ void FGUI::Widget::_draw_widget()
     {
         if (this->get_draw_border())
         {
-            this->_draw_released_border();
+            this->_draw_border(w_status::S_RELEASED);
         }
-        this->_draw_released_background();
-        this->_draw_released_content();
+        this->_draw_background(w_status::S_RELEASED);
+        this->_draw_content(w_status::S_RELEASED);
     }
 }
 
-void FGUI::Widget::_draw_released_background()
+void FGUI::Widget::_draw_background(w_status _st)
 {
+    // we ignore the status here - not a touchable widget
     position background_upper_left = this->get_content_upper_left();
     position background_lower_right = this->get_content_lower_right();
 
@@ -153,8 +154,9 @@ void FGUI::Widget::_draw_released_background()
     this->display->fillRect(background_upper_left.x_pos, background_upper_left.y_pos, background_lower_right.x_pos, background_lower_right.y_pos);
 }
 
-void FGUI::Widget::_draw_released_border()
+void FGUI::Widget::_draw_border(w_status _st)
 {
+    // we ignore the status here - not a touchable widget
     this->display->setColor(this->released_border_color);
     for (uint8_t i = 0; i < this->border_weight; ++i)
     {

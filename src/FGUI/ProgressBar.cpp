@@ -6,13 +6,13 @@ FGUI::ProgressBar::ProgressBar(WindowBase *_parent, position _upper_left,
     this->released_background_color = this->parent_window->get_background_color();
 }
 
-void FGUI::ProgressBar::_draw_released_content()
+void FGUI::ProgressBar::_draw_content(Widget::w_status _st)
 {
     if (this->get_draw_border())
     {
-        this->_draw_released_border();
+        this->_draw_border(_st);
     }
-    this->_draw_released_background();
+    this->_draw_background(_st);
 
     if (this->progress > 0)
     {

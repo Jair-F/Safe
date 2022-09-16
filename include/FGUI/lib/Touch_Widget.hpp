@@ -12,16 +12,22 @@ namespace FGUI
     private:
         bool focused; // if the object has the focus - the last element that was clicked
         bool touched; // true if the widget is touched at the time - else false
+
+        /*
+            true if the widget is disabled.
+            disabled is actually only for touch widget - if they are disabled the cant be touched
+        */
+        bool disabled = false;
+
     protected:
         CALL_OBJECT_TYPE *call_object; // call object which the function pionter will be called with
 
-        virtual void _draw_touched_border();
-        virtual void _draw_touched_background();
+        virtual void _draw_border(Widget::w_status _st) override;
+        virtual void _draw_background(Widget::w_status _st) override;
         /*
             for touch_widgets we need released and pressed widget...
         */
-        virtual void _draw_touched_content() {}
-
+        virtual void _draw_content(Widget::w_status _st) {}
         void _draw_widget() override;
 
     public:
@@ -67,6 +73,9 @@ namespace FGUI
         unsigned int touched_background_color = VGA_WHITE;
         unsigned int touched_border_color = VGA_WHITE;
 
+        unsigned int disabled_background_color = VGA_BLACK;
+        unsigned int disabled_border_color = VGA_GRAY;
+
         /*
             function to be called if the widget is touched - on touch not bound to a status of the widget except of hidden status!
             it has to be a class member function - no static function
@@ -99,6 +108,14 @@ namespace FGUI
             if the element has focus it gets the input of the keypad - the last element that was touched
         */
         inline bool is_focused() const { return this->parent_window->get_focused_widget() == this; }
+
+        inline bool is_disabled() const override { return this->disabled; }
+        /*
+            @param _disabled true if the widget should be disabled
+            the widget will be redrawn automatically with disabled colors
+            if a widget is disabled it cant be touched
+        */
+        void set_disabled(bool _disabled) override;
 
         /*
             @return true if the widget is touched at the time, else false
@@ -151,9 +168,31 @@ void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_focus_lose()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_touched_border()
+void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_border(Widget::w_status _st)
 {
-    this->display->setColor(this->touched_border_color);
+    switch (_st)
+    {
+    case Widget::w_status::S_DISABLED:
+    {
+        this->display->setColor(this->disabled_border_color);
+        break;
+    }
+    case Widget::w_status::S_TOUCHED:
+    {
+        this->display->setColor(this->touched_border_color);
+        break;
+    }
+    case Widget::w_status::S_RELEASED:
+    {
+        this->display->setColor(this->released_border_color);
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+
     for (uint8_t i = 0; i < this->get_border_weight(); ++i)
     {
         this->display->drawRect(this->upper_left.x_pos + i, this->upper_left.y_pos + i, this->lower_right.x_pos - i, this->lower_right.y_pos - i);
@@ -161,12 +200,34 @@ void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_touched_border()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_touched_background()
+void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_background(Widget::w_status _st)
 {
     position background_upper_left = this->get_content_upper_left();
     position background_lower_right = this->get_content_lower_right();
 
-    this->display->setColor(this->touched_background_color);
+    switch (_st)
+    {
+    case Widget::w_status::S_DISABLED:
+    {
+        this->display->setColor(this->disabled_background_color);
+        break;
+    }
+    case Widget::w_status::S_TOUCHED:
+    {
+        this->display->setColor(this->touched_background_color);
+        break;
+    }
+    case Widget::w_status::S_RELEASED:
+    {
+        this->display->setColor(this->released_background_color);
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+
     this->display->fillRect(background_upper_left.x_pos, background_upper_left.y_pos, background_lower_right.x_pos, background_lower_right.y_pos);
 }
 
@@ -175,23 +236,42 @@ void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {
-        if (this->is_touched())
+        if (this->is_disabled())
         {
             if (this->get_draw_border())
             {
-                this->_draw_touched_border();
+                this->_draw_border(Widget::w_status::S_DISABLED);
             }
-            this->_draw_touched_background();
-            this->_draw_touched_content();
+            this->_draw_background(Widget::w_status::S_DISABLED);
+            this->_draw_content(Widget::w_status::S_DISABLED);
+        }
+        else if (this->is_touched())
+        {
+            if (this->get_draw_border())
+            {
+                this->_draw_border(Widget::w_status::S_TOUCHED);
+            }
+            this->_draw_background(Widget::w_status::S_TOUCHED);
+            this->_draw_content(Widget::w_status::S_TOUCHED);
         }
         else
         {
             if (this->get_draw_border())
             {
-                this->_draw_released_border();
+                this->_draw_border(Widget::w_status::S_RELEASED);
             }
-            this->_draw_released_background();
-            this->_draw_released_content();
+            this->_draw_background(Widget::w_status::S_RELEASED);
+            this->_draw_content(Widget::w_status::S_RELEASED);
         }
+    }
+}
+
+template <typename CALL_OBJECT_TYPE>
+void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::set_disabled(bool _disabled)
+{
+    if (_disabled != this->disabled)
+    {
+        this->disabled = _disabled;
+        this->_draw_widget();
     }
 }

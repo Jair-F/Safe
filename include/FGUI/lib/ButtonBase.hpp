@@ -14,32 +14,6 @@ namespace FGUI
         virtual ~ButtonBase() {}
 
     protected:
-        virtual void _draw_widget() override;
-        virtual void _draw_released_content() override {}
-        virtual void _draw_touched_content() override {}
-
     private:
     };
-}
-
-// ------------- template implementation -------------
-
-template <typename CALL_OBJECT_TYPE>
-void FGUI::ButtonBase<CALL_OBJECT_TYPE>::_draw_widget()
-{
-    if (!this->is_hidden())
-    {
-        if (this->is_touched())
-        {
-            this->_draw_touched_border();
-            this->_draw_touched_background();
-            this->_draw_touched_content();
-        }
-        else
-        {
-            this->_draw_released_border();
-            this->_draw_released_background();
-            this->_draw_released_content();
-        }
-    }
 }

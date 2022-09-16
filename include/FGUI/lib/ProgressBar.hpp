@@ -20,8 +20,8 @@ namespace FGUI
         unsigned int bar_color = VGA_GREEN;
 
     protected:
-        void _draw_released_content() override;
-        void _draw_widget() override { this->_draw_released_content(); }
+        void _draw_content(Widget::w_status _st) override;
+        void _draw_widget() override { this->_draw_content(Widget::w_status::S_RELEASED); }
 
     private:
         uint8_t progress;              // progress of the progress bar in precent(0-100)

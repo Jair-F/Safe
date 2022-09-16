@@ -17,7 +17,7 @@ FGUI::Giff::Giff(WindowBase *_parent, position _upper_left, uint16_t _bitmap_wid
     this->current_bitmap = this->bitmaps.begin();
 }
 
-void FGUI::Giff::_draw_released_content()
+void FGUI::Giff::_draw_content(Widget::w_status _st)
 {
     /*
         if we subtract the border_weight and the gap between the bitmap and the border we get the bitmap size...

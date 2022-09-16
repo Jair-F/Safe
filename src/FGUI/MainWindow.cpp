@@ -131,7 +131,7 @@ void FGUI::MainWindow::loop()
 
                 if (clicked_widget != nullptr)
                 {
-                    // delay(250);
+                    // loop here until touch is released
                     while (this->touch->dataAvailable())
                     {
                         position tmp = this->_read_touch();

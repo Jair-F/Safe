@@ -19,6 +19,16 @@ namespace FGUI
             IN_PASSWORD
         };
 
+        /*
+            the color values are RGB-565 values(16-bit value)
+            RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
+        */
+        unsigned int touched_text_color = VGA_BLACK;
+        unsigned int touched_cursor_color = VGA_BLACK;
+        unsigned int released_text_color = VGA_WHITE;
+
+        unsigned int disabled_text_color = VGA_GRAY;
+
         void (CALL_OBJECT_TYPE::*on_enter)(Touch_Widget<CALL_OBJECT_TYPE> *_widget) = nullptr;
 
         /*
@@ -56,12 +66,12 @@ namespace FGUI
         uint8_t *get_font() { return this->_text_font; }
 
     protected:
+        void _draw_touched_content();
+        void _draw_released_content();
+        void _draw_disabled_content();
+
         void _draw_widget() override;
-        void _draw_released_content() override;
-        /*
-            at this time this isnt when the widget is pressed. its when the widget is focused and ready for input - then we show the cursor
-        */
-        void _draw_touched_content() override;
+        void _draw_content(Widget::w_status _st) override;
 
         void _focus_lose() override;
 
@@ -75,14 +85,6 @@ namespace FGUI
             we can set it to '\0' to indicate that this element is not set
         */
         static constexpr char INPUT_UNSET_VALUE = '\0';
-
-        /*
-            the color values are RGB-565 values(16-bit value)
-            RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
-        */
-        unsigned int touched_text_color = VGA_BLACK;
-        unsigned int touched_cursor_color = VGA_BLACK;
-        unsigned int released_text_color = VGA_WHITE;
 
         uint8_t *_text_font = SmallFont;
 
@@ -207,6 +209,53 @@ bool FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::buffer_is_empty()
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_disabled_content()
+{
+    // print the print the text in the InputField if there is text in the buffer
+    if (!this->buffer_is_empty())
+    {
+        this->display->setFont(this->_text_font);
+        uint8_t font_height = this->display->getFontYsize();
+        uint8_t font_width = this->display->getFontXsize();
+
+        this->display->setBackColor(this->disabled_background_color);
+        this->display->setColor(this->disabled_text_color);
+
+        // calculate the num of chars to print in the field - in case there is more input than the widget ca display
+        uint8_t input_buffer_size = strlen(this->input_buffer);
+
+        uint8_t space_for_text = (this->width() - this->_text_gap * 2); // in pixels
+        uint8_t num_of_chars_to_print = space_for_text / font_width;    // num of characters we can print in the widget
+        String text_to_print;
+
+        if (input_buffer_size < num_of_chars_to_print) // if the field isnt filled up entirely print out the text just like normal
+        {
+            text_to_print = this->input_buffer;
+        }
+        else
+        {
+            for (int16_t i = num_of_chars_to_print; i > 0; --i)
+            {
+                text_to_print += this->input_buffer[input_buffer_size - i];
+            }
+        }
+
+        // if the input-field is a password-input-field display only *
+        if (this->input_type == IN_INPUT_TYPE::IN_PASSWORD)
+        {
+            for (uint8_t i = 0; i < text_to_print.length(); ++i)
+            {
+                text_to_print[i] = '*';
+            }
+        }
+
+        // center the text horizontally in the widget
+        this->display->print(text_to_print, this->upper_left.x_pos + this->_text_gap + this->get_border_weight(),
+                             this->upper_left.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
+    }
+}
+
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
 void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_released_content()
 {
     // print the print the text in the InputField if there is text in the buffer
@@ -232,7 +281,7 @@ void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_released_conten
         }
         else
         {
-            for (signed int i = num_of_chars_to_print; i > 0; --i)
+            for (int16_t i = num_of_chars_to_print; i > 0; --i)
             {
                 text_to_print += this->input_buffer[input_buffer_size - i];
             }
@@ -280,7 +329,7 @@ void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_touched_content
         }
         else
         {
-            for (signed int i = num_of_chars_to_print; i > 0; --i)
+            for (int16_t i = num_of_chars_to_print; i > 0; --i)
             {
                 text_to_print += this->input_buffer[input_buffer_size - i];
             }
@@ -306,6 +355,33 @@ void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_touched_content
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
+{
+    switch (_st)
+    {
+    case Widget::w_status::S_DISABLED:
+    {
+        this->_draw_disabled_content();
+        break;
+    }
+    case Widget::w_status::S_TOUCHED:
+    {
+        this->_draw_touched_content();
+        break;
+    }
+    case Widget::w_status::S_RELEASED:
+    {
+        this->_draw_released_content();
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+}
+
+template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
 void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_focus_lose()
 {
     Touch_Widget<CALL_OBJECT_TYPE>::_focus_lose();
@@ -317,23 +393,32 @@ void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {
-        if (this->is_touched() || this->is_focused())
+        if (this->is_disabled())
         {
             if (this->get_draw_border())
             {
-                this->_draw_touched_border();
+                this->_draw_border(Widget::w_status::S_DISABLED);
             }
-            this->_draw_touched_background();
-            this->_draw_touched_content();
+            this->_draw_background(Widget::w_status::S_DISABLED);
+            this->_draw_content(Widget::w_status::S_DISABLED);
+        }
+        else if (this->is_touched() || this->is_focused())
+        {
+            if (this->get_draw_border())
+            {
+                this->_draw_border(Widget::w_status::S_TOUCHED);
+            }
+            this->_draw_background(Widget::w_status::S_TOUCHED);
+            this->_draw_content(Widget::w_status::S_TOUCHED);
         }
         else
         {
             if (this->get_draw_border())
             {
-                this->_draw_released_border();
+                this->_draw_border(Widget::w_status::S_RELEASED);
             }
-            this->_draw_released_background();
-            this->_draw_released_content();
+            this->_draw_background(Widget::w_status::S_RELEASED);
+            this->_draw_content(Widget::w_status::S_RELEASED);
         }
     }
 }

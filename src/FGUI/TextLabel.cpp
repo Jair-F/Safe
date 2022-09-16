@@ -16,7 +16,6 @@ FGUI::TextLabel::TextLabel(Window *_parent, const position _upper_left,
 
 FGUI::TextLabel::TextLabel(WindowBase *_parent, const position _upper_left, uint16_t _width,
                            String _text, uint8_t *_text_font) : Widget(_parent, _upper_left, _width, _upper_left.y_pos + 2),
-                                                                background_color(VGA_BLACK), text_color(VGA_WHITE), border_color(VGA_WHITE),
                                                                 text(_text), text_font(_text_font), text_align(text_alignment::AL_LEFT), draw_border(false)
 {
     this->display->setFont(text_font);
@@ -35,13 +34,13 @@ void FGUI::TextLabel::_draw_widget()
     {
         if (this->get_draw_border())
         {
-            this->_draw_released_border();
+            this->_draw_border(Widget::w_status::S_RELEASED);
         }
-        this->_draw_released_background();
+        this->_draw_background(Widget::w_status::S_RELEASED);
 
         this->display->setFont(text_font);
-        this->display->setBackColor(this->background_color);
-        this->display->setColor(this->text_color);
+        this->display->setBackColor(this->released_background_color);
+        this->display->setColor(this->released_text_color);
 
         // this->_calc_widget();
 

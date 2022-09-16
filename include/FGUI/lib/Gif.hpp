@@ -41,7 +41,7 @@ namespace FGUI
         inline bool is_running() const { return this->running; }
 
     protected:
-        void _draw_released_content() override;
+        void _draw_content(Widget::w_status _st) override;
 
     private:
         uint8_t border_to_bitmap_gap;

@@ -50,7 +50,7 @@ FGUI::Widget *FGUI::WindowBase::handle_touch_clicked(const position &_touch_data
         auto widget_iterator = this->registered_widgets.begin();
         while (widget_iterator != this->registered_widgets.end())
         {
-            if (!widget_iterator->is_hidden())
+            if (!widget_iterator->is_hidden() && !widget_iterator->is_disabled())
             {
                 if (widget_iterator->_check_pos(_touch_data))
                 {
@@ -79,7 +79,7 @@ void FGUI::WindowBase::handle_touch_released(const position &_touch_data)
         bool touch_data_same_widget = false; /* if touch_data is on the same widget from the click*/
         while (widget_iterator != this->registered_widgets.end())
         {
-            if (!widget_iterator->is_hidden())
+            if (!widget_iterator->is_hidden() && !widget_iterator->is_disabled())
             {
                 // check if we have released on the same widget which we have touched on or if we touched on "whitespace"
                 if (widget_iterator->_check_pos(_touch_data) && last_focused_widget == widget_iterator.data())
@@ -98,20 +98,14 @@ void FGUI::WindowBase::handle_touch_released(const position &_touch_data)
         */
         if (touch_data_same_widget)
         {
-            if (!this->last_focused_widget->is_hidden())
-            {
-                // click was in the widget - not swiped out...
-                this->last_focused_widget->_release(_touch_data);
-            }
+            // click was in the widget - not swiped out...
+            this->last_focused_widget->_release(_touch_data);
         }
         else
         {
-            if (!this->last_focused_widget->is_hidden())
-            {
-                // widget was clicked but not released on this position
-                if (this->last_focused_widget != nullptr)
-                    this->last_focused_widget->_reset_touch();
-            }
+            // widget was clicked but not released on this position
+            if (this->last_focused_widget != nullptr)
+                this->last_focused_widget->_reset_touch();
         }
     }
 }
