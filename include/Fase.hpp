@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
-#include "GlobalVariables.hpp"
 #include "GlobalConstants.hpp"
 #include "Fingerprint.hpp"
 #include "RFID/RFID.hpp"
@@ -12,6 +11,9 @@
 #include "system_clock.hpp"
 #include "Helper.hpp"
 #include "logging/Log.hpp"
+
+extern Log::Log logger;
+extern Clock::Clock<ThreeWire> system_clock;
 
 namespace Fase
 {
@@ -67,24 +69,25 @@ namespace Fase
         const unsigned short lock_timer = 5; // timer in seconds the lock should lock again after its unlocked
 
 // !!!!!! Myserial is for Fingerprint-Sensor !!!!!!
-// SoftwareSerial mySerial;
-#define _finger_print_serial Serial1
+// SoftwareSerial _finger_print_serial;
+#define _finger_print_serial Serial3
 
         Mode mode;
-        Lock::Lock lock;
+        Lock lock;
         StaticJsonDocument<1024> config;
 
         Fingerprint::Fingerprint fingerprint;
         RFID::RFID rfid;
-        // Log::Log log;
+        //   Log::Log log;
     };
 }
 
 // ---------------- Implementations ----------------
 
-Fase::Fase::Fase() : /*mySerial(SERIAL_RECEIVE_PIN, SERIAL_TRANSMIT_PIN),*/ lock(this->lock_timer),
-                     fingerprint(&_finger_print_serial, this->lock.create_unlock_token()),
-                     rfid(MFRC522_SS_PIN, MFRC522_RST_PIN, lock.create_unlock_token()) //, log(Log::log_level::L_WARNING)
+Fase::Fase::Fase() : /*_finger_print_serial(SERIAL_RECEIVE_PIN, SERIAL_TRANSMIT_PIN),*/ lock(this->lock_timer),
+                     fingerprint(&_finger_print_serial, &this->lock),
+                     rfid(A7, 2, &this->lock)
+//, log(Log::log_level::L_WARNING)
 {
     mode = Mode::NORMAL;
 }
@@ -93,8 +96,11 @@ Fase::Fase::~Fase() {}
 
 void Fase::Fase::begin()
 {
-    this->rfid.begin();
     this->fingerprint.begin();
+    this->fingerprint.LEDcontrol(FINGERPRINT_LED_BREATHING, 4000, FINGERPRINT_LED_PURPLE);
+
+    this->rfid.begin();
+    /*
     for (unsigned short i = 0; i < RFID::NUM_OF_TAGS; ++i)
     {
         if (this->rfid.id_used(i)) // id is used
@@ -103,10 +109,11 @@ void Fase::Fase::begin()
             msg += i;
             msg += F(" is used: ");
             msg += rfid.get_tag_uid(i).to_string();
-            DEBUG_PRINT(msg)
+            DEBUG_PRINTLN(msg)
         }
     }
-    this->read_config();
+    */
+    // this->read_config();
 }
 
 void Fase::Fase::loop()
@@ -115,10 +122,7 @@ void Fase::Fase::loop()
     {
     case Mode::NORMAL:
     {
-        fingerprint.loop();
-        // rfid.loop();
 
-        // pin.loop();
         lock.loop();
         break;
     }
@@ -212,6 +216,7 @@ void Fase::Fase::loop()
         this->mode = Mode::NORMAL;
         break;
     }
+    /*
     case Mode::RFID_ROOT_SETTINGS:
     {
         break;
@@ -245,41 +250,42 @@ void Fase::Fase::loop()
         String input = Serial.readString();
         input.remove(input.length() - 1);
 
-        if (input == "1") /*remove with tag_scan*/
+        if (input == "1") //remove with tag_scan
+    {
+        Serial.println(F("Add tag"));
+        RFID::UID tag_uid;
+        tag_uid = this->rfid.read_tag_UID(false);
+        if (this->rfid.remove_tag(tag_uid))
         {
-            Serial.println(F("Add tag"));
-            RFID::UID tag_uid;
-            tag_uid = this->rfid.read_Tag_UID(false);
-            if (this->rfid.remove_tag(tag_uid))
-            {
-                Serial.println(F("Tag removed"));
-            }
-            else
-            {
-                Serial.println(F("tag was not in allowed_tags - didnt removed something..."));
-            }
+            Serial.println(F("Tag removed"));
         }
         else
         {
-            Serial.println(F("please enter id"));
-            while (!(Serial.available() > 0))
-                delay(100);
-            unsigned short tag_id = Serial.parseInt();
-            this->rfid.remove_tag(tag_id);
-            Serial.println(F("Tag removed"));
+            Serial.println(F("tag was not in allowed_tags - didnt removed something..."));
         }
-        save_config();
-        mode = Mode::NORMAL;
-        break;
     }
-    case Mode::RFID_EMPTY_DATABASE:
+    else
     {
-        this->rfid.clear_database();
-        Serial.println(F("cleared database"));
-        save_config();
-        mode = Mode::NORMAL;
-        break;
+        Serial.println(F("please enter id"));
+        while (!(Serial.available() > 0))
+            delay(100);
+        unsigned short tag_id = Serial.parseInt();
+        this->rfid.remove_tag(tag_id);
+        Serial.println(F("Tag removed"));
     }
+    save_config();
+    mode = Mode::NORMAL;
+    break;
+}
+case Mode::RFID_EMPTY_DATABASE:
+{
+this->rfid.clear_database();
+Serial.println(F("cleared database"));
+save_config();
+mode = Mode::NORMAL;
+break;
+}
+*/
     default:
     {
         break;
@@ -300,7 +306,7 @@ void Fase::Fase::loop()
             if (read == F("help"))
             {
                 Serial.print(F("Commands: "));
-                Serial.println(F("$add_finger, $normal, $rfid_remove_tag, $rfid_add_tag, $rfid_empty_database, $finger_empty_database, $remove_finger, $reset_config, $reset_time, $print_logger"));
+                Serial.println(F("$add_finger, allow_unlocking, $normal, $rfid_remove_tag, $rfid_add_tag, $rfid_empty_database, $finger_empty_database, $remove_finger, $reset_config, $reset_time, $print_logger"));
                 Serial.println();
             }
             else if (read == F("remove_finger"))
@@ -321,6 +327,11 @@ void Fase::Fase::loop()
                 Serial.println(F("Setting mode to normal"));
                 this->mode = Mode::NORMAL;
             }
+            else if (read = F("allow_unlocking"))
+            {
+                this->lock.allow_unlocking();
+            }
+            /*
             else if (read == F("rfid_add_tag"))
             {
                 Serial.println(F("Setting mode to add_rfid_tag"));
@@ -335,6 +346,7 @@ void Fase::Fase::loop()
                 Serial.println(F("Setting mode to empty_database"));
                 this->mode = Mode::RFID_EMPTY_DATABASE;
             }
+            */
             else if (read == F("reset_config"))
             {
                 reset_config();
@@ -363,6 +375,7 @@ void Fase::Fase::loop()
     }
 }
 
+/*
 bool Fase::Fase::add_RFID_tag(unsigned short id, bool force_overwrite)
 {
     if (!this->rfid.id_used(id) || force_overwrite)
@@ -377,14 +390,14 @@ bool Fase::Fase::add_RFID_tag(unsigned short id, bool force_overwrite)
 
 bool Fase::Fase::delete_RFID_tag_by_scan()
 {
-    RFID::UID tag_uid = this->rfid.read_Tag_UID();
+    RFID::UID tag_uid = this->rfid.read_tag_UID();
     if (tag_uid) // no tag was read
     {
         return false;
     }
     return this->rfid.remove_tag(tag_uid);
 }
-
+*/
 void Fase::Fase::add_fingerprint(unsigned short id)
 {
     uint8_t err_code = FINGERPRINT_NOFINGER;
@@ -477,6 +490,7 @@ void Fase::Fase::reset_config()
 
 void Fase::Fase::save_config()
 {
+    /*
     auto RFID_tags_ref = config[F("RFID")][F("RFID_tags")];
     // clearing all rfid_tags from the config
     RFID_tags_ref.clear();
@@ -496,6 +510,7 @@ void Fase::Fase::save_config()
         }
         DEBUG_PRINT(msg)
     }
+    */
 
     // printing tags to serial
     serializeJsonPretty(config, Serial);
@@ -509,7 +524,7 @@ void Fase::Fase::save_config()
         logger.log(err_msg, Log::log_level::L_ERROR);
     }
     // deleting the tags from the config - save memory
-    RFID_tags_ref.clear();
+    // RFID_tags_ref.clear();
 }
 
 void Fase::Fase::read_config()
@@ -551,6 +566,7 @@ void Fase::Fase::read_config()
     }
 
     // initializing RFID
+    /*
     if (config[F("RFID")][F("enabled")])
     {
         this->rfid.enable();
@@ -575,4 +591,5 @@ void Fase::Fase::read_config()
     }
     // deleting the tags from the config - save memory
     RFID_tags_ref.clear();
+    */
 }

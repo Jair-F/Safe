@@ -1,186 +1,46 @@
 #pragma once
-#include "UI.hpp"
-#include <UTFT.h>
+#include "FGUI/FGUI.hpp"
 
-// for button
-UI::position upper_left{20, 40};
-UI::position lower_right{130, 70};
-
-extern const unsigned short settings_white[];
-extern const unsigned short back_sign_white[];
-extern const unsigned short settings_black[];
-
-class lock_screen : public UI::Window
+class lock_screen : public FGUI::Window
 {
 public:
-    lock_screen(UI::MainWindow *_main_window) : UI::Window(_main_window),
-                                                _button(this, ::upper_left, ::lower_right, this),
-                                                _button2(this, {this->_get_display()->getDisplayXSize() - 100, this->_get_display()->getDisplayYSize() - 35}, {this->_get_display()->getDisplayXSize() - 1, this->_get_display()->getDisplayYSize() - 1}, this),
-                                                text_feld(this, {0, 0}, this->_get_display()->getDisplayXSize() - 1, "Window title"),
-                                                ch_box(this, {35, 140}, 30, this),
-                                                input_field(this, {150, 150}, 60, 35, this, UI::InputField<20, lock_screen>::IN_INPUT_TYPE::IN_TEXT),
-                                                pop_up_window(this, 150, 100),
-                                                status_bar(this, {0, this->_get_display()->getDisplayYSize() - 35}, this->_get_display()->getDisplayXSize() - 110, "ERROR"),
-                                                b_button(this, {160, 32}, 50, 50, this, settings_white, settings_white),
-                                                div(this, {5, 100}, 50, 4, UI::Divider::d_alignment::AL_VERTICAL, VGA_WHITE),
-                                                progressBar(this, {80, 100}, {290, 115}, 1),
-                                                u_giff(this, {225, 125}, 50, 50, 3, 2, 1000, 2, settings_white, settings_black)
-    {
-        u_giff.show();
-
-        text_feld.set_border(true);
-        text_feld.set_text_alignment(text_feld.AL_CENTER);
-        text_feld.set_font(SmallFont);
-        text_feld.set_border_weight(3);
-
-        _button.setText("Click mich");
-        _button.set_border_weight(3);
-        _button.touched_border_color = VGA_BLUE;
-        _button.touched_background_color = VGA_GREEN;
-        _button.on_touch = &this->button_print_clicked;
-        _button.on_release = &this->button_print_released;
-
-        _button2.on_release = &this->restart_system;
-        _button2.setText("Restart");
-
-        ch_box.on_release = &this->_handle_check_box;
-        ch_box.check_sign_color = VGA_WHITE;
-        ch_box.released_background_color = VGA_GREEN;
-        ch_box.touched_background_color = VGA_GREEN;
-        ch_box.released_border_color = VGA_AQUA;
-        ch_box.touched_border_color = VGA_RED;
-        ch_box.set_border_weight(3);
-        ch_box.set_checked(true);
-
-        input_field.set_input_buffer("123");
-        input_field.set_border_weight(4);
-        input_field.touched_background_color = VGA_RED;
-        input_field.on_enter = &this->update_window_label;
-        input_field.on_focus_lose = &this->update_window_label;
-        // Serial.println(this->_get_main_window()->request_focus(&input_field) == true ? "focus request successfull" : "focus request failed");
-
-        pop_up_window.set_background_color(VGA_GRAY);
-        pop_up_window.set_border_color(VGA_LIME);
-
-        status_bar.set_text("ERROR");
-        status_bar.set_text_alignment(UI::TextLabel::text_alignment::AL_CENTER);
-        status_bar.set_border(true);
-        status_bar.set_font(SmallFont);
-
-        b_button.on_release = &this->button_print_clicked;
-        b_button.touched_border_color = VGA_GREEN;
-        b_button.set_draw_border(true);
-        b_button.show();
-
-        progressBar.set_border_weight(2);
-
-        div.set_draw_border(true);
-        div.set_border_weight(2);
-        div.released_border_color = VGA_GREEN;
-
-        u_giff.released_background_color = VGA_GREEN;
-    }
+    lock_screen(FGUI::MainWindow *_main_window);
     virtual ~lock_screen() {}
-
-    void loop() override;
 
     friend void func();
 
 protected:
-    void update_status_bar(UI::Touch_Widget<lock_screen> *_widget)
-    {
-        this->status_bar.set_text(this->input_field.get_input_buffer());
-    }
+    void uncheck_check_box_pop_up(FGUI::Touch_Widget<lock_screen> *_widget);
+    void update_status_bar(FGUI::Touch_Widget<lock_screen> *_widget);
 
-    void button_print_clicked(UI::Touch_Widget<lock_screen> *_widget)
-    {
-        // Serial.println("Clicked button");
-        text_feld.set_text("button clicked");
-        this->div.hide();
-        if (this->div.height() < 50)
-        {
-            this->div.set_size(this->div.width(), this->div.height() + 10);
-        }
-        else
-        {
-            this->div.set_size(this->div.width(), this->div.height() - 10);
-        }
-        this->div.show();
+    void button_print_clicked(FGUI::Touch_Widget<lock_screen> *_widget);
 
-        String tmp = this->input_field.get_input_buffer();
-        uint8_t step = tmp.toInt();
-        if (this->progressBar.get_progress() >= 100)
-        {
-            this->progressBar.set_progress(0);
-        }
-        this->progressBar.set_progress(this->progressBar.get_progress() + step);
-    }
+    void button_print_released(FGUI::Touch_Widget<lock_screen> *_widget);
 
-    void button_print_released(UI::Touch_Widget<lock_screen> *_widget)
-    {
-        // UI::Button *but_ptr = static_cast<UI::Button *>(widget);
-        // Serial.println("Released button");
-        text_feld.set_text("button is released");
-        this->show_pop_up_window(&pop_up_window);
-    }
+    void _handle_check_box(FGUI::Touch_Widget<lock_screen> *_widget);
 
-    void _handle_check_box(UI::Touch_Widget<lock_screen> *_widget)
-    {
-        UI::CheckBox<lock_screen> *box = static_cast<UI::CheckBox<lock_screen> *>(_widget);
-        // Serial.println("Checkbox is released");
-        if (box->is_checked())
-        {
-            // Serial.println("Checkbox is checked");
-            this->status_bar.set_text(this->input_field.get_input_buffer());
-        }
-        else
-        {
-            // Serial.println("Checkbox isnt checked");
-            this->status_bar.set_text("Checkbox is released");
-        }
-        if (this->ch_box.is_checked())
-        {
-            this->u_giff.resume();
-        }
-        else
-        {
-            this->u_giff.stop();
-        }
-    }
+    void restart_system(FGUI::Touch_Widget<lock_screen> *_widget);
 
-    void restart_system(UI::Touch_Widget<lock_screen> *_widget)
-    {
-        void (*reset_func)() = 0;
-        reset_func();
-    }
+    void update_window_label(FGUI::Touch_Widget<lock_screen> *_widget);
 
-    void update_window_label(UI::Touch_Widget<lock_screen> *_widget)
-    {
-        this->text_feld.set_text(this->input_field.get_input_buffer());
-        this->text_feld.update_widget();
-
-        String tmp = this->input_field.get_input_buffer();
-        this->u_giff.set_bitmap_change_speed(tmp.toInt() * 10);
-    }
+    void input_field_adjust(FGUI::Touch_Widget<lock_screen> *_widget, char *_input_buffer);
 
 private:
-    UI::Button<lock_screen> _button;
-    UI::Button<lock_screen> _button2;
-    UI::TextLabel text_feld;
-    UI::CheckBox<lock_screen> ch_box;
-    UI::InputField<20, lock_screen> input_field;
-    UI::PopUp_Window pop_up_window;
+    FGUI::Button<lock_screen> _button;
+    FGUI::Button<lock_screen> _button2;
+    FGUI::TextLabel text_feld;
+    FGUI::CheckBox<lock_screen> ch_box;
+    FGUI::InputField<20, lock_screen> input_field;
+    FGUI::PopUp_Window pop_up_window;
 
-    UI::TextLabel status_bar;
+    FGUI::TextLabel status_bar;
 
-    UI::BitMapButton<lock_screen> b_button;
-    UI::Divider div;
-    UI::ProgressBar progressBar;
+    FGUI::BitMapButton<lock_screen> b_button;
+    FGUI::Divider div;
+    FGUI::ProgressBar progressBar;
 
-    UI::Giff u_giff;
+    FGUI::Giff u_giff;
+
+    FGUI::Button<lock_screen> p_button;
+    FGUI::SingleSelectionMenu<lock_screen> selction_menu;
 };
-
-void lock_screen::loop()
-{
-    WindowBase::loop();
-}

@@ -1,13 +1,12 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_Keypad.h>
-#include "GlobalVariables.hpp"
+#include <Keypad.h>
 #include "GlobalConstants.hpp"
 
 /*
     Library Reference: https://adafruit.github.io/Adafruit_Keypad/html/class_adafruit___keypad.html
 */
-namespace Keypad
+namespace key_board
 {
 #define ROWS 4
 #define COLUMNS 3
@@ -28,18 +27,18 @@ namespace Keypad
 #define ENTER_KEY '#'
 
     template <typename CALL_OBJECT_TYPE>
-    class Keypad
+    class key_board
     {
     public:
         /*
             for using the default predefined layout with the default set pins
         */
-        Keypad(CALL_OBJECT_TYPE *_call_object);
+        key_board(CALL_OBJECT_TYPE *_call_object);
         /*
            for setting self the pinouts and layout
         */
-        Keypad(char **userKeymap, byte *rows, byte *columns, int numRows, int numColumns, CALL_OBJECT_TYPE *_call_object);
-        ~Keypad() {}
+        key_board(char **userKeymap, byte *rows, byte *columns, int numRows, int numColumns, CALL_OBJECT_TYPE *_call_object);
+        ~key_board() {}
 
         void (CALL_OBJECT_TYPE::*on_input)(char _input_data) = nullptr;
         void (CALL_OBJECT_TYPE::*on_backspace)() = nullptr;
@@ -47,34 +46,54 @@ namespace Keypad
 
         void loop();
 
-        void begin();
-
     private:
-        Adafruit_Keypad keypad;
+        Keypad keypad;
         CALL_OBJECT_TYPE *call_object;
     };
-} // namespace Keypad
+} // namespace key_board
 template <typename CALL_OBJECT_TYPE>
-Keypad::Keypad<CALL_OBJECT_TYPE>::Keypad(char **userKeymap, byte *rows,
-                                         byte *columns, int numRows, int numColumns,
-                                         CALL_OBJECT_TYPE *_call_object) : keypad(makeKeymap(userKeymap), rows, columns, numRows, numColumns), call_object(_call_object)
+key_board::key_board<CALL_OBJECT_TYPE>::key_board(char **userKeymap, byte *rows,
+                                                  byte *columns, int numRows, int numColumns,
+                                                  CALL_OBJECT_TYPE *_call_object) : keypad(makeKeymap(userKeymap), rows, columns, numRows, numColumns), call_object(_call_object)
 {
 }
 
 template <typename CALL_OBJECT_TYPE>
-Keypad::Keypad<CALL_OBJECT_TYPE>::Keypad(CALL_OBJECT_TYPE *_call_object) : keypad(makeKeymap(KEYS), ROW_PINS, COLUMN_PINS, ROWS, COLUMNS), call_object(_call_object)
+key_board::key_board<CALL_OBJECT_TYPE>::key_board(CALL_OBJECT_TYPE *_call_object) : keypad(makeKeymap(KEYS), ROW_PINS, COLUMN_PINS, ROWS, COLUMNS), call_object(_call_object)
 {
 }
 
 template <typename CALL_OBJECT_TYPE>
-void Keypad::Keypad<CALL_OBJECT_TYPE>::begin()
+void key_board::key_board<CALL_OBJECT_TYPE>::loop()
 {
-    this->keypad.begin();
-}
+    char pressed_key = this->keypad.getKey();
+    if (pressed_key != NO_KEY)
+    {
+        switch (pressed_key)
+        {
+        case BACKSPACE_KEY:
+        {
+            if (this->on_backspace != nullptr)
+                (this->call_object->*this->on_backspace)();
 
-template <typename CALL_OBJECT_TYPE>
-void Keypad::Keypad<CALL_OBJECT_TYPE>::loop()
-{
+            break;
+        }
+        case ENTER_KEY:
+        {
+            if (this->on_enter != nullptr)
+                (this->call_object->*this->on_enter)();
+            break;
+        }
+        default:
+        {
+            if (this->on_input != nullptr)
+                (this->call_object->*this->on_input)(pressed_key);
+            break;
+        }
+        }
+    }
+
+    /*
     this->keypad.tick(); // read for input
 
     if (this->keypad.available() >= 1) // some input in the buffer
@@ -109,6 +128,7 @@ void Keypad::Keypad<CALL_OBJECT_TYPE>::loop()
         Serial.print(" -> ");
         Serial.println(key_event.bit.EVENT == KEY_JUST_PRESSED ? "pressed" : "released");
     }
+    */
 }
 
 /*
