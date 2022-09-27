@@ -6,21 +6,31 @@
 #include "Window.hpp"
 #include "Widget.hpp"
 
+/**
+ * \file FGUI\lib\MainWindow.hpp
+ */
+
 namespace FGUI
 {
     class Window;
     class Widget;
     class WindowBase;
-    /*!
-        @details The MainWindow is the virtual connection to the display. It handels the actual window which
-        is shown on the display, handles touches and redirects it to the actual window, sends keybord
-        inputs to the focused widgets and handles other similar tasks.
-        There can be only one instance of MainWindow per display
 
-        @note the loop function of this MainWindow instance need to be called in a loop from the main programm
-        from there all the interactions with the touch display will be handled and the call_back functions
-        of the widget are called.
-    */
+    /**
+     * \defgroup MainWindow MainWindow
+     * \ingroup FGUI
+     *
+     * @brief The MainWindow is the virtual connection to the display. It handels the actual window which
+     * is shown on the display, handles touches and redirects it to the actual window, sends keybord
+     * inputs to the focused widgets and handles other similar tasks.
+     * There can be only one instance of MainWindow per display
+     *
+     * @note the loop function of this MainWindow instance need to be called in a loop from the main programm
+     * from there all the interactions with the touch display will be handled and the call_back functions
+     * of the widget are called.
+     *
+     * @{
+     */
     class MainWindow
     {
     public:
@@ -210,4 +220,5 @@ namespace FGUI
         uint32_t last_interact_time_pt = 0;
         bool in_sleep_mode = false; //! true if in sleep_mode=black screen
     };
+    /**@}*/
 } // namespace FGUI

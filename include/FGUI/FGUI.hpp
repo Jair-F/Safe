@@ -16,3 +16,20 @@
 #include "lib/ProgressBar.hpp"
 #include "lib/Gif.hpp"
 #include "lib/SingleSelectionMenu.hpp"
+
+// the index documentation page for the doxygen documentation!!
+
+/*!
+    \defgroup FGUI FGUI
+*/
+
+/*!
+    \mainpage FGUI Documentation
+
+    Description of the FGUI library
+
+    list of classes in the library
+    - \subpage MainWindow
+    - \subpage WindowBase
+
+*/
