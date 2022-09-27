@@ -5,7 +5,7 @@
 namespace FGUI
 {
     /**
-     * \defgroup ButmapButton
+     * \defgroup BitmapButton
      * \ingroup FGUI
      *
      * @brief button which is a clickable picture/bitmap
