@@ -4,15 +4,32 @@
 
 namespace FGUI
 {
+    /**
+     * \defgroup CloseButton
+     * \ingroup FGUI
+     *
+     * @note the close button is created for the pop-up window and is not meant to be used on a normal window, which
+     * doesnt means that it can not be used on a normal window - but it's not meant... therefore its abilities are really limited.
+     *
+     * @{
+     */
     template <typename CALL_OBJECT_TYPE>
     class CloseButton : public ButtonBase<CALL_OBJECT_TYPE>
     {
+        // documentating the template parameter
+        /**
+         * @tparam CALL_OBJECT_TYPE a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         */
+
     public:
-        /*
-            close_button is a square - height and width are equal...
-        */
-        CloseButton(WindowBase *parent, position _upper_left, uint16_t width_height,
-                    CALL_OBJECT_TYPE *_call_object) : ButtonBase<CALL_OBJECT_TYPE>(parent, _upper_left, {_upper_left.x_pos + width_height, _upper_left.y_pos + width_height}, _call_object)
+        /**
+         * @param _parent the parent window to which the widget will register to
+         * @param _upper_left upper left corner in relation to the parent window zero point
+         * @param _width_height close_button is a square - height and width are equal...
+         * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         */
+        CloseButton(WindowBase *parent, position _upper_left, uint16_t _width_height,
+                    CALL_OBJECT_TYPE *_call_object) : ButtonBase<CALL_OBJECT_TYPE>(parent, _upper_left, {_upper_left.x_pos + _width_height, _upper_left.y_pos + _width_height}, _call_object)
         {
             this->released_border_color = VGA_WHITE;
             this->released_background_color = VGA_BLACK;
@@ -22,9 +39,16 @@ namespace FGUI
 
         virtual ~CloseButton() {}
 
+        /**
+         * @details colors for different states of the widget.
+         * The color values are RGB-565 values(16-bit value).
+         * RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
+         * @{
+         */
         unsigned int released_cross_color = VGA_RED;
         unsigned int touched_cross_color = VGA_BLACK;
         unsigned int disabled_cross_color = VGA_GRAY;
+        /** @} */
 
     protected:
         void _draw_content(Widget::w_status _st) override;
@@ -32,6 +56,9 @@ namespace FGUI
 
     private:
     };
+
+    /** @} */
+
 } // namespace FGUI
 
 template <typename CALL_OBJECT_TYPE>

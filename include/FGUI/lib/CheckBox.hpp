@@ -4,50 +4,69 @@
 
 namespace FGUI
 {
+    /**
+     * \defgroup CheckBox
+     * \ingroup FGUI
+     *
+     * @{
+     */
     template <typename CALL_OBJECT_TYPE>
     class CheckBox : public Touch_Widget<CALL_OBJECT_TYPE>
     {
+        // documentating the template parameter
+        /**
+         * @tparam CALL_OBJECT_TYPE a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         */
+
     public:
-        /*
-            @param _size height and width in pixels
-        */
+        /**
+         * @param _parent the parent window to which the widget will register to
+         * @param _upper_left upper left corner in relation to the parent window zero point
+         * @param _size height and width in pixels
+         * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         */
         CheckBox(WindowBase *_parent, position _upper_left, uint16_t _size, CALL_OBJECT_TYPE *_call_object);
 
         virtual ~CheckBox() {}
 
-        /*
-            @return true if the checkbox is checked
-        */
+        /**
+         * @return true if the checkbox is checked
+         */
         inline bool is_checked() const { return this->checked; }
 
-        /*
-            @param true if checked
-        */
+        /**
+         * @param _checked true to set the checkbox to checked.
+         */
         void set_checked(bool _checked)
         {
             this->checked = _checked;
         }
 
-        /*
-            will be called by the main_window
-            we change the state of the check_box only on the release of the touch
-        */
+        /**
+         * @details when the MainWindow sends a _release event we change the state of the checkbox.
+         */
         void _release(const position &_touch_data) override;
 
-        /*
-            the color values are RGB-565 values(16-bit value)
-            RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
-        */
+        /**
+         * @details colors for different states of the widget.
+         * The color values are RGB-565 values(16-bit value).
+         * RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
+         * @{
+         */
         unsigned int normal_check_sign_color = VGA_WHITE;
         unsigned int disabled_check_sign_color = VGA_GRAY;
+        /** @} */
 
     protected:
         void _draw_widget() override;
         void _draw_content(Widget::w_status _st) override;
 
     private:
-        bool checked; // true if the checkbox is checked, false if not
+        bool checked; ///< @brief true if the checkbox is checked, false if not
     };
+
+    /** @} */
+
 } // namespace FGUI
 
 // ------------- template implementation -------------

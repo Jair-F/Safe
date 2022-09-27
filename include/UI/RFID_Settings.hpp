@@ -25,7 +25,7 @@ private:
     FGUI::Button<RFID_settings_window> delete_tag_by_id_btn;
     FGUI::Button<RFID_settings_window> clear_database_btn;
 
-    FGUI::BitMapButton<RFID_settings_window> home_btn;
+    FGUI::BitmapButton<RFID_settings_window> home_btn;
 
     RFID_add_tag_pop_up add_tag_wnd;
 

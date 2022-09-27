@@ -3,24 +3,53 @@
 
 namespace FGUI
 {
-    /*
-        Widget which can be touched for class member functions
-    */
+    /**
+     * \defgroup TouchWidget Touch_Widget
+     * \ingroup FGUI
+     *
+     * @brief Base class for all widgets which can be touched. It handles callback functions
+     * which are executed at touch, release focus_loose.
+     *
+     * @note !! the callback functions of every touch widget must be class member functions - cant be "standalone functions".
+     *
+     * @details It holds virtual functions which draw the border and background of the widget in touched and released state.
+     * they are good for most cases but can be reimplemented by derived classes.
+     *
+     * @{
+     */
+
     template <typename CALL_OBJECT_TYPE>
     class Touch_Widget : public Widget
     {
-    private:
-        bool focused; // if the object has the focus - the last element that was clicked
-        bool touched; // true if the widget is touched at the time - else false
+        // documentating the template parameter
+        /**
+         * @tparam CALL_OBJECT_TYPE a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         */
 
-        /*
-            true if the widget is disabled.
-            disabled is actually only for touch widget - if they are disabled the cant be touched
-        */
+    private:
+        /**
+         * @brief true if the widget holds the focus.
+         * @details the widget with the focus is the last widget that has been touched or requested the focus manually
+         * and the focus wasnt frozen. the focused widget will get the keypad input which was sent to the MainWindow.
+         */
+        bool focused;
+        /**
+         * @brief true if the widget is touched at the time
+         */
+        bool touched;
+
+        /**
+         * @brief true if the widget is disabled.
+         * @details disabled is only for touch widget - if they are disabled the cant be touched
+         */
         bool disabled = false;
 
     protected:
-        CALL_OBJECT_TYPE *call_object; // call object which the function pionter will be called with
+        /**
+         * @brief call object which the function pionter will be called with
+         * @details the callback function is a class member function and needs to be called with the corresponding class object of the class.
+         */
+        CALL_OBJECT_TYPE *call_object;
 
         virtual void _draw_border(Widget::w_status _st) override;
         virtual void _draw_background(Widget::w_status _st) override;
@@ -31,6 +60,14 @@ namespace FGUI
         void _draw_widget() override;
 
     public:
+        /**
+         * @param _parent the parent window to which the widget will register to
+         * @param _upper_left_pos upper left corner in relation to the parent window zero point
+         * @param _lower_right lower right corner in relation to the parent window zero point
+         * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         * @param _border_weight size of the border in pixels
+         * @note if _call_object nullptr the programm will crash due a assertion!
+         */
         Touch_Widget(WindowBase *_parent, const position &_upper_left,
                      const position &_lower_right, CALL_OBJECT_TYPE *_call_object,
                      uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _lower_right, _border_weight),
@@ -40,88 +77,104 @@ namespace FGUI
         {
             assert(this->call_object != nullptr);
         }
-        Touch_Widget(WindowBase *_parent, const position &_upper_left,
-                     const position _lower_right, CALL_OBJECT_TYPE *_call_object,
-                     void (CALL_OBJECT_TYPE::*_on_touch)(), void (CALL_OBJECT_TYPE::*_on_release)(),
-                     uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _lower_right, _border_weight),
-                                                   on_release(_on_release), focused(false), touched(false),
-                                                   on_touch(_on_touch), call_object(_call_object)
-        {
-            assert(this->call_object != nullptr);
-        }
-        Touch_Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object, uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _width, _height, _border_weight),
-                                                                                                                                                                        focused(false), touched(false), call_object(_call_object)
-        {
-            assert(this->call_object != nullptr);
-        }
+        /**
+         * @param _parent the parent window to which the widget will register to
+         * @param _upper_left_pos upper left corner in relation to the parent window zero point
+         * @param _width the width of the widget.
+         * @param _height the height of the widget.
+         * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         * @param _border_weight size of the border in pixels
+         * @note if _call_object nullptr the programm will crash due a assertion!
+         */
         Touch_Widget(WindowBase *_parent, const position &_upper_left,
                      uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
-                     void (CALL_OBJECT_TYPE::*_on_touch)(), void (CALL_OBJECT_TYPE::*_on_release)(),
-                     uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _width, height, _border_weight),
-                                                   focused(false), touched(false), call_object(_call_object),
-                                                   on_touch(_on_touch), on_release(_on_release)
+                     uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _width, _height, _border_weight),
+                                                   focused(false), touched(false), call_object(_call_object)
         {
             assert(this->call_object != nullptr);
         }
 
         virtual ~Touch_Widget() {}
 
-        /*
-            the color values are RGB-565 values(16-bit value)
-            RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
-        */
+        /**
+         * @details colors for different states of the widget.
+         * The color values are RGB-565 values(16-bit value).
+         * RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
+         * @{
+         */
         unsigned int touched_background_color = VGA_WHITE;
         unsigned int touched_border_color = VGA_WHITE;
 
         unsigned int disabled_background_color = VGA_BLACK;
         unsigned int disabled_border_color = VGA_GRAY;
+        /** @} */
 
-        /*
-            function to be called if the widget is touched - on touch not bound to a status of the widget except of hidden status!
-            it has to be a class member function - no static function
-            @param widget the widget from where the function call is comming
-        */
+        /**
+         * callback function which will be called if the widget is touched
+         * it has to be a class member function - no static function
+         * @param widget the widget from where the touch comming
+         */
         void (CALL_OBJECT_TYPE::*on_touch)(Touch_Widget *_widget) = nullptr;
-        /*
-            function to be called if the widget is touched - on touch not bound to a status of the widget except of hidden status!
-            it has to be a class member function - no static function
-            @param widget the widget from where the function call is comming
-        */
+        /**
+         * callback function which will be called if the widget is released
+         * it has to be a class member function - no static function
+         * @param widget the widget from where the release comming
+         */
         void (CALL_OBJECT_TYPE::*on_release)(Touch_Widget *_widget) = nullptr;
+        /**
+         * callback function which will be called if the widget loses its focus
+         * it has to be a class member function - no static function
+         * @param widget the widget from where the focus lose comming
+         */
         void (CALL_OBJECT_TYPE::*on_focus_lose)(Touch_Widget *_widget) = nullptr;
 
-        /*
-            @param _touch_data absolute position of the touch
-        */
+        /**
+         * @details for sending a touch event.
+         * @param _touch_data absolute position of the touch
+         */
         void _touch(const position &_touch_data) override;
-        /*
-            @param _touch_data absolute position of the release of the touch
-        */
+        /**
+         * @details for sending a release event.
+         * @param _touch_data absolute position of the release
+         */
         void _release(const position &_touch_data) override;
-        /*
-            if the release of the touch was outside of the widget - draws the widget without calling on_release
-        */
+        /**
+         * @details if the release of the touch was outside of the widget the widget will be redrawn
+         * to the released state without calling the on_release callback function.
+         * @brief for sending a reset_touch event to the widget.
+         */
         void _reset_touch() override;
+        /**
+         * @brief for sending a focus_lose event to the widget.
+         * @details calls the _focus_lose callback function.
+         */
         void _focus_lose() override;
 
-        /*
-            if the element has focus it gets the input of the keypad - the last element that was touched
-        */
+        /**
+         * @return true if the widget is focused.
+         * @details if the element has focus it gets the input of the keypad.
+         * the focus is the last element that was touched or requested and got focus manually.
+         */
         inline bool is_focused() const { return this->parent_window->get_focused_widget() == this; }
 
+        /**
+         * @return true if the widget is disabled.
+         */
         inline bool is_disabled() const override { return this->disabled; }
-        /*
-            @param _disabled true if the widget should be disabled
-            the widget will be redrawn automatically with disabled colors
-            if a widget is disabled it cant be touched
-        */
+        /**
+         * @param _disabled true if the widget should be disabled
+         * @note the widget will be redrawn automatically with disabled colors
+         * @details if a widget is disabled it cant be touched
+         */
         void set_disabled(bool _disabled) override;
 
-        /*
-            @return true if the widget is touched at the time, else false
-        */
+        /**
+         * @return true if the widget is touched at the time
+         */
         inline bool is_touched() const { return this->touched; }
     };
+
+    /** @} */
 
 }
 

@@ -35,7 +35,7 @@ private:
 
     FGUI::TextLabel status_bar;
 
-    FGUI::BitMapButton<lock_screen> b_button;
+    FGUI::BitmapButton<lock_screen> b_button;
     FGUI::Divider div;
     FGUI::ProgressBar progressBar;
 
