@@ -1,22 +1,8 @@
 #include "FGUI/FGUI.hpp"
 
-/*
-FGUI::TextLabel::TextLabel(Window *_parent, const position _upper_left,
-                         const position _lower_right, String _text = "") : Widget(_parent, _upper_left, _lower_right),
-                                                                               text(_text)
-{
-}
-
-FGUI::TextLabel::TextLabel(Window *_parent, const position _upper_left,
-                         unsigned int _width, unsigned int _height, String _text = "") : Widget(_parent, _upper_left, _width, _height),
-                                                                                         text(_text)
-{
-}
-*/
-
 FGUI::TextLabel::TextLabel(WindowBase *_parent, const position _upper_left, uint16_t _width,
                            String _text, uint8_t *_text_font) : Widget(_parent, _upper_left, _width, _upper_left.y_pos + 2),
-                                                                text(_text), text_font(_text_font), text_align(text_alignment::AL_LEFT), draw_border(false)
+                                                                text(_text), text_font(_text_font), text_align(text_alignment::AL_LEFT)
 {
     this->display->setFont(text_font);
     uint8_t font_height = this->display->getFontYsize();

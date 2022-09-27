@@ -28,7 +28,7 @@ lock_screen::lock_screen(FGUI::MainWindow *_main_window) : FGUI::Window(_main_wi
                                                            selction_menu(this, {225, 50}, {291, 72}, this)
 {
 
-    text_feld.set_border(true);
+    text_feld.set_draw_border(true);
     text_feld.set_text_alignment(text_feld.AL_CENTER);
     text_feld.set_font(SmallFont);
     text_feld.set_border_weight(3);
@@ -71,7 +71,7 @@ lock_screen::lock_screen(FGUI::MainWindow *_main_window) : FGUI::Window(_main_wi
 
     status_bar.set_text("ERROR");
     status_bar.set_text_alignment(FGUI::TextLabel::text_alignment::AL_CENTER);
-    status_bar.set_border(true);
+    status_bar.set_draw_border(true);
     status_bar.set_font(SmallFont);
 
     b_button.on_release = &lock_screen::button_print_clicked;

@@ -4,11 +4,42 @@
 
 namespace FGUI
 {
+    /**
+     * \defgroup ButmapButton
+     * \ingroup FGUI
+     *
+     * @brief button which is a clickable picture/bitmap
+     *
+     * @note Limitations: all the bitmaps - the on_release and on_touche... need to have the same size(height and width).
+     *
+     * @{
+     */
     template <typename CALL_OBJECT_TYPE>
-    class BitMapButton : public ButtonBase<CALL_OBJECT_TYPE>
+    class BitmapButton : public ButtonBase<CALL_OBJECT_TYPE>
     {
+        // documentating the template parameter
+        /**
+         * @tparam CALL_OBJECT_TYPE a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         */
+
     public:
-        BitMapButton(WindowBase *_parent, position _upper_left,
+        /**
+         * @param _parent the parent window to which the widget will register to
+         * @param _upper_left upper left corner in relation to the parent window zero point
+         * @param _bitmap_width width of the bitmap in pixels.
+         * @param _bitmap_height height of the bitmap in pixels.
+         * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         * @param _on_touch_bitmap the bitmap which should be drawn if the button is touched.
+         * @param _on_release_bitmap the bitmap which should be drawn if the button is released.
+         * @param _on_disabled_bitmap the bitmap which should be drawn if the button is disabled.
+         * @param _border_weight size of the border in pixels
+         * @param _border_to_bitmap_gap the gap between the border and the bitmap in pixels.
+         *
+         * @details the bitmapButton  gets its height and widht from the bitmaps sizes, border_weight and border_to_bitmap_gap.
+         *
+         * @note if _call_object nullptr the programm will crash due a assertion!
+         */
+        BitmapButton(WindowBase *_parent, position _upper_left,
                      uint16_t _bitmap_width, uint16_t _bitmap_height, CALL_OBJECT_TYPE *_call_object,
                      const unsigned short *_on_touch_bitmap, const unsigned short *_on_release_bitmap,
                      const unsigned short *_on_disabled_bitmap,
@@ -22,7 +53,7 @@ namespace FGUI
             this->released_background_color = this->_get_parent_window()->get_background_color();
         }
 
-        virtual ~BitMapButton() {}
+        virtual ~BitmapButton() {}
 
     protected:
         void _draw_content(Widget::w_status _st) override;
@@ -34,10 +65,13 @@ namespace FGUI
 
         uint8_t border_to_bitmap_gap; // in pixels
     };
+
+    /** @} */
+
 } // namespace FGUI
 
 template <typename CALL_OBJECT_TYPE>
-void FGUI::BitMapButton<CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
+void FGUI::BitmapButton<CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
 {
     /*
         if we subtract the border_weight and the gap between the bitmap and the border we get the bitmap size...

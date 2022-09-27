@@ -7,40 +7,109 @@
 
 namespace FGUI
 {
+    /**
+     * \defgroup SingleSelectionMenu
+     * \ingroup FGUI
+     *
+     * @brief A menu to slecet one option from a list of options.
+     * the interaction with the menu is through the send_input(keypad).
+     *
+     * @details the selection menu gets a list of keys which are scroll forward keys and the same with scroll backward keys.
+     * then when a input is sent the menu scrolls itself forward or backwards according to the input which was sent.
+     *
+     * @{
+     */
     template <typename CALL_OBJECT_TYPE>
     class SingleSelectionMenu : public Touch_Widget<CALL_OBJECT_TYPE>
     {
+        // documentating the template parameter
+        /**
+         * @tparam CALL_OBJECT_TYPE a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         */
+
     public:
+        /**
+         * @param _parent the parent window to which the widget will register to
+         * @param _upper_left_pos upper left corner in relation to the parent window zero point
+         * @param _lower_right lower right corner in relation to the parent window zero point
+         * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         * @param _border_weight size of the border in pixels
+         * @note if _call_object nullptr the programm will crash due a assertion!
+         */
         SingleSelectionMenu(WindowBase *_parent, const position _upper_left,
                             const position _lower_right, CALL_OBJECT_TYPE *_call_object,
                             uint8_t _border_weight = 1);
         virtual ~SingleSelectionMenu();
 
+        /**
+         * @param _entry the new entry to add to the list
+         */
         void add_entry(String &_entry);
+        /**
+         * @param _entry the new entry to add to the list
+         */
         void add_entry(const char *_entry);
+        /**
+         * @brief add multiple entries to the list of options.
+         * @param num_of_entrys number of entries to add.
+         * @param ... the entrys to add with type of const char* or String.
+         */
         void add_entrys(uint8_t num_of_entrys, ...);
+        /**
+         * @return the actual selection
+         */
         const String &get_selection() const;
 
+        /**
+         * @param _key add _key to the scroll forward keys list.
+         */
         void add_scroll_forward_key(char _key);
+        /**
+         * @param _key add _key to the scroll backward keys list.
+         */
         void add_scroll_backward_key(char _key);
 
-        /*
-            sets the selection if _selection is found in the _entrys list
-            @return true if a matching selection was found in the _entrys list, false if not
+        /**
+            @details sets the selection manually if _selection is found in the _entrys list
+            @param _selection selection to set
+            @return true if a matching selection was found in the _entrys list and the selection
+            was changed, false if not(nothing was changed).
         */
         bool set_selection(String &_selection);
+        /**
+            @details sets the selection manually if _selection is found in the _entrys list
+            @param _selection selection to set
+            @return true if a matching selection was found in the _entrys list and the selection
+            was changed, false if not(nothing was changed).
+        */
         bool set_selection(const char *_selection);
 
+        /**
+         * @brief send the input to trigger a scroll forward or backward if
+         * a matching key was found in the scroll forward or backward list.
+         */
         void send_input(char _input_data) override;
-        // void send_backspace() override;
         void send_enter() override {}
 
+        /**
+         * @brief set the font for the selection text printing.
+         */
         void set_font(uint8_t *_font) { this->_text_font = _font; }
+        /**
+         * @return pionter to the text font array.
+         */
         uint8_t *get_font() { return this->_text_font; }
 
+        /**
+         * @details colors for different states of the widget.
+         * The color values are RGB-565 values(16-bit value).
+         * RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
+         * @{
+         */
         unsigned int touched_text_color = VGA_BLACK;
         unsigned int released_text_color = VGA_WHITE;
         unsigned int disabled_text_color = VGA_GRAY;
+        /** @} */
 
     protected:
         void _draw_widget() override;
@@ -48,14 +117,29 @@ namespace FGUI
         void _focus_lose() override;
 
     private:
-        DoublyLinkedList<String> entrys; // entrys in the selection menu
+        /**
+         * @brief entrys in the selection menu
+         */
+        DoublyLinkedList<String> entrys;
+        /**
+         * @brief pointer to the actual selected entry inthe entrys list
+         */
         DoublyListNodeIterator<String> *actual_entry;
 
-        SinglyLinkedList<char> scroll_back_keys;    // scroll to previous selection
+        /**
+         * @brief list of keys which trigger scroll backward.
+         */
+        SinglyLinkedList<char> scroll_back_keys;
+        /**
+         * @brief list of keys which trigger scroll forward.
+         */
         SinglyLinkedList<char> scroll_forward_keys; // scroll to next selection
 
         uint8_t *_text_font = SmallFont;
     };
+
+    /** @} */
+
 } // namespace FGUI
 
 // Implementations

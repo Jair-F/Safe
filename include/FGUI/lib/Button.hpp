@@ -9,12 +9,38 @@ extern uint8_t BigFont[];
 
 namespace FGUI
 {
+    /**
+     * \defgroup Button
+     * \ingroup FGUI
+     *
+     * @brief class of a normal clickable button labled with text.
+     *
+     * @{
+     */
     template <typename CALL_OBJECT_TYPE>
     class Button : public ButtonBase<CALL_OBJECT_TYPE>
     {
+        // documentating the template parameter
+        /**
+         * @tparam CALL_OBJECT_TYPE a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         */
+
     public:
+        /**
+         * @param _parent the parent window to which the widget will register to
+         * @param _upper_left upper left corner in relation to the parent window zero point
+         * @param _lower_right lower right corner in relation to the parent window zero point
+         * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         */
         Button(WindowBase *parent, position _upper_left, position _lower_right,
                CALL_OBJECT_TYPE *_call_object) : ButtonBase<CALL_OBJECT_TYPE>(parent, _upper_left, _lower_right, _call_object) {}
+        /**
+         * @param _parent the parent window to which the widget will register to
+         * @param _upper_left upper left corner in relation to the parent window zero point
+         * @param _width the width of the button in pixels.
+         * @param _height the height of the button in pixels.
+         * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         */
         Button(WindowBase *parent, position _upper_left, uint16_t _width, uint16_t _height,
                CALL_OBJECT_TYPE *_call_object) : ButtonBase<CALL_OBJECT_TYPE>(parent, _upper_left,
                                                                               {_upper_left.x_pos + _width, _upper_left.y_pos + _height},
@@ -22,27 +48,33 @@ namespace FGUI
 
         virtual ~Button() {}
 
+        /**
+         * @param _font pointer to font array for the text.
+         */
         void setFont(uint8_t *_font)
         {
             this->_text_font = _font;
         }
 
-        /*
-            set text of the button - without updating a already displayed widget
-            - need to call update();
-        */
+        /**
+         * @param _text text to releable the button
+         * @note the button isn't redrawn with this call - redraw the button manually.
+         */
         void setText(String _text)
         {
             text = _text;
         }
 
-        /*
-            the color values are RGB-565 values(16-bit value)
-            RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
-        */
+        /**
+         * @details colors for different states of the widget.
+         * The color values are RGB-565 values(16-bit value).
+         * RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
+         * @{
+         */
         unsigned int released_text_color = VGA_WHITE;
         unsigned int touched_text_color = VGA_BLACK;
         unsigned int disabled_text_color = VGA_GRAY;
+        /** @} */
 
     protected:
         void _draw_content(Widget::w_status _st) override;
@@ -51,6 +83,8 @@ namespace FGUI
         String text;
         uint8_t *_text_font = SmallFont;
     };
+
+    /** @} */
 
 }
 

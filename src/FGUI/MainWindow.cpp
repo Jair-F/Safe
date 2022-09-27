@@ -22,6 +22,13 @@ FGUI::MainWindow::MainWindow(UTFT *_display, URTouch *_touch, position _window_u
     // Serial.println(')');
 }
 
+FGUI::MainWindow::MainWindow(UTFT *_display, URTouch *_touch) : focus_frozen(false), focused_widget(nullptr),
+                                                                active_window(nullptr), display(_display), touch(_touch),
+                                                                window_upper_left({0, 0}), window_lower_right({static_cast<uint16_t>(_display->getDisplayXSize() - 1),
+                                                                                                               static_cast<uint16_t>(_display->getDisplayYSize() - 1)})
+{
+}
+
 bool FGUI::MainWindow::request_focus(FGUI::Widget *_widget)
 {
     if (!this->focus_frozen)
@@ -116,7 +123,7 @@ void FGUI::MainWindow::loop()
                 // call the on_touch func
                 Widget *clicked_widget = this->active_window->handle_touch_clicked(touch_data);
 
-                if (!this->get_focus_frozen()) // if focus isnt frozen do not change the focused_widget
+                if (!this->is_focus_frozen()) // if focus isnt frozen do not change the focused_widget
                 {
                     if (this->focused_widget != clicked_widget) // focused widget change
                     {

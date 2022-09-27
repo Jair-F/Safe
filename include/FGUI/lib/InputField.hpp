@@ -5,42 +5,88 @@
 
 namespace FGUI
 {
-    /*
-        @param MAX_NUM_OF_CHARS maximum number of input-digits/chars/letters that the input_field can storage and will accept. If the user
-                tries to input more the field will simply not accept more.
-    */
+    /**
+     * \defgroup InputField
+     * \ingroup FGUI
+     *
+     * @details the input field has two "modes" 1. password input where the user sees only stars at input, and normal input.
+     * there are callback functions for on_typing(when the input buffer changed - due to type or manual change) and on_enter -
+     * if the enter_event was triggered.
+     *
+     * @{
+     */
     template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
     class InputField : public Touch_Widget<CALL_OBJECT_TYPE>
     {
+        // documentating the template parameter
+        /**
+         * @tparam MAX_NUM_OF_CHARS maximum number of characters the user can insert into the input field.
+         * @tparam CALL_OBJECT_TYPE a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         */
+
     public:
+        /**
+         * @brief the mode of the input field - password or normal-text
+         */
         enum class IN_INPUT_TYPE
         {
             IN_TEXT,
             IN_PASSWORD
         };
 
-        /*
-            the color values are RGB-565 values(16-bit value)
-            RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
-        */
+        /**
+         * @details colors for different states of the widget.
+         * The color values are RGB-565 values(16-bit value).
+         * RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
+         * @{
+         */
         unsigned int touched_text_color = VGA_BLACK;
         unsigned int touched_cursor_color = VGA_BLACK;
         unsigned int released_text_color = VGA_WHITE;
 
         unsigned int disabled_text_color = VGA_GRAY;
+        /** @} */
 
+        /**
+         * @details callback function which will be called when an enter event is sent
+         * the function has to be a class member function - no static function
+         * @param widget the widget from where the touch comming
+         */
         void (CALL_OBJECT_TYPE::*on_enter)(Touch_Widget<CALL_OBJECT_TYPE> *_widget) = nullptr;
-
-        /*
-            if the input_buffer has been changed due to and input_send of the user call this func
-            this function is called before the input field is drawn - to allow changing colors etc...
-        */
+        /**
+         * @details callback function which will be called when the input buffer has changed.
+         * the function has to be a class member function - no static function
+         * @param widget the widget from where the touch comming
+         * @note if the input_buffer has been changed due to and input_send of the user call this func
+         * this function is called before the input field is drawn - to allow changing colors etc...
+         */
         void (CALL_OBJECT_TYPE::*on_typing)(Touch_Widget<CALL_OBJECT_TYPE> *_widget, char *_input_buffer) = nullptr;
 
+        /**
+         * @param _parent the parent window to which the widget will register to
+         * @param _upper_left_pos upper left corner in relation to the parent window zero point
+         * @param _lower_right lower right corner in relation to the parent window zero point
+         * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         * @param _input_type mode of the input field(password or normal-text).
+         * @param _border_weight size of the border in pixels
+         * @note if _call_object nullptr the programm will crash due a assertion!
+         */
         InputField(WindowBase *_parent, const position _upper_left, const position _lower_right,
-                   CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type);
+                   CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type,
+                   uint8_t _border_weight = 3);
+        /**
+         * @param _parent the parent window to which the widget will register to
+         * @param _upper_left_pos upper left corner in relation to the parent window zero point
+         * @param _width the width of the widget.
+         * @param _height the height of the widget.
+         * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         * @param _input_type mode of the input field(password or normal-text).
+         * @param _border_weight size of the border in pixels
+         * @note if _call_object nullptr the programm will crash due a assertion!
+         */
         InputField(WindowBase *_parent, const position _upper_left, uint16_t _width, uint16_t _height,
-                   CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type);
+                   CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type,
+                   uint8_t _border_weight = 3);
 
         virtual ~InputField() {}
 
@@ -49,25 +95,50 @@ namespace FGUI
         void send_backspace() override;
         void send_enter() override;
 
-        /*
-            @return pointer to the input_buffer of the class - make sure that the instance of the InputField class exists at accessing the data!!!
-        */
+        /**
+         * @return pointer to the input_buffer of the field.
+         * @note make sure that the instance of the InputField class exists at accessing the data!!!
+         */
         const char *get_input_buffer() { return this->input_buffer; }
+        /**
+         * @param _input_data data to set the input_buffer manually.
+         */
         void set_input_buffer(String _input_data);
+        /**
+         * @param _input_data data to set the input_buffer manually.
+         */
         void set_input_buffer(const char *_input_data);
+        /**
+         * @brief delete all the data in the input_buffer.
+         */
         void clear_input_buffer();
 
-        /*
-            @return true if the buffer is empty
-        */
+        /**
+         * @return true if the buffer is empty
+         */
         bool buffer_is_empty();
 
+        /**
+         * @param _font pointer to font array for the text.
+         */
         void set_font(uint8_t *_font) { this->_text_font = _font; }
-        uint8_t *get_font() { return this->_text_font; }
+        /**
+         * @return pointer to font array for the text.
+         */
+        uint8_t *get_font() const { return this->_text_font; }
 
     protected:
+        /**
+         * @details draw the text and cursor of the input_field(the content) in touched state.
+         */
         void _draw_touched_content();
+        /**
+         * @details draw the text the input_field(the content) in released state.
+         */
         void _draw_released_content();
+        /**
+         * @details draw the text the input_field(the content) in disabled state.
+         */
         void _draw_disabled_content();
 
         void _draw_widget() override;
@@ -76,28 +147,31 @@ namespace FGUI
         void _focus_lose() override;
 
     private:
-        char input_buffer[MAX_NUM_OF_CHARS + 1];
+        char input_buffer[MAX_NUM_OF_CHARS + 1]; ///< @brief the fixed sized input buffer. +1 for the terminating character(indicates the last element).
 
         IN_INPUT_TYPE input_type;
 
-        /*
-            the value which is set to the input_buffer[i] if it is not set via the input. - we know the size of the input_buffer-array so
-            we can set it to '\0' to indicate that this element is not set
-        */
+        /**
+         * @details a const value which indicates the last element in the input buffer.
+         */
         static constexpr char INPUT_UNSET_VALUE = '\0';
 
         uint8_t *_text_font = SmallFont;
 
-        uint8_t _text_gap; // gap between the left border and the start of the text and the right border and the end of the text
+        uint8_t _text_gap; //< @brief gap between the left border and the start of the text and the right border and the end of the text
     };
+
+    /** @} */
+
 } // namespace FGUI
 
 // ------------- template implementation -------------
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
 FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(WindowBase *_parent, const position _upper_left, const position _lower_right,
-                                                                 CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right, _call_object),
-                                                                                                                              input_type(_input_type)
+                                                                 CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type,
+                                                                 uint8_t _border_weight) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right, _call_object, _border_weight),
+                                                                                           input_type(_input_type)
 {
     assert(MAX_NUM_OF_CHARS > 0);
 
@@ -115,7 +189,9 @@ FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(WindowBase *_pa
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
 FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(WindowBase *_parent, const position _upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
-                                                                 IN_INPUT_TYPE _input_type) : InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _width, _upper_left.y_pos + _height}, _call_object, _input_type)
+                                                                 IN_INPUT_TYPE _input_type,
+                                                                 uint8_t _border_weight) : InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _width, _upper_left.y_pos + _height},
+                                                                                                                                          _call_object, _input_type, _border_weight)
 {
 }
 
@@ -193,12 +269,20 @@ void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::set_input_buffer(cons
     {
         this->input_buffer[i] = this->INPUT_UNSET_VALUE;
     }
+    if (this->on_typing != nullptr)
+    {
+        (this->call_object->*on_typing)(this, this->input_buffer);
+    }
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
 void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::set_input_buffer(String _input_buffer)
 {
     this->set_input_buffer(_input_buffer.c_str());
+    if (this->on_typing != nullptr)
+    {
+        (this->call_object->*on_typing)(this, this->input_buffer);
+    }
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>

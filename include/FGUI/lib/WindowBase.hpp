@@ -28,7 +28,7 @@ namespace FGUI
     {
     public:
         /*!
-            @details upper_left and lower_right needs to be set by the derived classtouch
+            @details upper_left and lower_right needs to be set by the derived class
             @param _upper_left  the upper left position of the window rectangle - absolute position
             @param _lower_right the lower right position of the window rectangle - absolute position
         */
@@ -38,8 +38,7 @@ namespace FGUI
         // functions which derived classes need to implement with their pointer to the parent_window
 
         /**
-         * \defgroup IMPLEMENT_IN_DERIVED functions which derived classes need to implement
-         *  first group
+         * \defgroup IMPLEMENT_IN_DERIVED functions which derived window classes need to implement
          * @note Need to be implemented by derived classes.
          * @{
          */
