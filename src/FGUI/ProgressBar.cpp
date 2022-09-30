@@ -8,24 +8,27 @@ FGUI::ProgressBar::ProgressBar(WindowBase *_parent, position _upper_left,
 
 void FGUI::ProgressBar::_draw_content(Widget::w_status _st)
 {
-    if (this->get_draw_border())
+    if (!this->is_hidden())
     {
-        this->_draw_border(_st);
-    }
-    this->_draw_background(_st);
+        if (this->get_draw_border())
+        {
+            this->_draw_border(_st);
+        }
+        this->_draw_background(_st);
 
-    if (this->progress > 0)
-    {
-        uint16_t progress_bar_length = double(progress) / 100 * (this->width() - this->get_border_weight() * 2 - border_to_bar_gap * 2);
+        if (this->progress > 0)
+        {
+            uint16_t progress_bar_length = double(progress) / 100 * (this->width() - this->get_border_weight() * 2 - border_to_bar_gap * 2);
 
-        // clear the space inside the progressbar - not the border - progressbar could also go back...
-        this->display->setColor(this->parent_window->get_background_color());
-        this->display->fillRect(this->upper_left.x_pos + this->get_border_weight() + border_to_bar_gap, this->upper_left.y_pos + this->get_border_weight() + border_to_bar_gap,
-                                this->lower_right.x_pos - this->get_border_weight() - border_to_bar_gap, this->lower_right.y_pos - this->get_border_weight() - border_to_bar_gap);
+            // clear the space inside the progressbar - not the border - progressbar could also go back...
+            this->display->setColor(this->parent_window->get_background_color());
+            this->display->fillRect(this->upper_left.x_pos + this->get_border_weight() + border_to_bar_gap, this->upper_left.y_pos + this->get_border_weight() + border_to_bar_gap,
+                                    this->lower_right.x_pos - this->get_border_weight() - border_to_bar_gap, this->lower_right.y_pos - this->get_border_weight() - border_to_bar_gap);
 
-        this->display->setColor(this->bar_color);
-        this->display->fillRect(this->upper_left.x_pos + this->get_border_weight() + border_to_bar_gap, this->upper_left.y_pos + this->get_border_weight() + border_to_bar_gap,
-                                this->upper_left.x_pos + this->get_border_weight() + border_to_bar_gap + progress_bar_length, this->lower_right.y_pos - this->get_border_weight() - border_to_bar_gap);
+            this->display->setColor(this->bar_color);
+            this->display->fillRect(this->upper_left.x_pos + this->get_border_weight() + border_to_bar_gap, this->upper_left.y_pos + this->get_border_weight() + border_to_bar_gap,
+                                    this->upper_left.x_pos + this->get_border_weight() + border_to_bar_gap + progress_bar_length, this->lower_right.y_pos - this->get_border_weight() - border_to_bar_gap);
+        }
     }
 }
 
