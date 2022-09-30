@@ -115,7 +115,7 @@ void FGUI::Widget::_clear_widget_space()
 void FGUI::Widget::set_size(uint16_t _width, uint16_t _height)
 {
     // the calc_absolute_pos is already made with the initializtion of the upper_left pos
-    this->_clear_widget_space();
+    // this->_clear_widget_space();
     this->lower_right.x_pos = this->upper_left.x_pos + _width;
     this->lower_right.y_pos = this->upper_left.y_pos + _height;
     // this->draw();
