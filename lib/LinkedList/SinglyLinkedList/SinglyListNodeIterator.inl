@@ -1,17 +1,27 @@
 #pragma once
 
-/*
-    Iterator for singly linked list - linked in one direction
-*/
+/**
+ * \defgroup DoublyListNode
+ * \ingroup SinglyLinkedList
+ *
+ * @brief Iterator for singly linked list - linked in one direction
+ *
+ * @{
+ */
 template <typename T>
 class SinglyListNodeIterator
 {
+    // documentating the template parameter
+    /**
+     * @tparam T type of which the ListNodeIterator should be.
+     */
+
 public:
     SinglyListNodeIterator(SinglyListNode<T> *_ln) : _node(_ln) {}
     SinglyListNodeIterator(SinglyListNode<T> &_ln) : _node(&_ln) {}
-    /*
-        post increment-operator(a++) - return the current data - before the switch
-    */
+    /**
+     * @brief post increment-operator(a++) - return the current data - before the switch
+     */
     SinglyListNode<T> *operator++(int)
     {
         SinglyListNode<T> *tmp = this->_node;
@@ -19,17 +29,22 @@ public:
         return tmp;
     }
 
-    /*
-        pre increment-operator(++a) - return the data after the switch
-    */
+    /**
+     * @brief pre increment-operator(++a) - return the data after the switch
+     */
     SinglyListNode<T> &operator++()
     {
         this->_node = this->_node->next;
         return *(this->_node);
     }
 
-    // consider the data and the next pointer
+    /**
+     * @brief consider the data and the prev and next pointer
+     */
     bool operator==(const SinglyListNodeIterator<T> &_list_iterator) const { return (this->_node == _list_iterator.node()); }
+    /**
+     * @brief consider the data and the prev and next pointer
+     */
     bool operator!=(const SinglyListNodeIterator<T> &_list_iterator) const { return !(*this == _list_iterator); }
 
     T &data() const { return *(this->_node->data); }

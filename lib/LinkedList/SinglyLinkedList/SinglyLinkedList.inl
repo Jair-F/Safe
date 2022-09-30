@@ -13,15 +13,28 @@
         - compare-operator - operator==()
         - bigger than operator - operator>()
 */
+
+/**
+ *  \defgroup SinglyLinkedList
+ * \ingroup LinkedList
+ */
 template <typename T>
 class SinglyLinkedList
 {
+    // documentating the template parameter
+    /**
+     * @tparam T type of which the Linked List should be.
+     */
+
 public:
+    /**
+     * @brief create an empty list
+     */
     SinglyLinkedList();
-    /*
-        @param _size size of the list
-        @param _standard_initializer initialize the whole list with this value
-    */
+    /**
+     * @param _size size of the list
+     * @param _standard_initializer initialize the whole list with this value
+     */
     SinglyLinkedList(unsigned long _size, T _standard_initializer);
     ~SinglyLinkedList();
 
@@ -33,10 +46,9 @@ public:
     */
     // void reverse();
 
-    /*
-        insert _data on the _position and push the data that is now on this positon
-        one back
-    */
+    /**
+     * @brief insert _data on the _position and push the data that is now on this positon one back
+     */
     void insert(unsigned long _position, T _data);
 
     /*
@@ -49,25 +61,30 @@ public:
     */
     // void sort();
 
-    /*
-        @return the deleted element - undefined return value if there isn't any more elements in the list
-    */
+    /**
+     * @return the deleted element - undefined return value if there isn't any more elements in the list
+     */
     T pop_back();
-    /*
-        @return the deleted element - undefined return value if there isn't any more elements in the list
-    */
+    /**
+     * @return the deleted element - undefined return value if there isn't any more elements in the list
+     */
     T pop_front();
-    /*
-        @return the deleted element - undefined return value if there isn't any more elements in the list
-    */
+    /**
+     * @return the deleted element - undefined return value if there isn't any more elements in the list
+     */
     T erase(unsigned long _position);
-    /*
-        delete the whole list
-    */
+    /**
+     * @brief delete the whole list
+     */
     void clear();
 
+    /**
+     * @brief same as size()
+     */
     unsigned long length() const;
-    // same as length()
+    /**
+     * @brief same as length()
+     */
     unsigned long size() const;
 
     T &operator[](unsigned long _index) { return this->at(_index); }
@@ -75,10 +92,22 @@ public:
     T &at(unsigned long _index);
     const T &at(unsigned long _index) const;
 
+    /**
+     * @return an iterator to the first element in the list
+     */
     SinglyListNodeIterator<T> begin() { return SinglyListNodeIterator<T>(this->_begin->next); }
+    /**
+     * @return one element past the last element in the list
+     */
     SinglyListNodeIterator<T> end() { return SinglyListNodeIterator<T>(this->_end); }
 
+    /**
+     * @return reference to the first element in the list
+     */
     SinglyListNode<T> &front() const { return *(this->_begin->next); }
+    /**
+     * @return reference to the last element in the list
+     */
     SinglyListNode<T> &last() const { return *(this->_last); }
 
 private:
