@@ -220,8 +220,6 @@ void setup()
 
     // Serial.println("Free memory: ");
     // Serial.println(freeMemory());
-    Serial.println("looping...");
-    delay(2000);
     while (true)
     {
         /*
