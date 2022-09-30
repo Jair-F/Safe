@@ -9,6 +9,11 @@
 template <typename T>
 class DoublyListNodeIterator
 {
+    // documentating the template parameter
+    /**
+     * @tparam T type of which the ListNodeIterator should be.
+     */
+
 public:
     DoublyListNodeIterator(DoublyListNode<T> *_ln) : _node(_ln) {}
     DoublyListNodeIterator(DoublyListNode<T> &_ln) : _node(&_ln) {}
@@ -65,7 +70,7 @@ public:
      */
     bool operator!=(const DoublyListNodeIterator<T> &_list_iterator) const { return !(*this == _list_iterator); }
 
-    T &data() const { return this->_node->data; }
+    T &data() const { return *(this->_node->data); }
     T &operator->() const { return this->_node->data; }
     T *operator*() const { return &this->_node->data; }
     DoublyListNode<T> *next() const { return this->_node->next; }

@@ -21,7 +21,15 @@
 template <typename T>
 class DoublyLinkedList
 {
+    // documentating the template parameter
+    /**
+     * @tparam T type of which the Linked List should be.
+     */
+
 public:
+    /**
+     * @brief create an empty list
+     */
     DoublyLinkedList();
     /**
      * @param _size size of the list
@@ -36,7 +44,7 @@ public:
     /**
      * @brief reverse the whole list - first element will be last and last will be first
      */
-    void reverse();
+    // void reverse();
 
     /**
      * @brief insert _data on the _position and push the data that is now on this positon one back
@@ -84,8 +92,18 @@ public:
     T &at(unsigned long _index);
     const T &at(unsigned long _index) const;
 
+    /**
+     * @return reference to the first element in the list
+     */
     DoublyListNode<T> &front() const { return *(this->_begin->next); }
+    /**
+     * @return reference to the last element in the list
+     */
     DoublyListNode<T> &last() const { return *(this->_end->prev); }
+
+    /**
+     * @return an iterator to the first element in the list
+     */
     DoublyListNodeIterator<T> begin() const { return DoublyListNodeIterator<T>(*(this->_begin->next)); }
     /**
      * @return one element past the last element in the list
@@ -193,7 +211,7 @@ T DoublyLinkedList<T>::pop_back()
     if (this->size() > 0)
     {
         DoublyListNode<T> *element_to_delete = &this->last();
-        T data_backup = element_to_delete->data;
+        T data_backup = *(element_to_delete->data);
 
         DoublyListNode<T> *e_before = element_to_delete->prev; // element before the element to delete
 

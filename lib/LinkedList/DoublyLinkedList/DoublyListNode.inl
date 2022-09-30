@@ -15,19 +15,23 @@ class DoublyListNode
      */
 
 public:
+    /**
+     * @brief create a node which doesnt has a value assigned - value can not be changed afterwards!!
+     * Its for the begin and end pointer in the linked list
+     */
     DoublyListNode() : next(nullptr), prev(nullptr) {}
     /**
      * @param _prev pointer to the previous element.
      * @param _next pointer to the next element.
      */
-    DoublyListNode(DoublyListNode<T> *_prev, DoublyListNode<T> *_next) : next(_next), prev(_prev) {}
+    DoublyListNode(DoublyListNode<T> *_prev, DoublyListNode<T> *_next) : data(nullptr), next(_next), prev(_prev) {}
     /**
      * @param _data data to initialize the node with.
      * @param _prev pointer to the previous element.
      * @param _next pointer to the next element.
      */
-    DoublyListNode(T _data, DoublyListNode<T> *_prev, DoublyListNode<T> *_next) : data(_data), next(_next), prev(_prev) {}
-    ~DoublyListNode() {}
+    DoublyListNode(T &_data, DoublyListNode<T> *_prev, DoublyListNode<T> *_next) : data(new T(_data)), next(_next), prev(_prev) {}
+    ~DoublyListNode();
 
     /**
      * @return a reference to the data which can be modified.
@@ -48,8 +52,15 @@ public:
      */
     bool operator!=(const DoublyListNode<T> &_node) const { return !(_node == *this); }
 
-    T data;
+    T *data;
     DoublyListNode<T> *next, *prev;
 };
 
 /** @} */
+
+template <typename T>
+DoublyListNode<T>::~DoublyListNode()
+{
+    if (data != nullptr)
+        delete data;
+}
