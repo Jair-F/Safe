@@ -1,5 +1,5 @@
 #pragma once
-#include "SinglyLinkedList.hpp"
+#include "SinglyLinkedList/SinglyLinkedList.inl"
 #include "DoublyLinkedList/DoublyLinkedList.inl"
 
 /**
