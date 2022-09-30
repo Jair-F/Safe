@@ -52,7 +52,7 @@ URTouch myTouch(6, 5, 4, 3, 2);
 #include "UI/lock_screen.hpp"
 #include "UI/RFID_Settings.hpp"
 
-FGUI::MainWindow m_window(&myGLCD, &myTouch); // "{320 - 1, 240 - 1}" --> we begin to count the pixels at 0,0
+FGUI::MainWindow m_window(&myGLCD, &myTouch, {0, 0}, {320 - 1, 240 - 1}); // "{320 - 1, 240 - 1}" --> we begin to count the pixels at 0,0
 lock_screen *l_screen;
 RFID_settings_window *rfid_settings_wnd;
 
@@ -220,6 +220,8 @@ void setup()
 
     // Serial.println("Free memory: ");
     // Serial.println(freeMemory());
+    Serial.println("looping...");
+    delay(2000);
     while (true)
     {
         /*
