@@ -1,5 +1,6 @@
 #include "UI/lock_screen.hpp"
 #include "UI/RFID_Settings.hpp"
+#include "UI/Settings.hpp"
 
 extern const unsigned short settings_white[];
 extern const unsigned short back_sign_white[];
@@ -7,6 +8,7 @@ extern const unsigned short settings_black[];
 extern const unsigned short white_repicthousebase_1484336388[];
 class RFID_settings_window;
 extern RFID_settings_window *rfid_settings_wnd;
+extern Settings_window *settings_wnd;
 
 // for button
 FGUI::position upper_left{20, 40};
@@ -100,7 +102,7 @@ void lock_screen::uncheck_check_box_pop_up(FGUI::Touch_Widget<lock_screen> *_wid
 {
     this->ch_box.set_checked(!this->ch_box.is_checked());
     this->hide_pop_up_window();
-    this->_get_main_window()->set_active_window(rfid_settings_wnd);
+    this->_get_main_window()->set_active_window(settings_wnd);
 }
 void lock_screen::update_status_bar(FGUI::Touch_Widget<lock_screen> *_widget)
 {
@@ -164,21 +166,21 @@ void lock_screen::_handle_check_box(FGUI::Touch_Widget<lock_screen> *_widget)
 
     if (!this->ch_box.is_checked())
     {
-        this->input_field.set_disabled(true);
-        this->b_button.set_disabled(true);
-        this->_button.set_disabled(true);
-        this->selction_menu.set_disabled(true);
+        this->input_field.disable();
+        this->b_button.disable();
+        this->_button.disable();
+        this->selction_menu.disable();
 
-        this->status_bar.set_disabled(true);
+        this->status_bar.disable();
     }
     else
     {
-        this->input_field.set_disabled(false);
-        this->b_button.set_disabled(false);
-        this->_button.set_disabled(false);
-        this->selction_menu.set_disabled(false);
+        this->input_field.enable();
+        this->b_button.enable();
+        this->_button.enable();
+        this->selction_menu.enable();
 
-        this->status_bar.set_disabled(false);
+        this->status_bar.enable();
     }
 }
 
@@ -197,7 +199,7 @@ void lock_screen::update_window_label(FGUI::Touch_Widget<lock_screen> *_widget)
     this->u_giff.set_bitmap_change_speed(tmp.toInt() * 10);
 }
 
-void lock_screen::input_field_adjust(FGUI::Touch_Widget<lock_screen> *_widget, char *_input_buffer)
+void lock_screen::input_field_adjust(FGUI::Touch_Widget<lock_screen> *_widget, const char *_input_buffer)
 {
     if (strcmp(_input_buffer, "1875") == 0)
     {

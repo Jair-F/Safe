@@ -23,7 +23,7 @@ protected:
 
     void update_window_label(FGUI::Touch_Widget<lock_screen> *_widget);
 
-    void input_field_adjust(FGUI::Touch_Widget<lock_screen> *_widget, char *_input_buffer);
+    void input_field_adjust(FGUI::Touch_Widget<lock_screen> *_widget, const char *_input_buffer);
 
 private:
     FGUI::Button<lock_screen> _button;
