@@ -162,11 +162,16 @@ namespace FGUI
          */
         inline bool is_disabled() const override { return this->disabled; }
         /**
-         * @param _disabled true if the widget should be disabled
          * @note the widget will be redrawn automatically with disabled colors
          * @details if a widget is disabled it cant be touched
          */
-        void set_disabled(bool _disabled) override;
+        void disable() override;
+        /**
+         * @brief the oposite of disable
+         * @note the widget will be redrawn automatically with disabled colors
+         * @details if a widget is disabled it cant be touched
+         */
+        void enable() override;
 
         /**
          * @return true if the widget is touched at the time
@@ -320,11 +325,15 @@ void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_widget()
 }
 
 template <typename CALL_OBJECT_TYPE>
-void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::set_disabled(bool _disabled)
+void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::disable()
 {
-    if (_disabled != this->disabled)
-    {
-        this->disabled = _disabled;
-        this->_draw_widget();
-    }
+    this->disabled = true;
+    this->_draw_widget();
+}
+
+template <typename CALL_OBJECT_TYPE>
+void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::enable()
+{
+    this->disabled = false;
+    this->_draw_widget();
 }

@@ -60,7 +60,7 @@ namespace FGUI
          * @note if the input_buffer has been changed due to and input_send of the user call this func
          * this function is called before the input field is drawn - to allow changing colors etc...
          */
-        void (CALL_OBJECT_TYPE::*on_typing)(Touch_Widget<CALL_OBJECT_TYPE> *_widget, char *_input_buffer) = nullptr;
+        void (CALL_OBJECT_TYPE::*on_typing)(Touch_Widget<CALL_OBJECT_TYPE> *_widget, const char *_input_buffer) = nullptr;
 
         /**
          * @param _parent the parent window to which the widget will register to

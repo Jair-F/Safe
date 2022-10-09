@@ -1,17 +1,14 @@
 #include "FGUI/FGUI.hpp"
 
 FGUI::PopUp_Window::PopUp_Window(WindowBase *_parent_window, uint16_t _width, uint16_t _height, uint8_t _border_weight, bool _show_close_button,
-                                 uint16_t _close_button_size) : FGUI::WindowBase({static_cast<uint8_t>((_parent_window->_get_display()->getDisplayXSize() / 2 - _width / 2)),
-                                                                                  static_cast<uint8_t>((_parent_window->_get_display()->getDisplayYSize() / 2 - _height / 2))},
+                                 uint16_t _close_button_size) : FGUI::WindowBase({static_cast<uint16_t>((_parent_window->_get_display()->getDisplayXSize() / 2 - _width / 2)),
+                                                                                  static_cast<uint16_t>((_parent_window->_get_display()->getDisplayYSize() / 2 - _height / 2))},
 
-                                                                                 {static_cast<uint8_t>((_parent_window->_get_display()->getDisplayXSize() / 2 + _width / 2)),
-                                                                                  static_cast<uint8_t>((_parent_window->_get_display()->getDisplayYSize() / 2 + _height / 2))},
-                                                                                 _border_weight),
-
-                                                                parent_window(_parent_window),
-                                                                close_button_size(_close_button_size),
-                                                                close_button(this, {static_cast<uint8_t>(this->get_content_width() - close_button_size), 0},
-                                                                             close_button_size, this)
+                                                                                 {static_cast<uint16_t>((_parent_window->_get_display()->getDisplayXSize() / 2 + _width / 2)),
+                                                                                  static_cast<uint16_t>((_parent_window->_get_display()->getDisplayYSize() / 2 + _height / 2))},
+                                                                                 _parent_window, _border_weight),
+                                                                close_button(this, {static_cast<uint16_t>(this->get_content_width() - _close_button_size), 0},
+                                                                             _close_button_size, this)
 {
     if (!_show_close_button)
         this->close_button.hide();
@@ -23,33 +20,29 @@ FGUI::PopUp_Window::~PopUp_Window()
     MainWindow *main_window = this->_get_main_window();
     if (main_window->get_active_window() == this)
     {
-        main_window->set_active_window(parent_window);
+        main_window->set_active_window(this->_get_parent_window());
     }
 }
 
 FGUI::MainWindow *FGUI::PopUp_Window::_get_main_window() const
 {
-    return this->parent_window->_get_main_window();
-}
-FGUI::WindowBase *FGUI::PopUp_Window::_get_parent_window() const
-{
-    return this->parent_window;
+    return this->_get_parent_window()->_get_main_window();
 }
 UTFT *FGUI::PopUp_Window::_get_display() const
 {
-    return this->parent_window->_get_display();
+    return this->_get_parent_window()->_get_display();
 }
 URTouch *FGUI::PopUp_Window::_get_touch() const
 {
-    return this->parent_window->_get_touch();
+    return this->_get_parent_window()->_get_touch();
 }
 bool FGUI::PopUp_Window::request_focus(Widget *_widget)
 {
-    this->parent_window->request_focus(_widget);
+    this->_get_parent_window()->request_focus(_widget);
 }
 FGUI::Widget *FGUI::PopUp_Window::get_focused_widget() const
 {
-    return this->parent_window->get_focused_widget();
+    return this->_get_parent_window()->get_focused_widget();
 }
 
 void FGUI::PopUp_Window::hide_close_button()
@@ -97,5 +90,5 @@ void FGUI::PopUp_Window::hide()
 
 void FGUI::PopUp_Window::_exit_pop_up_window(Touch_Widget<PopUp_Window> *_widget)
 {
-    this->parent_window->hide_pop_up_window();
+    this->_get_parent_window()->hide_pop_up_window();
 }

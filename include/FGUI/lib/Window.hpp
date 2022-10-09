@@ -27,6 +27,7 @@ namespace FGUI
     {
     public:
         Window(MainWindow *main_window);
+        Window(WindowBase *_parent_window);
         virtual ~Window() {}
 
         /**

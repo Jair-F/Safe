@@ -56,9 +56,10 @@ namespace FGUI
         MainWindow *_get_main_window() const override;
 
         /**
-         * @return pionter to the parent window on top of which the pop up window is shown
+         * @return the size of the close button
+         * @details the close button is a quadrat...
          */
-        WindowBase *_get_parent_window() const;
+        uint16_t _get_close_button_size() const { return this->close_button.width(); }
 
     protected:
         /**
@@ -71,9 +72,6 @@ namespace FGUI
         void _exit_pop_up_window(Touch_Widget<PopUp_Window> *_widget);
 
     private:
-        WindowBase *parent_window;
-
-        uint16_t close_button_size = 22; //< @brief width and height in pixels(rectangle)
         CloseButton<PopUp_Window> close_button;
     };
 

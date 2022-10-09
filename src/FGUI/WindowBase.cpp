@@ -1,10 +1,11 @@
 #include "FGUI/FGUI.hpp"
 
 FGUI::WindowBase::WindowBase(const position &_upper_left, const position &_lower_right,
-                             uint8_t _border_weight) : upper_left(_upper_left), lower_right(_lower_right),
-                                                       border_weight(_border_weight), border_color(VGA_WHITE),
-                                                       registered_widgets(), active_pop_up_window(nullptr),
-                                                       last_focused_widget(nullptr)
+                             WindowBase *_parent_window, uint8_t _border_weight) : upper_left(_upper_left), lower_right(_lower_right),
+                                                                                   border_weight(_border_weight), border_color(VGA_WHITE),
+                                                                                   registered_widgets(), active_pop_up_window(nullptr),
+                                                                                   last_focused_widget(nullptr),
+                                                                                   parent_window(_parent_window)
 {
 }
 
@@ -13,6 +14,15 @@ FGUI::position FGUI::WindowBase::_calc_absolute_pos(const position &_pos) const
     position ret_pos = this->get_content_upper_left();
     ret_pos.x_pos += _pos.x_pos;
     ret_pos.y_pos += _pos.y_pos;
+
+    return ret_pos;
+}
+
+FGUI::position FGUI::WindowBase::_calc_relative_pos(const position &_pos) const
+{
+    position ret_pos = {0, 0};
+    ret_pos.x_pos = this->upper_left.x_pos - _pos.x_pos;
+    ret_pos.y_pos = this->upper_left.y_pos - _pos.y_pos;
 
     return ret_pos;
 }
@@ -267,4 +277,9 @@ void FGUI::WindowBase::_draw_border()
         display->drawRect(this->upper_left.x_pos + i, this->upper_left.y_pos + i,
                           this->lower_right.x_pos - i, this->lower_right.y_pos - i);
     }
+}
+
+FGUI::WindowBase *FGUI::WindowBase::_get_parent_window() const
+{
+    return this->parent_window;
 }

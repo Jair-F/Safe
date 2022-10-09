@@ -7,6 +7,9 @@
 
 namespace FGUI
 {
+
+    typedef uint8_t *font_type;
+
     class WindowBase;
 
     /**
@@ -170,12 +173,18 @@ namespace FGUI
         virtual inline bool is_disabled() const { return false; }
 
         /**
-         * @param _disabled true if the widget should be disabled
          * @details the widget will be redrawn automatically with disabled colors
          * if a widget is disabled it cant be touched
          * @note only here to make it possible to be called on a touche widget - not available for this widget
          */
-        virtual void set_disabled(bool _disabled) {}
+        virtual void disable() {}
+        /**
+         * @brief the oposite of disable
+         * @details the widget will be redrawn automatically with disabled colors
+         * if a widget is disabled it cant be touched
+         * @note only here to make it possible to be called on a touche widget - not available for this widget
+         */
+        virtual void enable() {}
 
         /**
          * @details handle the input of the keyboard/keypad
@@ -227,7 +236,15 @@ namespace FGUI
          * @note the absolute position will be returned!
          */
         inline const position &pos() const { return upper_left; }
+        /**
+         * @return the upper left position
+         * @note the absolute position will be returned!
+         */
         inline const position &get_upper_left_pos() const { return this->upper_left; }
+        /**
+         * @return the lower right position
+         * @note the absolute position will be returned!
+         */
         inline const position &get_lower_right_pos() const { return this->lower_right; }
 
         /**
