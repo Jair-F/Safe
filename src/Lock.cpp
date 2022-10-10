@@ -93,7 +93,7 @@ void Lock::Lock::report_unauthorized_unlock_try()
         DEBUG_PRINT(F("Unauthorized unlock_object..."))
         // count the unauthorized unlock tries and after a defined amount of tries lock the lock for a specific time
         ++this->unauthorized_unlock_try_counter;
-        if (this->unauthorized_unlock_try_counter >= allowed_num_of_unauthorized_unlock_tries)
+        if (this->unauthorized_unlock_try_counter >= allowed_unauthorized_unlock_tries)
         {
             String msg = F("Locking the lock for ");
             msg += locking_period;
@@ -272,19 +272,19 @@ void Lock::loop()
                 case Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_DISABLED:
                 {
                     // DEBUG_PRINTLN()
-                    logger.log("Unlock_Object is disabled", Log::log_level::L_DEBUG);
+                    // logger.log("Unlock_Object is disabled", Log::log_level::L_DEBUG);
                     break;
                 }
                 case Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR:
                 {
-                    // DEBUG_PRINTLN("Error while reading Unlock_Object!!!!")
-                    logger.log("Error while reading Unlock_Object!!!!", Log::log_level::L_WARNING);
+                    DEBUG_PRINTLN("Error while reading Unlock_Object!!!!")
+                    // logger.log("Error while reading Unlock_Object!!!!", Log::log_level::L_WARNING);
                     break;
                 }
                 case Unlock_Object::unlock_authentication_reports::NO_UNLOCK_OBJECT_PRESENT:
                 {
                     // DEBUG_PRINTLN("No Unlock_Object available")
-                    logger.log("No Unlock_Object available", Log::log_level::L_DEBUG);
+                    //  logger.log("No Unlock_Object available", Log::log_level::L_DEBUG);
                     break;
                 }
                 default:
