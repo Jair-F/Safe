@@ -10,7 +10,7 @@ namespace RFID
     class UID
     {
     public:
-        UID() : uid_length(0), uid(nullptr) {}
+        UID() : uid(nullptr), uid_length(0) {}
         /**
          * @details makes a deep copy of _uid
          */
