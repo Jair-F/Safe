@@ -1,56 +1,141 @@
 #pragma once
 #include <Arduino.h>
+#include <ArduinoJson.h>
+#include <SD.h>
+#include "Fingerprint.hpp"
+#include "RFID/RFID.hpp"
+#include "FGUI/FGUI.hpp"
+// #include "pin..."
 
-//#include <EEPROM.h>
+extern StaticJsonDocument<1024> config;
+extern SDClass filesystem;
+extern Fingerprint::Fingerprint *fingerprint;
+extern RFID::RFID *rfid;
+extern FGUI::MainWindow m_window;
+extern Lock lock;
 
 namespace Config
 {
-    constexpr unsigned int START_OF_EEPROM = 0;
-    constexpr unsigned int EEPROM_SIZE = 4096;
-    enum error
+    bool write_config(File &config_file)
     {
-        NO_ERROR = 0,
-        BUFFER_TO_LONG
-    };
-    /*
-        - saves the string data in the EEPROM
-        - dont forget to call in the setup-function EEPROM.begin()
-        - !!! be carefully it can only be stored one string in the whole eeprom - there is only one config-file!!!
-        @param data the data which will be stored in the EEPROM - be carefully the data
-                has to be smaller than(EEPROM_SIZE-1)
-        @return error if storing was successfully
-    */
-    error write_config(String data)
-    {
-        if (data.length() > EEPROM_SIZE - 1)
+        if (!config_file.availableForWrite())
         {
-            return error::BUFFER_TO_LONG;
+            return false;
         }
-        String ret;
-        unsigned int iterator;
-        for (iterator = 0; iterator < data.length() || iterator < EEPROM_SIZE - 1; ++iterator)
+
+        config[F("Fingerprint")][F("enabled")] = fingerprint->is_enabled();
+
+        config[F("RFID")][F("enabled")] = rfid->is_enabled();
+        JsonArray rfid_tags = config[F("RFID")][F("RFID_tags")];
+        rfid_tags.clear();
+
+        // iterate over the rfid tags and add them to the config
+        RFID::UID *allowed_tags = rfid->_get_allowed_tags();
+        for (uint8_t id = 0; id < RFID::NUM_OF_TAGS; ++id)
         {
-            // EEPROM.update(iterator, data[iterator]);
+            if (allowed_tags[id].is_set())
+            {
+                rfid_tags.createNestedArray();
+                auto tag = rfid_tags[rfid_tags.size() - 1];
+
+                tag.createNestedObject(F("id"));
+                tag.createNestedArray(F("tag_uid"));
+
+                tag[F("id")] = id;
+                for (uint8_t i = 0; i < allowed_tags[id].get_uid_length(); ++i)
+                {
+                    tag[F("tag_uid")].createNestedObject();
+                    uint8_t last_element_id = tag[F("tag_uid")].size();
+                    tag[F("tag_uid")][last_element_id] = allowed_tags[i].get_uid()[i];
+                }
+            }
         }
-        // EEPROM.update(iterator, '\0');
-        return error::NO_ERROR;
+
+        // MainWindow sleep_timeout
+        config[F("system")][F("sleep_timeout")] = m_window.get_fall_aspleep_timer();
+
+        // initializing the lock
+        config[F("system")][F("allowed_unauthorized_unlock_tries")] = lock.get_allowed_unauthorized_unlock_tries();
+        config[F("system")][F("locking_period")] = lock.get_locking_period();
+        config[F("system")][F("lock_timer")] = lock.get_lock_timer();
+
+        serializeJson(config, config_file);
     }
 
-    /*
-        reads the config from the EEPROM - if there was no config stored in
-        the eeprom it reads the full eeprom
-        @return the EEPROM content formated as string
-    */
-    String read_config()
+    /**
+     * @note !!dont forget to call filesystem.begin() and create/initialize all sensor objects
+     * which will be set by the config
+     *
+     * @return true on success
+     */
+    bool read_config(File &config_file)
     {
-        String ret;
-        char tmp = ' ';
-        unsigned int iterator = 0;
-        while (tmp != '\0' && iterator < EEPROM_SIZE - 1)
+        if (!config_file.available())
         {
-            // tmp = EEPROM.read(iterator++);
-            ret += tmp;
+            return false; // error at opening the file
         }
-        return ret;
+
+        deserializeJson(config, config_file);
+
+        // initializing fingerprint
+        if (config[F("Fingerprint")][F("enabled")].as<bool>())
+        {
+            fingerprint->enable();
+        }
+        else
+        {
+            fingerprint->disable();
+        }
+
+        // initializing RFID
+        if (config[F("RFID")][F("enabled")].as<bool>())
+        {
+            rfid->enable();
+        }
+        else
+        {
+            rfid->disable();
+        }
+        JsonArray rfid_tags = config[F("RFID")][F("RFID_tags")];
+        for (JsonObject rfid_tag : rfid_tags)
+        {
+            JsonArray j_tag_uid = rfid_tag[F("tag_uid")];
+
+            uint8_t tag_uid_id = rfid_tag[F("id")].as<uint8_t>();
+            uint8_t tag_uid_size = j_tag_uid.size();
+            uint8_t *tmp_tag_uid = new uint8_t[tag_uid_size];
+
+            uint8_t pos_counter = 0;
+            for (auto tag_uid_byte : j_tag_uid) // with iterator its more efficient
+            {
+                tmp_tag_uid[pos_counter] = tag_uid_byte.as<uint8_t>();
+                ++pos_counter;
+            }
+
+            rfid->add_tag(tag_uid_id, RFID::UID(tmp_tag_uid, tag_uid_size));
+
+            delete[] tmp_tag_uid;
+        }
+
+        // initializing PIN
+        /*
+        if (config[F("PIN")][F("enabled")])
+        {
+            pin->enable();
+        }
+        else
+        {
+            pin->disable();
+        }
+        String pin = config[F("PIN")][F("pin")];
+        */
+
+        // MainWindow sleep_timeout
+        m_window.set_fall_asleep_timer(config[F("system")][F("sleep_timeout")]);
+
+        // initializing the lock
+        lock.set_allowed_unauthorized_unlock_tries(config[F("system")][F("allowed_unauthorized_unlock_tries")]);
+        lock.set_locking_period(config[F("system")][F("locking_period")]);
+        // lock.set_lock_timer(config[F("system")][F("lock_timer")]);
     }
 };
