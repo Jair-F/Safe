@@ -3,19 +3,22 @@
 #include "RFID/RFID.hpp"
 #include "lock_screen.hpp"
 #include "RFID_add_tag_by_read.hpp"
-
-#include "UI/InfoPopUP.hpp"
+#include "RFID_delete_tag_by_id.hpp"
+#include "InfoPopUP.hpp"
+#include "UI/RFID_clear_database.hpp"
 
 class RFID_settings_window : public FGUI::Window
 {
 public:
-    RFID_settings_window(FGUI::MainWindow *_main_window);
+    RFID_settings_window(FGUI::WindowBase *_parent_window);
 
     void loop() override;
 
 protected:
-    void _go_home(FGUI::Touch_Widget<RFID_settings_window> *_widget);
-    void _show_add_tag_wnd(FGUI::Touch_Widget<RFID_settings_window> *_widget);
+    void _exit_window(FGUI::Touch_Widget<RFID_settings_window> *_widget);
+    void _show_add_tag_window(FGUI::Touch_Widget<RFID_settings_window> *_widget);
+    void _show_clear_database_window(FGUI::Touch_Widget<RFID_settings_window> *_widget);
+    void _show_delete_tag_by_id(FGUI::Touch_Widget<RFID_settings_window> *_widget);
 
 private:
     FGUI::TextLabel window_title;
@@ -27,7 +30,7 @@ private:
 
     FGUI::BitmapButton<RFID_settings_window> home_btn;
 
-    RFID_add_tag_pop_up add_tag_wnd;
-
-    InfoPopUp info_wnd;
+    RFID_add_tag_window rfid_add_tag_wnd;
+    RFID_delete_tag_by_id rfid_delete_tag_by_id;
+    RFID_clear_database clear_database_p_wnd;
 };

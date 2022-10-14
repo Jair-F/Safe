@@ -102,9 +102,11 @@ void FGUI::BitmapButton<CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
         break;
     }
     }
-
-    this->display->drawBitmap(this->upper_left.x_pos + this->get_border_weight() + this->border_to_bitmap_gap,
-                              this->upper_left.y_pos + this->get_border_weight() + this->border_to_bitmap_gap,
-                              bitmap_width, bitmap_height,
-                              bitmap_to_draw, 1);
+    if (bitmap_to_draw != nullptr)
+    {
+        this->display->drawBitmap(this->upper_left.x_pos + this->get_border_weight() + this->border_to_bitmap_gap,
+                                  this->upper_left.y_pos + this->get_border_weight() + this->border_to_bitmap_gap,
+                                  bitmap_width, bitmap_height,
+                                  bitmap_to_draw, 1);
+    }
 }

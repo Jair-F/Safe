@@ -10,10 +10,16 @@ namespace RFID
     class UID
     {
     public:
-        UID() {}
+        UID() : uid(nullptr), uid_length(0) {}
+        /**
+         * @details makes a deep copy of _uid
+         */
         UID(uint8_t *_uid, uint8_t uid_length);
         UID(const UID &_uid);
-        ~UID() {}
+        UID(UID &&_uid)
+        noexcept;
+        ~UID();
+        UID &operator=(const UID &_uid);
 
         bool operator==(const UID &_uid) const;
 
@@ -44,7 +50,7 @@ namespace RFID
         void clear();
 
     private:
-        uint8_t uid[MAX_UID_BLOCKS] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t *uid;
         uint8_t uid_length = 0;
     };
 } // namespace RFID

@@ -1,6 +1,6 @@
 {
-    "Keyboard": {
-        "PIN": "9383920",
+    "PIN": {
+        "pin": "9383920",
         "enabled": true
     },
     "RFID": {
@@ -8,11 +8,21 @@
         "RFID_tags": [
             {
                 "id": 0,
-                "tag_uid": "1b 2f 43 23"
+                "tag_uid": [
+                    163,
+                    6,
+                    74,
+                    29
+                ]
             }
         ]
     },
     "Fingerprint": {
         "enabled": true
+    },
+    "system": {
+        "locking_period": 60,
+        "allowed_unauthorized_unlock_tries": 10,
+        "sleep_timeout": 60
     }
 }

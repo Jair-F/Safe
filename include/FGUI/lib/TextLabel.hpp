@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Arduino.h>
 #include "Widget.hpp"
 
 extern uint8_t SmallFont[];

@@ -31,8 +31,9 @@ namespace FGUI
             @details upper_left and lower_right needs to be set by the derived class
             @param _upper_left  the upper left position of the window rectangle - absolute position
             @param _lower_right the lower right position of the window rectangle - absolute position
+            @param _parent_window pointer which pionts to the parent window - nullptr if the window doesnt have one
         */
-        WindowBase(const position &_upper_left, const position &_lower_right, uint8_t _border_weight = 0);
+        WindowBase(const position &_upper_left, const position &_lower_right, WindowBase *_parent_window = nullptr, uint8_t _border_weight = 0);
         virtual ~WindowBase() {}
 
         // functions which derived classes need to implement with their pointer to the parent_window
@@ -66,6 +67,10 @@ namespace FGUI
          * @return get the main window instance
          */
         virtual MainWindow *_get_main_window() const = 0;
+        /**
+         * @return pointer to the parent window - nullptr if the window has no
+         */
+        WindowBase *_get_parent_window() const;
 
         /**@}*/
 
@@ -119,6 +124,13 @@ namespace FGUI
             @return the according absolute pos to the relative pos
         */
         position _calc_absolute_pos(const position &_pos) const;
+        /**
+         * @details this function calculates the relative position to a given absolute position of the window.
+         * its for widgets in the window to get their relative positions on the window.
+         * @param _pos the absolute pos from the widget
+         * @return the according relative pos to the absolute pos
+         */
+        position _calc_relative_pos(const position &_pos) const;
         /*!
             @return the upper left position(absolute pos) of the window
         */
@@ -187,6 +199,8 @@ namespace FGUI
         /*!
             @details the background color of the window and the color which the widgets will be overdrawn if the are hidden.
             the window needs to be redrawn manually to take effect the change.
+
+            RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
         */
         void set_background_color(unsigned int _background_color) { this->background_color = _background_color; }
         inline unsigned int get_background_color() const { return this->background_color; }
@@ -238,6 +252,7 @@ namespace FGUI
 
         /*!
             the border weight of the window in pixels.
+            the border overlaps into the content space
         */
         uint8_t border_weight;
         unsigned int border_color = VGA_WHITE;
@@ -262,6 +277,8 @@ namespace FGUI
             and according to that it calls the _released method of the widgets
         */
         Widget *last_focused_widget;
+
+        WindowBase *parent_window = nullptr;
     };
     /** @} */
 

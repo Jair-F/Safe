@@ -1,130 +1,54 @@
 #pragma once
 #include <assert.h>
+#include "DoublyListNode.inl"
+#include "DoublyListNodeIterator.inl"
 
-template <typename T>
-class DoublyListNode
-{
-public:
-    DoublyListNode() : next(nullptr), prev(nullptr) {}
-    DoublyListNode(DoublyListNode<T> *_prev, DoublyListNode<T> *_next) : next(_next), prev(_prev) {}
-    DoublyListNode(T _data, DoublyListNode<T> *_prev, DoublyListNode<T> *_next) : data(_data), next(_next), prev(_prev) {}
-    ~DoublyListNode() {}
-
-    T &operator*() const { return data; }
-
-    /*
-        consider the next,prev pointer and the data
-    */
-    bool operator==(const DoublyListNode<T> &_node) const
-    {
-        return _node.next == this->next &&
-               _node.prev == this->prev &&
-               _node.data == this->data;
-    }
-    bool operator!=(const DoublyListNode<T> &_node) const { return !(_node == *this); }
-
-    T data;
-    DoublyListNode<T> *next, *prev;
-};
-
-template <typename T>
-class DoublyListNodeIterator
-{
-public:
-    DoublyListNodeIterator(DoublyListNode<T> *_ln) : _node(_ln) {}
-    DoublyListNodeIterator(DoublyListNode<T> &_ln) : _node(&_ln) {}
-    // DoublyListNodeIterator(DoublyListNodeIterator<T> &_it) : _node(_it.node()) {}
-    // DoublyListNodeIterator(DoublyListNodeIterator<T> *_it) : _node(_it->node()) {}
-
-    /*
-        post increment-operator(a++) - return the current data - before the switch
-    */
-    DoublyListNode<T> *operator++(int)
-    {
-        this->_node = this->_node->next;
-        return this->_node->prev;
-    }
-
-    /*
-        pre increment-operator(++a) - return the data after the switch
-    */
-    DoublyListNode<T> &operator++()
-    {
-        this->_node = this->_node->next;
-        return *(this->_node);
-    }
-
-    /*
-        post decrement-operator(a--) - return the current data - before the switch
-    */
-    DoublyListNode<T> *operator--(int)
-    {
-        this->_node = this->_node->prev;
-        return this->_node->next;
-    }
-
-    /*
-        pre decrement-operator(--a) - return the data after the switch
-    */
-    DoublyListNode<T> &operator--()
-    {
-        this->_node = this->_node->prev;
-        return *(this->_node);
-    }
-
-    // consider the data and the prev and next pointers
-    bool operator==(const DoublyListNodeIterator<T> &_list_iterator) const
-    {
-        return this->_node == _list_iterator.node() &&
-               this->prev() == _list_iterator.prev() &&
-               this->next() == _list_iterator.next();
-    }
-    bool operator!=(const DoublyListNodeIterator<T> &_list_iterator) const { return !(*this == _list_iterator); }
-
-    T &data() const { return this->_node->data; }
-    T &operator->() const { return this->_node->data; }
-    T *operator*() const { return &this->_node->data; }
-    DoublyListNode<T> *next() const { return this->_node->next; }
-    DoublyListNode<T> *prev() const { return this->_node->prev; }
-    DoublyListNode<T> *node() const { return this->_node; }
-
-private:
-    DoublyListNode<T> *_node;
-};
-
-/*
-    Simple linked list - linked only in one direction
-
-    works for every element which has implemented following methods:
-        - standard constructor(T())
-        - copy constructor
-        - compare-operator - operator==()
-        - bigger than operator - operator>()
-*/
+/**
+ * \defgroup DoublyLinkedList
+ * \ingroup LinkedList
+ *
+ * @note
+ * works for every element which has implemented following methods:
+ *     - standard constructor(T())
+ *     - copy constructor
+ *     - compare-operator - operator==()
+ *     - bigger than operator - operator>()
+ *
+ * @brief a simple linked list which is linked forward and backward with basic functionality.
+ *
+ * @{
+ */
 template <typename T>
 class DoublyLinkedList
 {
+    // documentating the template parameter
+    /**
+     * @tparam T type of which the Linked List should be.
+     */
+
 public:
+    /**
+     * @brief create an empty list
+     */
     DoublyLinkedList();
-    /*
-        @param _size size of the list
-        @param _standard_initializer initialize the whole list with this value
-    */
+    /**
+     * @param _size size of the list
+     * @param _standard_initializer initialize the whole list with this value
+     */
     DoublyLinkedList(unsigned long _size, T _standard_initializer);
     ~DoublyLinkedList();
 
     void push_front(T _data);
     void push_back(T _data);
 
-    /*
-        reverse the whole list - first element will be last and last will be first
-    */
-    void reverse();
+    /**
+     * @brief reverse the whole list - first element will be last and last will be first
+     */
+    // void reverse();
 
-    /*
-        insert _data on the _position and push the data that is now on this positon
-        one back
-    */
+    /**
+     * @brief insert _data on the _position and push the data that is now on this positon one back
+     */
     void insert(unsigned long _position, T _data);
 
     /*
@@ -137,25 +61,30 @@ public:
     */
     // void sort();
 
-    /*
-        @return the deleted element - undefined return value if there isn't any more elements in the list
-    */
+    /**
+     * @return the deleted element - undefined return value if there isn't any more elements in the list
+     */
     T pop_back();
-    /*
-        @return the deleted element - undefined return value if there isn't any more elements in the list
-    */
+    /**
+     * @return the deleted element - undefined return value if there isn't any more elements in the list
+     */
     T pop_front();
-    /*
-        @return the deleted element - undefined return value if there isn't any more elements in the list
-    */
+    /**
+     * @return the deleted element - undefined return value if there isn't any more elements in the list
+     */
     T erase(unsigned long _position);
-    /*
-        delete the whole list
-    */
+    /**
+     * @brief delete the whole list
+     */
     void clear();
 
+    /**
+     * @brief same as size()
+     */
     unsigned long length() const;
-    // same as length()
+    /**
+     * @brief same as length()
+     */
     unsigned long size() const;
 
     T &operator[](unsigned long _index) { return this->at(_index); }
@@ -163,20 +92,31 @@ public:
     T &at(unsigned long _index);
     const T &at(unsigned long _index) const;
 
+    /**
+     * @return reference to the first element in the list
+     */
     DoublyListNode<T> &front() const { return *(this->_begin->next); }
+    /**
+     * @return reference to the last element in the list
+     */
     DoublyListNode<T> &last() const { return *(this->_end->prev); }
+
+    /**
+     * @return an iterator to the first element in the list
+     */
     DoublyListNodeIterator<T> begin() const { return DoublyListNodeIterator<T>(*(this->_begin->next)); }
-    /*
-        @return one element past the last element in the list
-    */
+    /**
+     * @return one element past the last element in the list
+     */
     DoublyListNodeIterator<T> end() const { return DoublyListNodeIterator<T>(*(this->_end)); }
 
 private:
-    // SinglyListNodeBase<T> _last; // the element which will be returned in a iterator at calling end(element past the last element of data)
     DoublyListNode<T> *_end;
     DoublyListNode<T> *_begin;
     unsigned long _size;
 };
+
+/** @} */
 
 template <typename T>
 DoublyLinkedList<T>::DoublyLinkedList() : _end(new DoublyListNode<T>()), _begin(new DoublyListNode<T>()), _size(0)
@@ -271,7 +211,7 @@ T DoublyLinkedList<T>::pop_back()
     if (this->size() > 0)
     {
         DoublyListNode<T> *element_to_delete = &this->last();
-        T data_backup = element_to_delete->data;
+        T data_backup = *(element_to_delete->data);
 
         DoublyListNode<T> *e_before = element_to_delete->prev; // element before the element to delete
 

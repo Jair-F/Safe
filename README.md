@@ -18,9 +18,12 @@
 ## Wiring for Arduino Mega with this Code
 <!-- Wiring not working for Arduino Mega: https://arduino.stackexchange.com/questions/60525/did-not-find-fingerprint-sensor-arduino-mega-2560-adafruit-fingerprint-sensor -->
 - RFID:
-    - SDA:  SDA1 (on the due board left side below the reset button)
-    - SCL: SCL1
-    - IRQ: A7(defineable)
+    - SDA:  (SS)
+    - SCK: SPI header SCK
+    - MOSI: SPI header MOSI
+    - MISO: SPI header MISO
+    - IRQ:
+    - RST: SPI header RST
     - VC:   3,3V
     - GND:  GND
 - Fingerprint:
@@ -42,6 +45,12 @@
     - C1: A12
     - C2: A13
     - C3: A14
+- SD-Card Reader:
+    - VCC: 3.3V
+    - GND: GND
+    - MOSI: DUE SPI header MOSI
+    - MISO: DUE SPI header MISO
+    - SCK: DUE SPI header SCK
 
 ## Debugging
 The Arduino Mega has an onboard debugging-section. The communication between the Computer and the Arduino Board is via the UART(Serial) interface. We can specify the Hardware-UART which the sketch should use in the `avr8-stub.h` header with the Makro `AVR8_UART_NUMBER` - 0-3. For communication with Serial-Monitor and debugging we need an [UART-USB dongle](https://www.aliexpress.com/item/32962455401.html?_randl_currency=ILS&_randl_shipto=IL)

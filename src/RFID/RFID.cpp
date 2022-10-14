@@ -1,7 +1,9 @@
+#include <MFRC522.h>
 #include "RFID/RFID.hpp"
 
-RFID::RFID::RFID(byte irq, byte reset, Lock *_lock, bool _enabled) : Unlock_Object(_lock, _enabled), rfid(irq, reset)
+RFID::RFID::RFID(byte ss, byte rst, Lock *_lock, bool _enabled) : Unlock_Object(_lock, _enabled), rfid(ss, rst)
 {
+    // SPI.begin();
     for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
     {
         this->allowed_tags[i].clear();
@@ -10,31 +12,19 @@ RFID::RFID::RFID(byte irq, byte reset, Lock *_lock, bool _enabled) : Unlock_Obje
 
 bool RFID::RFID::begin()
 {
-    this->rfid.begin();
-    uint32_t firmware_version = this->rfid.getFirmwareVersion();
-    if (!firmware_version)
+    // SPI.begin();
+    this->rfid.PCD_Init();
+    this->rfid.PCD_DumpVersionToSerial();
+    if (this->rfid.PCD_PerformSelfTest())
     {
-        logger.log("Failded to get firmware-version of the PN532-RFID", Log::log_level::L_WARNING);
-        return false;
+        Serial.println("Selftest of RFID was sucessful");
     }
     else
     {
-        Serial.print("PN532-Version: ");
-        Serial.println((firmware_version >> 24) & 0xFF, HEX);
-        Serial.print("Firmware ver. ");
-        Serial.print((firmware_version >> 16) & 0xFF, DEC);
-        Serial.print('.');
-        Serial.println((firmware_version >> 8) & 0xFF, DEC);
+        Serial.println("Selftest of RFID failed");
     }
-
-    bool success = this->rfid.SAMConfig();
-    if (!success)
-    {
-        logger.log("Failed to configure the PN532-RFID", Log::log_level::L_WARNING);
-        return false;
-    }
-
-    return true;
+    this->rfid.PCD_Init(); // initialize the rfid again - after the test it wont work
+    this->rfid.PCD_SoftPowerUp();
 }
 
 Unlock_Object::unlock_authentication_reports RFID::RFID::read()
@@ -44,21 +34,26 @@ Unlock_Object::unlock_authentication_reports RFID::RFID::read()
         return Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_DISABLED;
     }
 
-    uint8_t read_uid[MAX_UID_BLOCKS];
-    uint8_t uid_length = 0;
-    bool read_success = false;
-
-    read_success = rfid.readPassiveTargetID(PN532_MIFARE_ISO14443A, read_uid, &uid_length);
-    if (!read_success)
+    if (!this->tag_present())
     {
         return Unlock_Object::unlock_authentication_reports::NO_UNLOCK_OBJECT_PRESENT;
     }
 
-    UID tmp_uid(read_uid, uid_length);
-    for (uint8_t i = 0; i < NUM_OF_TAGS; ++i)
+    UID read_uid = this->read_tag_UID();
+    if (read_uid.is_set())
     {
-        if (this->allowed_tags[i] == tmp_uid)
-            return Unlock_Object::unlock_authentication_reports::AUTHORIZED_UNLOCK_OBJECT;
+        Serial.print("Read tag with UID: ");
+        Serial.println(read_uid.to_string());
+
+        for (uint8_t i = 0; i < NUM_OF_TAGS; ++i)
+        {
+            if (this->allowed_tags[i] == read_uid)
+                return Unlock_Object::unlock_authentication_reports::AUTHORIZED_UNLOCK_OBJECT;
+        }
+    }
+    else
+    {
+        return Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR;
     }
 
     return Unlock_Object::unlock_authentication_reports::UNAUTHORIZED_UNLOCK_OBJECT;
@@ -81,6 +76,7 @@ bool RFID::RFID::read_add_tag(unsigned short id)
         DEBUG_PRINTLN(F("id is out of range"));
         // throw an error
     }
+
     UID tag_uid = this->read_tag_UID();
     if (tag_uid.is_set())
     {
@@ -92,9 +88,9 @@ bool RFID::RFID::read_add_tag(unsigned short id)
 
 bool RFID::RFID::tag_present()
 {
-    uint8_t read_uid[MAX_UID_BLOCKS];
-    uint8_t uid_length = 0;
-    return this->rfid.readDetectedPassiveTargetID(read_uid, &uid_length);
+    this->unread_tag_present = this->rfid.PICC_IsNewCardPresent();
+
+    return this->unread_tag_present == true;
 }
 
 void RFID::RFID::add_tag(unsigned short id, UID tag_uid)
@@ -146,7 +142,6 @@ RFID::UID &RFID::RFID::get_tag_uid(unsigned short id)
         // return;
         // throw an error
     }
-
     else
     {
         // return this->allowed_tags[id].operator bool();
@@ -168,17 +163,30 @@ int RFID::RFID::get_tag_id(UID tag_uid)
 
 RFID::UID RFID::RFID::read_tag_UID()
 {
-    uint8_t read_uid[MAX_UID_BLOCKS];
-    uint8_t uid_length = 0;
-    bool read_success = false;
-
-    read_success = rfid.readPassiveTargetID(PN532_MIFARE_ISO14443A, read_uid, &uid_length);
-    if (!read_success)
+    if (!this->unread_tag_present) // if we didnt checked for a tag or if there is no tag present - check again
     {
-        return UID();
+        if (this->rfid.PICC_IsNewCardPresent()) // if a tag is present
+        {
+            this->unread_tag_present = true;
+        }
     }
 
-    return UID(read_uid, uid_length);
+    if (this->unread_tag_present)
+    {
+        Serial.println("reading the tag UID...");
+        if (this->rfid.PICC_ReadCardSerial()) // if the UID could be read
+        {
+            Serial.println("read rfid tag uid");
+            // holds the reader until the card is "removed"
+            this->rfid.PICC_HaltA(); // halt the reader in order to not read the same card again and again
+
+            this->unread_tag_present = false;
+            return UID(this->rfid.uid.uidByte, this->rfid.uid.size);
+        }
+    }
+
+    this->unread_tag_present = false;
+    return UID();
 }
 
 const char *RFID::error_message(MFRC522::StatusCode error_code)

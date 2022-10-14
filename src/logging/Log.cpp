@@ -1,6 +1,6 @@
 #include "logging/Log.hpp"
 #include "LinkedList.hpp"
-#include "system_clock.hpp"
+//#include "system_clock.hpp"
 //#define DEBUG
 
 Log::Log::Log(byte _logging_level) : _log_list(), logging_level(_logging_level)
@@ -46,7 +46,7 @@ void Log::Log::serial_dump()
     {
         String tmp;
         tmp += '[';
-        tmp += Clock::time_string(log_iterator.data().time_point());
+        tmp += log_iterator.data().time_point().to_string();
         tmp += F("] ");
         switch (log_iterator.data().Level())
         {

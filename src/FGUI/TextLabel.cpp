@@ -94,17 +94,22 @@ void FGUI::TextLabel::_draw_widget()
 void FGUI::TextLabel::set_text(String _text)
 {
     this->text = _text;
-    this->_clear_widget_space();
+    if (!this->is_hidden())
+        // clearing the widget space befor calc and drawing the widget again - widget size could change with change of text - positions would not be same
+        this->_clear_widget_space();
 
     this->_calc_widget();
 
-    this->_draw_widget();
+    if (!this->is_hidden())
+        this->_draw_widget();
 }
 
 void FGUI::TextLabel::set_font(uint8_t *_font)
 {
     this->text_font = _font;
     this->_calc_widget();
+
+    // clearing the widget space and drawing the widget again - widget size could change with change of text - positions would not be same
     this->_draw_widget();
 }
 

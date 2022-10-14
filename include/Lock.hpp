@@ -30,6 +30,11 @@ public:
 
     ~Lock();
 
+    /**
+     * begin the lock
+     */
+    bool begin();
+
     // ignoring unlocking_allowed and unlock the lock
     void force_unlock();
 
@@ -67,6 +72,27 @@ public:
     // forbid unlocking_requests
     void forbid_unlocking() { this->unlocking_allowed = false; }
 
+    /**
+     * @brief how many times we can fail to try to unlock the lock until he locks itself for a defined time period
+     */
+    inline void set_allowed_unauthorized_unlock_tries(uint8_t num_unlock_tries) { this->allowed_unauthorized_unlock_tries = num_unlock_tries; }
+    inline uint8_t get_allowed_unauthorized_unlock_tries() const { return this->allowed_unauthorized_unlock_tries; }
+    /**
+     * - if there were "allowed_unauthorized_unlock_tries" unauthorized_unlock_try-reports the lock locks
+     *     itself for this duration
+     * - locking_period is in seconds
+     */
+    inline void set_locking_period(unsigned short _locking_period) { this->locking_period = _locking_period; }
+    inline unsigned short get_locking_period() const { return this->locking_period; }
+    /**
+     * @brief after how much time the lock will lock itself if it is being unlocked - in seconds
+     */
+    inline void set_lock_timer(unsigned short _lock_timer) { this->lock_timer = _lock_timer; }
+    /**
+     * @brief after how much time the lock will lock itself if it is being unlocked - in seconds
+     */
+    inline unsigned short get_lock_timer() const { return this->lock_timer; }
+
     /*
         for the unlock_object to register them at the lock when they are created
         not a function for the user which holds the lock-class!!
@@ -102,21 +128,21 @@ private:
     byte unauthorized_unlock_try_counter;
 
     // after how much time the lock will lock itself if it is being unlocked - in seconds
-    const unsigned short lock_timer;
+    unsigned short lock_timer;
 
     /*
         allowed num of unlock_tries until the lock locks itself for a specific time
     */
-    const byte allowed_num_of_unauthorized_unlock_tries = 2;
+    uint8_t allowed_unauthorized_unlock_tries = 5;
     /*
-        - if there were "allowed_num_of_unauthorized_unlock_tries" unauthorized_unlock_try-reports the lock locks
-            itself for this time_period
+        - if there were "allowed_unauthorized_unlock_tries" unauthorized_unlock_try-reports the lock locks
+            itself for this duration
         - locking_period is in seconds
     */
-    const unsigned short locking_period = 60;
+    uint16_t locking_period = 60;
 
     // time point when the lock was unlocked the last time - for the timer
-    RtcDateTime unlock_time_point;
+    Clock::time_point unlock_time_point;
 
     /*
         - if the lock is locked due to too many try's(report_unauthorized_unlock_try) the lock will be locked
@@ -124,18 +150,18 @@ private:
         - This timepoint will be stored in the RTC-Memory. if its not set - not locked
         it will have the value nullptr
     */
-    RtcDateTime *locked_until_time_point;
+    Clock::time_point *locked_until_time_point;
 
     /*
         function which will be called when lock will be locked
         @return true if locking was successful
     */
     bool (*on_locking)(void) = [](void) -> bool
-    {DEBUG_PRINT("locking the lock"); return true; };
+    {DEBUG_PRINTLN("locking the lock"); return true; };
     /*
         function which will be called when lock will be unlocked
         @return true if unlocking was successful
     */
     bool (*on_unlocking)(void) = []() -> bool
-    {DEBUG_PRINT("unlocking the lock"); return true; };
+    {DEBUG_PRINTLN("unlocking the lock"); return true; };
 };
