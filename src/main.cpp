@@ -2,11 +2,9 @@
 #include <SPI.h>
 #include <stdlib.h>
 #include <ArduinoJson.h>
-#include <ThreeWire.h>
-#include <RtcDS1302.h>
 #include <SD.h>
-
-#include <MemoryFree.h>
+#include <RTCLib.h>
+#include <uEEPROMLib.h>
 
 #include "GlobalConstants.hpp"
 #include "Helper.hpp"
@@ -14,7 +12,7 @@
 #include "RFID/RFID.hpp"
 //#include "Fase.hpp"
 #include "Keypad.hpp"
-#include "system_clock.hpp"
+//#include "system_clock.hpp"
 #include "logging/Log.hpp"
 #include "Config.hpp"
 //#define DEBUG
@@ -37,18 +35,15 @@
 	ready setup clock-object
 	to ensure the battery of the clock is not empty check the lost_power method in the setup.
 */
-Clock::Clock<ThreeWire> system_clock(RTC_DATA, RTC_CLK, RTC_RST);
+Clock::Clock system_clock;
+// RTC_DS3231 system_clock;
+uEEPROMLib system_clock_eeprom(0x57); // 0x57 is the default I2C address for the DS3231 EEPROM
 
 #define filesystem_CARD_SELECTION_PIN 10
 SDClass filesystem;
 
 extern uint8_t SmallFont[];
 extern uint8_t BigFont[];
-extern uint8_t mykefont2[];
-extern uint8_t Retro8x16[];
-extern uint8_t Sinclair_Inverted_S[];
-extern uint8_t TinyFont[];
-extern uint8_t Open_Sans_Regular_10[];
 
 UTFT myGLCD(ILI9341_16, 38, 39, 40, 41);
 URTouch myTouch(6, 5, 4, 3, 2);
@@ -83,7 +78,6 @@ StaticJsonDocument<1024> config;
 
 // Fase::Fase fase;
 
-#include <SPI.h>
 void setup()
 {
 #ifdef DEBUG
@@ -92,11 +86,36 @@ void setup()
 
 #endif // DEBUG
 	Serial.begin(9600);
+	Serial.println("Hallo");
 	SPI.begin();
+	Wire.begin(); // I2C
 	delay(500);
 
 	pinMode(12, OUTPUT);
 	digitalWrite(12, LOW);
+
+	if (!system_clock.begin())
+	{
+		Serial.println("Error finding systemclock(DS3231)");
+	}
+	if (system_clock.lost_power())
+	{
+		Serial.println("RTC lost power, let's set the time!");
+		DateTime compile_time(F(__DATE__), F(__TIME__));
+		system_clock.set_date_time(Clock::time_point(compile_time));
+	}
+	Serial.println(system_clock.now().to_string());
+
+	lock.begin();
+
+	Serial.print("system_clock_eeprom page size: ");
+	Serial.println(system_clock_eeprom.page_size);
+	Serial.println("num of system_clock_eeprom pages: 4");
+	for (uint16_t i = 0; i < system_clock_eeprom.page_size; ++i)
+	{
+		Serial.print(system_clock_eeprom.eeprom_read(i));
+	}
+	Serial.println();
 
 	rfid = new RFID::RFID(RFID_SS, RFID_RST, &lock);
 	rfid->begin();
@@ -121,47 +140,6 @@ void setup()
 		if (filesystem.exists("config"))
 		{
 			Serial.println("config file exists");
-			/*
-			auto config_file = filesystem.open("config", O_READ);
-			Serial.print("file size: ");
-			Serial.println(config_file.size());
-			while (config_file.position() < config_file.size())
-			{
-				char buffer;
-				config_file.readBytes(&buffer, 1);
-				Serial.print(buffer);
-			}
-			config_file.seek(0); // jump to begin - we read already the whole file
-
-			deserializeJson(config, config_file);
-			JsonObject tag = config["RFID"]["RFID_tags"][0];
-			uint8_t uid_size = tag["tag_uid"].size();
-			uint8_t *tag_uid = new uint8_t[uid_size];
-			uint8_t counter = 0;
-			Serial.println("reading tag from json object");
-			// JsonArray j_tag_uid = ;
-			for (auto t_uid : static_cast<JsonArray>(tag["tag_uid"]))
-			{
-				Serial.print(t_uid.as<uint8_t>());
-				Serial.print(' ');
-				tag_uid[counter] = t_uid.as<uint8_t>();
-				++counter;
-			}
-			Serial.println();
-			Serial.println("printing the uint8_t tag_uid");
-			for (uint8_t i = 0; i < uid_size; ++i)
-			{
-				Serial.print(tag_uid[i]);
-				Serial.print(' ');
-			}
-			Serial.println();
-			RFID::UID id(tag_uid, uid_size);
-			Serial.println(id.to_string());
-			rfid->add_tag(tag["id"], id);
-			delete[] tag_uid;
-
-			config_file.close();
-			*/
 		}
 		else
 			Serial.println("config doesnt exists");
@@ -187,17 +165,28 @@ void setup()
 	Serial.println(')');
 
 	// l_screen = new lock_screen(&m_window);
-	Settings_window settings_window(&m_window);
+	// Settings_window settings_window(&m_window);
 
 	Serial.println("Created lock_screen...");
-	m_window.set_active_window(&settings_window);
+	// m_window.set_active_window(&settings_window);
 	Serial.println("set active_window");
 
+	/*
+	system_clock.Begin();
+	if (system_clock.IsDateTimeValid())
+	{
+		Serial.println("RTC lost confidence in the DateTime!");
+		RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
+		system_clock.SetDateTime(compiled);
+	}
+	if (system_clock.GetIsWriteProtected())
+	{
+		system_clock.SetIsWriteProtected(false);
+	}
 	if (!system_clock.GetIsRunning())
 	{
 		Serial.println("!!! Systemclock isnt running");
 		logger.log("Systemclock isnt running", Log::log_level::L_ERROR);
-		system_clock.SetIsRunning(true);
 	}
 	if (system_clock.lost_power())
 	{
@@ -205,7 +194,6 @@ void setup()
 		logger.log(F("RTC-Module lost power - change battery..."), Log::log_level::L_DEBUG);
 		Serial.println("Setting time to compile time time");
 		RtcDateTime now(__DATE__, __TIME__);
-		system_clock.SetIsWriteProtected(false);
 		system_clock.SetDateTime(now);
 		// add warning to msg-log to print on the display
 	}
@@ -213,6 +201,9 @@ void setup()
 	{
 		DEBUG_PRINTLN(F("RTC-Module doesnt lost power"))
 	}
+	*/
+
+	/*
 	DEBUG_PRINTLN((int)(sizeof(RtcDateTime) % sizeof(uint8_t)));
 	DEBUG_PRINTLN((int)(sizeof(RtcDateTime) / sizeof(uint8_t)));
 	DEBUG_PRINTLN((int)(sizeof(RtcDateTime)) * 8);
@@ -238,6 +229,7 @@ void setup()
 		DEBUG_PRINTLN(now.DayOfWeek());
 		delay(2000);
 	}
+	*/
 
 	logger.log(F("Started startup"), Log::log_level::L_DEBUG);
 	// fase.begin();
@@ -274,6 +266,7 @@ void setup()
 		Serial.println('.');
 	}
 	*/
+
 	auto config_file = filesystem.open(F("config"), O_READ);
 	if (!Config::read_config(config_file))
 	{
@@ -288,6 +281,7 @@ void setup()
 
 	while (true)
 	{
+		/*
 		if (Serial.available() > 0)
 		{
 			char input;
@@ -296,7 +290,7 @@ void setup()
 			if (input == 's')
 			{
 				digitalWrite(12, HIGH);
-				delay(1000);
+				delay(100);
 				rfid->begin();
 				if (filesystem.begin())
 				{
@@ -310,7 +304,7 @@ void setup()
 			else if (input == 'o')
 			{
 				digitalWrite(12, LOW);
-				delay(1000);
+				delay(100);
 				if (filesystem.begin())
 				{
 					Serial.println("success filesystem...");
@@ -331,6 +325,8 @@ void setup()
 				}
 			}
 		}
+		*/
+
 		/*
 		if (fingerprint->finger_on_sensor())
 		{
@@ -354,7 +350,7 @@ void setup()
 		k_pad.loop();
 		// m_window.loop();
 		lock.loop();
-		//  fase.loop();
+		// fase.loop();
 	}
 }
 

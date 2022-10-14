@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include "log_message.hpp"
 #include "LinkedList.hpp"
+#include "system_clock.hpp"
 
 namespace Log
 {

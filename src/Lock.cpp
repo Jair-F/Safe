@@ -1,17 +1,67 @@
 #include "Lock.hpp"
 #include "logging/Log.hpp"
 #include "system_clock.hpp"
+#include <uEEPROMLib.h>
 
 extern Log::Log logger;
-extern Clock::Clock<ThreeWire> system_clock;
+extern Clock::Clock system_clock;
+extern uEEPROMLib system_clock_eeprom;
 
 Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool _allow_unlocking) : unlock_object_ids(), unlock_objects(),
                                                                                                     state(_lock_state), unlocking_allowed(_allow_unlocking),
                                                                                                     unauthorized_unlock_try_counter(0), lock_timer(_lock_timer),
-                                                                                                    unlock_time_point(0), locked_until_time_point(nullptr)
+                                                                                                    unlock_time_point(), locked_until_time_point(nullptr)
+{
+    // this->state = lock_state::UNLOCKED; // overwrite to trigger a real lock...
+    // this->_lock();
+}
+
+bool Lock::begin()
 {
     if (!system_clock.lost_power()) // if system_clock lost power the data we will read isnt valid - skipp
     {
+        if (!static_cast<bool>(system_clock_eeprom.eeprom_read(0)))
+        {
+            // error with eeprom reading - abort the read of the locked_until time point
+        }
+        else
+        {
+            // reading the last memory-sector of the RTC to look up if a lock-time-point is stored in the memory
+            if (static_cast<bool>(system_clock_eeprom.eeprom_read(SYSTEM_CLOCK_EEPROM_LAST_ADRESS)))
+            {
+                uint16_t time_point_size = sizeof(Clock::time_point);
+                byte *buffer = new byte[time_point_size]; // storage for the locked_until_time_point
+                if (!system_clock_eeprom.eeprom_read(0, buffer, time_point_size))
+                {
+                    // print error while reading the the locked_until_time_point
+                }
+                else
+                {
+                    // if (this->locked_until_time_point == nullptr)
+                    //     this->locked_until_time_point = new Clock::time_point();
+                    this->locked_until_time_point = reinterpret_cast<Clock::time_point *>(buffer);
+                    auto now = system_clock.now();
+                    if ((*locked_until_time_point) > now) // if the time hasnt passed yet
+                    {
+                        this->unlocking_allowed = false;
+                        this->_lock();
+                    }
+                    else
+                    {
+                        // unlocking is allowed
+                        this->unlocking_allowed = true;
+                    }
+                }
+
+                // delete[] buffer;
+            }
+            else
+            {
+                Serial.println(F("no locked_until_time_point saved in system_clock"));
+            }
+        }
+
+        /*
         // reading the last memory-sector of the RTC to look up if a lock-time-point is stored in the memory
         if (static_cast<bool>(system_clock.GetMemory(SYSTEM_CLOCK_MEMORY_LENGTH)))
         {
@@ -40,6 +90,7 @@ Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool 
         {
             DEBUG_PRINT(F("no locked_until_time_point saved in system_clock"))
         }
+        */
     }
     else
     {
@@ -49,23 +100,12 @@ Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool 
             is true and if we change the battary it could lock the lock to a random time_point
         */
         uint8_t buffer = static_cast<uint8_t>(false);
-        system_clock.SetMemory(&buffer, SYSTEM_CLOCK_MEMORY_LENGTH);
+        system_clock_eeprom.eeprom_write(SYSTEM_CLOCK_EEPROM_LAST_ADRESS, buffer);
     }
     if (!this->unlocking_allowed)
     {
-        String msg = F("unlocking is forbidden until ");
-        msg += this->locked_until_time_point->Day();
-        msg += '/';
-        msg += this->locked_until_time_point->Month();
-        msg += '/';
-        msg += this->locked_until_time_point->Year();
-        msg += ' ';
-        msg += this->locked_until_time_point->Hour();
-        msg += ':';
-        msg += this->locked_until_time_point->Minute();
-        msg += ':';
-        msg += this->locked_until_time_point->Second();
-        DEBUG_PRINTLN(msg)
+        Serial.print(F("unlocking is forbidden until "));
+        Serial.println(this->locked_until_time_point->to_string());
     }
 }
 
@@ -101,9 +141,9 @@ void Lock::Lock::report_unauthorized_unlock_try()
             DEBUG_PRINTLN(msg)
             if (locked_until_time_point == nullptr)
             {
-                locked_until_time_point = new RtcDateTime(0);
+                locked_until_time_point = new Clock::time_point();
             }
-            *locked_until_time_point = (system_clock.GetDateTime());
+            *locked_until_time_point = system_clock.now();
             *locked_until_time_point += locking_period;
 
             if (!_save_locked_until_time_point())
@@ -118,7 +158,9 @@ void Lock::Lock::report_unauthorized_unlock_try()
     }
     else
     {
-        String msg = F("unlocking is forbidden until ");
+        Serial.print(F("unlocking is forbidden until "));
+        Serial.println(this->locked_until_time_point->to_string());
+        /*
         msg += this->locked_until_time_point->Day();
         msg += '/';
         msg += this->locked_until_time_point->Month();
@@ -131,6 +173,7 @@ void Lock::Lock::report_unauthorized_unlock_try()
         msg += ':';
         msg += this->locked_until_time_point->Second();
         DEBUG_PRINTLN(msg)
+        */
     }
 }
 
@@ -138,10 +181,13 @@ void Lock::_lock()
 {
     if (this->state != lock_state::LOCKED)
     {
-        bool success = on_locking(); // calling the "switch_state" function which will lock the physical lock
-        if (!success)
+        if (this->on_locking != nullptr)
         {
-            logger.log(F("LOCK: Error locking the physical Lock"), Log::log_level::L_ERROR);
+            bool success = on_locking(); // calling the "switch_state" function which will lock the physical lock
+            if (!success)
+            {
+                logger.log(F("LOCK: Error locking the physical Lock"), Log::log_level::L_ERROR);
+            }
         }
         this->state = lock_state::LOCKED;
     }
@@ -150,12 +196,15 @@ void Lock::_unlock()
 {
     if (this->state != lock_state::UNLOCKED)
     {
-        bool success = on_unlocking(); // calling the "switch_state" function which will unlock the physical lock
-        if (!success)
+        if (this->on_unlocking != nullptr)
         {
-            logger.log(F("LOCK: Error unlocking the physical Lock"), Log::log_level::L_ERROR);
+            bool success = on_unlocking(); // calling the "switch_state" function which will unlock the physical lock
+            if (!success)
+            {
+                logger.log(F("LOCK: Error unlocking the physical Lock"), Log::log_level::L_ERROR);
+            }
         }
-        this->unlock_time_point = system_clock.GetDateTime();
+        this->unlock_time_point = system_clock.now();
         this->state = lock_state::UNLOCKED;
     }
 }
@@ -165,18 +214,28 @@ bool Lock::_save_locked_until_time_point()
     if (locked_until_time_point == nullptr)
         return false;
 
+    if (!system_clock_eeprom.eeprom_write(SYSTEM_CLOCK_EEPROM_LAST_ADRESS, static_cast<uint8_t>(true)))
+        return false; // if writing failed
+    if (system_clock_eeprom.eeprom_write(0, reinterpret_cast<uint8_t *>(locked_until_time_point), sizeof(Clock::time_point)))
+        return false; // if writing failed
+
+    /*
     system_clock.SetMemory(SYSTEM_CLOCK_MEMORY_LENGTH, static_cast<uint8_t>(true)); // setting the flag that we have saved a time_point in the memory
     uint8_t num_written_bytes = system_clock.SetMemory(reinterpret_cast<uint8_t *>(locked_until_time_point), sizeof(RtcDateTime));
     if (num_written_bytes < sizeof(RtcDateTime))
     {
         return false;
     }
-    return true;
+    */
+    return true; // writing was successful
 }
 bool Lock::_delete_locked_until_time_point()
 {
-    system_clock.SetMemory(SYSTEM_CLOCK_MEMORY_LENGTH, static_cast<uint8_t>(false));
-    return true;
+    // returns true if wirting was successful
+    return system_clock_eeprom.eeprom_write(SYSTEM_CLOCK_EEPROM_LAST_ADRESS, static_cast<uint8_t>(false));
+
+    // system_clock.SetMemory(SYSTEM_CLOCK_MEMORY_LENGTH, static_cast<uint8_t>(false));
+    // return true;
 }
 
 bool Lock::request_unlock()
@@ -221,11 +280,11 @@ void Lock::allow_unlocking()
 
 void Lock::loop()
 {
-    RtcDateTime now = system_clock.GetDateTime();
+    Clock::time_point now = system_clock.now();
     if (state == lock_state::UNLOCKED)
     {
-        RtcDateTime lock_time_point(this->unlock_time_point); // when this timepoint is passed the lock has to be locked (lock_time_point+lock_timer)
-        lock_time_point += this->lock_timer;                  // addition is in seconds
+        Clock::time_point lock_time_point(this->unlock_time_point); // when this timepoint is passed the lock has to be locked (lock_time_point+lock_timer)
+        lock_time_point += this->lock_timer;                        // addition is in seconds
         DEBUG_PRINT('.');
 
         if (now > lock_time_point)

@@ -22,7 +22,7 @@
     },
     "system": {
         "locking_period": 60,
-        "allowed_unauthorized_unlock_tries": 2,
+        "allowed_unauthorized_unlock_tries": 10,
         "sleep_timeout": 60
     }
 }

@@ -1,20 +1,20 @@
 #include "logging/Log.hpp"
 #include "system_clock.hpp"
 
-extern Clock::Clock<ThreeWire> system_clock;
+extern Clock::Clock system_clock;
 
 Log::log_message::log_message() : msg(), level(log_level::L_DEBUG)
 {
 }
 
-Log::log_message::log_message(const char *_msg, byte _LogLevel) : msg(_msg), level(_LogLevel), tm_point(system_clock.GetDateTime()) {}
+Log::log_message::log_message(const char *_msg, byte _LogLevel) : msg(_msg), level(_LogLevel), tm_point(system_clock.now()) {}
 
-Log::log_message::log_message(const String &_msg, byte _LogLevel) : msg(_msg), level(_LogLevel), tm_point(system_clock.GetDateTime()) {}
+Log::log_message::log_message(const String &_msg, byte _LogLevel) : msg(_msg), level(_LogLevel), tm_point(system_clock.now()) {}
 Log::log_message &Log::log_message::operator=(const log_message &_lm)
 {
     this->msg = _lm.message();
     this->level = _lm.Level();
-    this->tm_point = system_clock.GetDateTime();
+    this->tm_point = system_clock.now();
     return *this;
 }
 Log::log_message::~log_message() {}
@@ -43,7 +43,7 @@ bool Log::log_message::operator>(const log_message &_l_msg) const
     return this->level > _l_msg.Level();
 }
 
-const RtcDateTime &Log::log_message::time_point() const
+const Clock::time_point &Log::log_message::time_point() const
 {
     return this->tm_point;
 }

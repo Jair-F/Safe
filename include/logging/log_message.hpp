@@ -1,6 +1,6 @@
 #pragma once
-
 #include "system_clock.hpp"
+#include <Arduino.h>
 
 namespace Log
 {
@@ -21,7 +21,7 @@ namespace Log
     private:
         String msg;
         byte level;
-        RtcDateTime tm_point; // when the log message was created
+        Clock::time_point tm_point; // when the log message was created
 
     public:
         log_message();
@@ -38,6 +38,6 @@ namespace Log
 
         const String &message() const;
         byte Level() const;
-        const RtcDateTime &time_point() const;
+        const Clock::time_point &time_point() const;
     };
 } // namespace Log

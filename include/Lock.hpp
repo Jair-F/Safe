@@ -30,6 +30,11 @@ public:
 
     ~Lock();
 
+    /**
+     * begin the lock
+     */
+    bool begin();
+
     // ignoring unlocking_allowed and unlock the lock
     void force_unlock();
 
@@ -74,7 +79,7 @@ public:
     inline uint8_t get_allowed_unauthorized_unlock_tries() const { return this->allowed_unauthorized_unlock_tries; }
     /**
      * - if there were "allowed_unauthorized_unlock_tries" unauthorized_unlock_try-reports the lock locks
-     *     itself for this time_period
+     *     itself for this duration
      * - locking_period is in seconds
      */
     inline void set_locking_period(unsigned short _locking_period) { this->locking_period = _locking_period; }
@@ -131,13 +136,13 @@ private:
     uint8_t allowed_unauthorized_unlock_tries = 5;
     /*
         - if there were "allowed_unauthorized_unlock_tries" unauthorized_unlock_try-reports the lock locks
-            itself for this time_period
+            itself for this duration
         - locking_period is in seconds
     */
-    unsigned short locking_period = 60;
+    uint16_t locking_period = 60;
 
     // time point when the lock was unlocked the last time - for the timer
-    RtcDateTime unlock_time_point;
+    Clock::time_point unlock_time_point;
 
     /*
         - if the lock is locked due to too many try's(report_unauthorized_unlock_try) the lock will be locked
@@ -145,18 +150,18 @@ private:
         - This timepoint will be stored in the RTC-Memory. if its not set - not locked
         it will have the value nullptr
     */
-    RtcDateTime *locked_until_time_point;
+    Clock::time_point *locked_until_time_point;
 
     /*
         function which will be called when lock will be locked
         @return true if locking was successful
     */
     bool (*on_locking)(void) = [](void) -> bool
-    {DEBUG_PRINT("locking the lock"); return true; };
+    {DEBUG_PRINTLN("locking the lock"); return true; };
     /*
         function which will be called when lock will be unlocked
         @return true if unlocking was successful
     */
     bool (*on_unlocking)(void) = []() -> bool
-    {DEBUG_PRINT("unlocking the lock"); return true; };
+    {DEBUG_PRINTLN("unlocking the lock"); return true; };
 };
