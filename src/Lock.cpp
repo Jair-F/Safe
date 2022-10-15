@@ -1,6 +1,6 @@
 #include "Lock.hpp"
 #include "logging/Log.hpp"
-#include "system_clock.hpp"
+#include "system_clock/system_clock.hpp"
 #include <uEEPROMLib.h>
 
 extern Log::Log logger;
@@ -102,6 +102,7 @@ bool Lock::begin()
         uint8_t buffer = static_cast<uint8_t>(false);
         system_clock_eeprom.eeprom_write(SYSTEM_CLOCK_EEPROM_LAST_ADRESS, buffer);
     }
+
     if (!this->unlocking_allowed)
     {
         Serial.print(F("unlocking is forbidden until "));
@@ -130,7 +131,7 @@ void Lock::Lock::report_unauthorized_unlock_try()
 {
     if (this->unlocking_allowed)
     {
-        DEBUG_PRINT(F("Unauthorized unlock_object..."))
+        DEBUG_PRINTLN(F("Unauthorized unlock_object..."))
         // count the unauthorized unlock tries and after a defined amount of tries lock the lock for a specific time
         ++this->unauthorized_unlock_try_counter;
         if (this->unauthorized_unlock_try_counter >= allowed_unauthorized_unlock_tries)
@@ -154,6 +155,11 @@ void Lock::Lock::report_unauthorized_unlock_try()
             this->unlocking_allowed = false;
             _lock();
             this->unauthorized_unlock_try_counter = 0;
+
+            Serial.print("time point now: ");
+            Serial.println(system_clock.now().to_string());
+            Serial.print(F("unlocking is forbidden until "));
+            Serial.println(this->locked_until_time_point->to_string());
         }
     }
     else
