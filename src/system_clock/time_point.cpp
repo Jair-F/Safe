@@ -1,150 +1,5 @@
-#include "system_clock.hpp"
+#include "system_clock/time_point.hpp"
 
-// ------------- duration -------------
-
-#define SECSONDS_IN_YEAR 31536000 // 365 * 24 * 60 * 60
-#define SECONDS_IN_DAY 86400      // 24 * 60 * 60
-#define SECONDS_IN_HOUR 360       // 60 * 60
-#define SECONDS_IN_MINUTE 60
-
-Clock::duration::duration(uint32_t _minutes, uint32_t _secs) : secs(_minutes * SECONDS_IN_MINUTE + _secs)
-{
-}
-
-Clock::duration::duration(uint32_t _hours, uint32_t _minutes, uint32_t _secs) : secs((_hours * SECONDS_IN_HOUR) +
-                                                                                     (_minutes * SECONDS_IN_MINUTE) +
-                                                                                     _secs)
-{
-    this->secs = _secs;
-    this->secs += _minutes * 60;
-    this->secs += _hours * 60 * 60;
-}
-
-Clock::duration::duration(uint16_t _days, uint32_t _hours, uint32_t _minutes, uint32_t _secs) : secs(_days * SECONDS_IN_DAY +
-                                                                                                     _hours * SECONDS_IN_HOUR +
-                                                                                                     _minutes * SECONDS_IN_MINUTE +
-                                                                                                     secs)
-{
-    this->secs = _secs;
-    this->secs += _minutes * 60;
-    this->secs += _hours * 60 * 60;
-    this->secs += _days * 60 * 60 * 24;
-}
-
-Clock::duration::duration(uint8_t _years, uint16_t _days, uint32_t _hours, uint32_t _minutes, uint32_t _secs) : secs(_years * SECSONDS_IN_YEAR +
-                                                                                                                     _days * SECONDS_IN_DAY +
-                                                                                                                     _hours * SECONDS_IN_HOUR +
-                                                                                                                     _minutes * SECONDS_IN_MINUTE + secs)
-{
-    this->secs = _secs;
-    this->secs += _minutes * 60;
-    this->secs += _hours * 60 * 60;
-    this->secs += _days * 60 * 60 * 24;
-    this->secs += _years * 60 * 60 * 24 * 365;
-}
-
-uint32_t Clock::duration::total_minutes() const
-{
-    return this->secs / 60;
-}
-uint32_t Clock::duration::total_hours() const
-{
-    return this->secs / 60 * 60;
-}
-uint16_t Clock::duration::total_days() const
-{
-    return this->secs / 60 * 60 * 24;
-}
-uint8_t Clock::duration::total_years() const
-{
-    return this->secs / 60 * 60 * 24 * 365;
-}
-
-uint8_t Clock::duration::years() const
-{
-    return this->secs / SECSONDS_IN_YEAR;
-}
-uint8_t Clock::duration::days() const
-{
-    return (this->secs / SECONDS_IN_DAY) % 365;
-}
-uint8_t Clock::duration::hours() const
-{
-    return (this->secs / SECONDS_IN_HOUR) % 24;
-}
-uint8_t Clock::duration::minutes() const
-{
-    return (this->secs / SECONDS_IN_MINUTE) % 60;
-}
-uint8_t Clock::duration::seconds() const
-{
-    return this->secs % SECONDS_IN_MINUTE;
-}
-
-/*
-
-
-
-
-
-
-*/
-
-Clock::Clock::Clock() : rtc(nullptr)
-{
-    // this->begin();
-}
-
-Clock::Clock::~Clock()
-{
-    if (this->rtc != nullptr)
-        delete rtc;
-}
-
-bool Clock::Clock::begin()
-{
-    // Wire.begin();
-    delay(100);
-    if (this->rtc == nullptr)
-    {
-        this->rtc = new RTC_DS3231();
-        return this->rtc->begin();
-    }
-}
-
-bool Clock::Clock::lost_power()
-{
-    if (this->rtc == nullptr)
-        return true;
-    else
-        return this->rtc->lostPower();
-}
-
-Clock::time_point Clock::Clock::now()
-{
-    DateTime tm_now = this->rtc->now();
-    time_point ret(tm_now);
-
-    return ret;
-}
-
-bool Clock::Clock::set_date_time(time_point tm_point)
-{
-    DateTime set_tm_pt(tm_point.year, tm_point.month, tm_point.m_day,
-                       tm_point.hour, tm_point.minute, tm_point.second);
-    this->rtc->adjust(set_tm_pt);
-}
-
-/*
-
-
-
-
-
-
-*/
-
-// ------------- time_point -------------
 Clock::time_point::time_point() : year(0), month(0), m_day(0), w_day(0),
                                   hour(0), minute(0), second(0)
 {
@@ -158,6 +13,16 @@ Clock::time_point::time_point(DateTime &dt) : year(dt.year()), month(dt.month())
 Clock::time_point::time_point(const time_point &tp) : year(tp.year), month(tp.month), m_day(tp.m_day), w_day(tp.w_day),
                                                       hour(tp.hour), minute(tp.minute), second(tp.second)
 {
+}
+
+bool Clock::time_point::isPM() const
+{
+    return this->hour > 12;
+}
+
+uint8_t Clock::time_point::twelveHour() const
+{
+    return this->hour > 12 ? this->hour - 12 : this->hour;
 }
 
 Clock::time_point &Clock::time_point::operator=(const time_point &t_p)
@@ -212,6 +77,19 @@ Clock::time_point Clock::time_point::operator+(const duration &t_p)
     time_point ret(*this);
     ret += t_p;
     return ret;
+}
+
+Clock::time_point Clock::time_point::operator-(const duration &t_p)
+{
+    time_point ret(*this);
+    ret -= t_p;
+    return ret;
+}
+
+Clock::time_point &Clock::time_point::operator-=(const duration &t_p)
+{
+    this->remove_seconds(t_p.total_seconds());
+    return *this;
 }
 
 uint8_t Clock::time_point::_get_days_in_month(uint8_t _month, uint16_t _year)
@@ -314,7 +192,7 @@ void Clock::time_point::add_days(uint32_t num_of_days)
             ++this->m_day;
         }
 
-        // we are adding here day by day - adjust the weekday accordingly
+        // we are adding day by day - adjust the weekday accordingly
         if (this->w_day == 6)
         {
             this->w_day = 0;
@@ -372,9 +250,85 @@ void Clock::time_point::add_seconds(uint32_t num_of_seconds)
     this->second += remaining_seconds;
 }
 
-uint8_t Clock::time_point::day_of_week() const
+void Clock::time_point::remove_days(uint32_t num_of_days)
 {
-    // 1. January 2000 was a Saturday...
+    // remove the days day by day to ensure to consider every leap year and days in month and adjusts the day of week
+    while (num_of_days > 0)
+    {
+
+        if (this->m_day > 1) // if we arent at the first day of a month
+        {
+            --this->m_day;
+        }
+        else
+        {
+            // we are at the first day of the month - need to switch the month
+            if (this->month > 1)
+                --this->month;
+            else
+            {
+                // if we are at the begin of the year - January
+                --this->year;
+                this->month = 12;
+            }
+
+            this->m_day = this->_get_days_in_month(this->month, this->year);
+        }
+
+        // we are subtracting day by day - adjust the weekday accordingly
+        if (this->w_day == 0)
+        {
+            this->w_day = 6;
+        }
+        else
+        {
+            --this->w_day;
+        }
+
+        --num_of_days;
+    }
+}
+
+void Clock::time_point::remove_hours(uint32_t num_of_hours)
+{
+    this->remove_days(num_of_hours / 24);
+    uint8_t remaining_hours = num_of_hours % 24;
+
+    if (remaining_hours > this->hour)
+    {
+        remaining_hours = remaining_hours - this->hour;
+        this->hour = 23;
+        this->remove_hours(1);
+    }
+    this->hour -= remaining_hours;
+}
+
+void Clock::time_point::remove_minutes(uint32_t num_of_minutes)
+{
+    this->remove_hours(num_of_minutes / 60);
+    uint8_t remaining_minutes = num_of_minutes % 60;
+
+    if (remaining_minutes > this->minute)
+    {
+        remaining_minutes = remaining_minutes - this->minute;
+        this->minute = 59;
+        this->remove_hours(1);
+    }
+    this->minute -= remaining_minutes;
+}
+
+void Clock::time_point::remove_seconds(uint32_t num_of_seconds)
+{
+    this->remove_minutes(num_of_seconds / 60);
+    uint8_t remaining_seconds = num_of_seconds % 60;
+
+    if (remaining_seconds > this->second) // we also need to subtract a minute
+    {
+        remaining_seconds = remaining_seconds - this->second;
+        this->second = 59;
+        this->remove_minutes(1);
+    }
+    this->second -= remaining_seconds;
 }
 
 String Clock::time_point::to_string() const
