@@ -41,6 +41,7 @@ Log::log_message::log_message(const log_message &_msg)
 {
     this->msg = _msg.message();
     this->level = _msg.Level();
+    this->tm_point = _msg.time_point();
 }
 bool Log::log_message::operator>(const log_message &_l_msg) const
 {
