@@ -9,19 +9,14 @@ Clock::duration::duration(uint32_t _minutes, uint32_t _secs) : secs(_minutes * S
 {
 }
 
-Clock::duration::duration(uint32_t _hours, uint32_t _minutes, uint32_t _secs) : secs((_hours * SECONDS_IN_HOUR) +
-                                                                                     (_minutes * SECONDS_IN_MINUTE) +
-                                                                                     _secs)
+Clock::duration::duration(uint32_t _hours, uint32_t _minutes, uint32_t _secs) : secs(0)
 {
     this->secs = _secs;
     this->secs += _minutes * 60;
     this->secs += _hours * 60 * 60;
 }
 
-Clock::duration::duration(uint16_t _days, uint32_t _hours, uint32_t _minutes, uint32_t _secs) : secs(_days * SECONDS_IN_DAY +
-                                                                                                     _hours * SECONDS_IN_HOUR +
-                                                                                                     _minutes * SECONDS_IN_MINUTE +
-                                                                                                     secs)
+Clock::duration::duration(uint16_t _days, uint32_t _hours, uint32_t _minutes, uint32_t _secs) : secs(0)
 {
     this->secs = _secs;
     this->secs += _minutes * 60;
@@ -29,10 +24,7 @@ Clock::duration::duration(uint16_t _days, uint32_t _hours, uint32_t _minutes, ui
     this->secs += _days * 60 * 60 * 24;
 }
 
-Clock::duration::duration(uint8_t _years, uint16_t _days, uint32_t _hours, uint32_t _minutes, uint32_t _secs) : secs(_years * SECSONDS_IN_YEAR +
-                                                                                                                     _days * SECONDS_IN_DAY +
-                                                                                                                     _hours * SECONDS_IN_HOUR +
-                                                                                                                     _minutes * SECONDS_IN_MINUTE + secs)
+Clock::duration::duration(uint8_t _years, uint16_t _days, uint32_t _hours, uint32_t _minutes, uint32_t _secs) : secs(0)
 {
     this->secs = _secs;
     this->secs += _minutes * 60;
