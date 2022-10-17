@@ -36,6 +36,28 @@ namespace Fingerprint
 
         void begin();
 
+        /**
+         * @brief predefined LED-blink and light cycles/modes to put the
+         * fingerprint LED in with the function led_control()
+         */
+        enum class led_modes
+        {
+            LED_OFF,
+            LED_WAITING_FOR_FINGER,
+            LED_READING_FINGER,
+            LED_AUTHORIZED_FINGER,
+            LED_UNAUTHORIZED_FINGER
+        };
+
+        /**
+         * @brief sets the LED in the according LED mode.
+         * @note the LED stays in the set mode until this function is called
+         * again (internally by a different Fingerprint function or from outside)
+         */
+        void led_control(led_modes _led_mode);
+
+        inline const led_modes get_led_mode() const;
+
         /*
             enable the sensor and wake him up
         */
@@ -92,6 +114,7 @@ namespace Fingerprint
     protected:
     private:
         Adafruit_Fingerprint fingerprint;
+        led_modes led_mode;
     };
 
     String error_code_message(uint8_t error_code);

@@ -12,12 +12,12 @@ void Fingerprint::Fingerprint::begin()
     this->fingerprint.begin(default_baudrate);
     if (this->fingerprint.verifyPassword())
     {
-        logger.log(F("FINGERPRINT: found fingerprint"), Log::log_level::L_INFO);
+        // logger.log(F("FINGERPRINT: found fingerprint"), Log::log_level::L_INFO);
         Serial.println(F("FINGERPRINT: found fingerprint"));
     }
     else
     {
-        logger.log(F("FINGERPRINT: didnt found fingerprint-sensor"), Log::log_level::L_ERROR);
+        // logger.log(F("FINGERPRINT: didnt found fingerprint-sensor"), Log::log_level::L_ERROR);
         Serial.println(F("FINGERPRINT: didnt found fingerprint-sensor"));
         //  exit(-1);
     }
@@ -25,15 +25,45 @@ void Fingerprint::Fingerprint::begin()
     this->enable();
 }
 
+void Fingerprint::Fingerprint::led_control(led_modes _led_mode)
+{
+    switch (_led_mode)
+    {
+    case led_modes::LED_OFF:
+        this->fingerprint.LEDcontrol(false);
+        break;
+    case led_modes::LED_WAITING_FOR_FINGER:
+        this->fingerprint.LEDcontrol(FINGERPRINT_LED_BREATHING, 255, FINGERPRINT_LED_PURPLE);
+        break;
+    case led_modes::LED_READING_FINGER:
+        this->fingerprint.LEDcontrol(FINGERPRINT_LED_FLASHING, 10, FINGERPRINT_LED_PURPLE);
+        break;
+    case led_modes::LED_AUTHORIZED_FINGER:
+        this->fingerprint.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_BLUE);
+        break;
+    case led_modes::LED_UNAUTHORIZED_FINGER:
+        this->fingerprint.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_RED);
+        break;
+
+    default:
+        break;
+    }
+}
+
+const Fingerprint::Fingerprint::led_modes Fingerprint::Fingerprint::get_led_mode() const
+{
+    return this->led_mode;
+}
+
 void Fingerprint::Fingerprint::enable()
 {
     Unlock_Object::enable();
-    this->fingerprint.LEDcontrol(FINGERPRINT_LED_BREATHING, 4000, FINGERPRINT_LED_PURPLE);
+    this->led_control(led_modes::LED_WAITING_FOR_FINGER);
 }
 void Fingerprint::Fingerprint::disable()
 {
     Unlock_Object::disable();
-    this->fingerprint.LEDcontrol(false); // turn LED off
+    this->led_control(led_modes::LED_OFF);
 }
 
 bool Fingerprint::Fingerprint::finger_on_sensor()
@@ -63,7 +93,7 @@ Unlock_Object::unlock_authentication_reports Fingerprint::Fingerprint::read()
     uint8_t err_code = this->fingerprint.getImage();
     if (err_code == FINGERPRINT_OK) // finger is on the sensor - give feedback we read the finger with flashing LED
     {
-        this->fingerprint.LEDcontrol(FINGERPRINT_LED_FLASHING, 10, FINGERPRINT_LED_PURPLE);
+        this->led_control(led_modes::LED_READING_FINGER);
     }
     else // if a error occourd on scanning
     {
@@ -91,27 +121,29 @@ Unlock_Object::unlock_authentication_reports Fingerprint::Fingerprint::read()
         err_code = this->fingerprint.fingerSearch(finger_template_slot);
         if (err_code == FINGERPRINT_OK) // found a match
         {
-            this->fingerprint.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_BLUE);
+            this->led_control(led_modes::LED_AUTHORIZED_FINGER);
             delay(700);
-            this->fingerprint.LEDcontrol(FINGERPRINT_LED_BREATHING, 4000, FINGERPRINT_LED_PURPLE);
+            this->led_control(led_modes::LED_WAITING_FOR_FINGER);
             return Unlock_Object::unlock_authentication_reports::AUTHORIZED_UNLOCK_OBJECT;
         }
         else
         {
-            this->fingerprint.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_RED);
+            this->led_control(led_modes::LED_UNAUTHORIZED_FINGER);
             delay(700);
-            this->fingerprint.LEDcontrol(FINGERPRINT_LED_BREATHING, 4000, FINGERPRINT_LED_PURPLE);
+            this->led_control(led_modes::LED_WAITING_FOR_FINGER);
             return Unlock_Object::unlock_authentication_reports::UNAUTHORIZED_UNLOCK_OBJECT;
         }
     }
     else if (err_code == FINGERPRINT_PACKETRECIEVEERR) // error_handling - maybe output on display...
     {
-        logger.log(F("FINGERPRINT: error converting fingerprint-image to feature template"), Log::log_level::L_DEBUG);
+        this->fingerprint.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_RED); // on error red fingerprint LED
+        // logger.log(F("FINGERPRINT: error converting fingerprint-image to feature template"), Log::log_level::L_DEBUG);
         Serial.println("package recieve error");
         return Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR;
     }
     else
     {
+        this->fingerprint.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_RED); // on error red fingerprint LED
         // on every other error just return unauthorized
         return Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR;
     }
