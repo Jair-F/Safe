@@ -26,7 +26,7 @@ public:
         @param lock_state initial state of the lock if true(lock unlocked) the lock will be locked after the timer is passed
         @param _allow_unlocking whether to allow unlock_requests or not
     */
-    Lock(const unsigned short _lock_timer, lock_state _lock_state = lock_state::LOCKED, bool _allow_unlocking = true);
+    Lock(const unsigned short _lock_timer, lock_state _lock_state = lock_state::LOCKED);
 
     ~Lock();
 
