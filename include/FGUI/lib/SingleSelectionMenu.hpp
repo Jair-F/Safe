@@ -167,13 +167,15 @@ FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::~SingleSelectionMenu()
 template <typename CALL_OBJECT_TYPE>
 void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_scroll_forward_key(char _key)
 {
-    this->scroll_forward_keys.push_back(_key);
+    if (this->scroll_forward_keys.search(_key) != -1) // add only if not already in the list
+        this->scroll_forward_keys.push_back(_key);
 }
 
 template <typename CALL_OBJECT_TYPE>
 void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_scroll_backward_key(char _key)
 {
-    this->scroll_back_keys.push_back(_key);
+    if (this->scroll_back_keys.search(_key) != -1) // add only if not already in the list
+        this->scroll_back_keys.push_back(_key);
 }
 
 template <typename CALL_OBJECT_TYPE>
