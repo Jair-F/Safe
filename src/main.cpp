@@ -12,7 +12,7 @@
 #include "RFID/RFID.hpp"
 //#include "Fase.hpp"
 #include "Keypad.hpp"
-//#include "system_clock.hpp"
+#include "system_clock/system_clock.hpp"
 #include "logging/Log.hpp"
 #include "Config.hpp"
 //#define DEBUG
@@ -88,7 +88,7 @@ void setup()
 	Serial.begin(9600);
 	Serial.println("Hallo");
 	SPI.begin();
-	Wire.begin(); // I2C
+	// Wire.begin(); // I2C
 	delay(500);
 
 	pinMode(12, OUTPUT);
@@ -104,7 +104,13 @@ void setup()
 		DateTime compile_time(F(__DATE__), F(__TIME__));
 		system_clock.set_date_time(Clock::time_point(compile_time));
 	}
-	Serial.println(system_clock.now().to_string());
+	{
+		Clock::time_point tmp(system_clock.now());
+		Serial.print("orginal time: ");
+		Serial.println(tmp.to_string());
+		Serial.print("subtracted time_point: ");
+		Serial.println((tmp - Clock::duration(12, 2, 2, 2, 2)).to_string());
+	}
 
 	lock.begin();
 
@@ -120,7 +126,7 @@ void setup()
 	rfid = new RFID::RFID(RFID_SS, RFID_RST, &lock);
 	rfid->begin();
 
-	if (filesystem.begin(MFRC522_SPICLOCK, filesystem_CARD_SELECTION_PIN))
+	if (filesystem.begin(filesystem_CARD_SELECTION_PIN))
 	{
 		Serial.println("Initialized filesystem card");
 		if (!filesystem.exists("log.log"))

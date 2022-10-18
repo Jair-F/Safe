@@ -1,16 +1,22 @@
 #include "Lock.hpp"
 #include "logging/Log.hpp"
-#include "system_clock.hpp"
+#include "system_clock/system_clock.hpp"
 #include <uEEPROMLib.h>
 
 extern Log::Log logger;
 extern Clock::Clock system_clock;
 extern uEEPROMLib system_clock_eeprom;
 
-Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state, bool _allow_unlocking) : unlock_object_ids(), unlock_objects(),
-                                                                                                    state(_lock_state), unlocking_allowed(_allow_unlocking),
-                                                                                                    unauthorized_unlock_try_counter(0), lock_timer(_lock_timer),
-                                                                                                    unlock_time_point(), locked_until_time_point(nullptr)
+/*
+    indicator address in the system clock eeprom memeory which indicates if
+    a locked until time pint is stored in the memory.
+*/
+#define LOCKED_UNTIL_TIME_POINT_STORED SYSTEM_CLOCK_EEPROM_LAST_ADRESS
+
+Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state) : unlock_object_ids(), unlock_objects(),
+                                                                             state(_lock_state), unlocking_allowed(true),
+                                                                             unauthorized_unlock_try_counter(0), lock_timer(_lock_timer),
+                                                                             unlock_time_point(), locked_until_time_point(nullptr)
 {
     // this->state = lock_state::UNLOCKED; // overwrite to trigger a real lock...
     // this->_lock();
@@ -26,22 +32,24 @@ bool Lock::begin()
         }
         else
         {
-            // reading the last memory-sector of the RTC to look up if a lock-time-point is stored in the memory
-            if (static_cast<bool>(system_clock_eeprom.eeprom_read(SYSTEM_CLOCK_EEPROM_LAST_ADRESS)))
+            // reading the last memory-sector of the RTC which is the indicator if a lock-time-point is stored in the memory
+            if (static_cast<bool>(system_clock_eeprom.eeprom_read(LOCKED_UNTIL_TIME_POINT_STORED)))
             {
-                uint16_t time_point_size = sizeof(Clock::time_point);
-                byte *buffer = new byte[time_point_size]; // storage for the locked_until_time_point
-                if (!system_clock_eeprom.eeprom_read(0, buffer, time_point_size))
+                this->locked_until_time_point = new Clock::time_point;
+                if (!system_clock_eeprom.eeprom_read(0, reinterpret_cast<byte *>(locked_until_time_point), sizeof(Clock::time_point)))
                 {
+                    // error while reading...
+
+                    delete this->locked_until_time_point;
+                    this->locked_until_time_point = nullptr;
                     // print error while reading the the locked_until_time_point
                 }
                 else
                 {
-                    // if (this->locked_until_time_point == nullptr)
-                    //     this->locked_until_time_point = new Clock::time_point();
-                    this->locked_until_time_point = reinterpret_cast<Clock::time_point *>(buffer);
-                    auto now = system_clock.now();
-                    if ((*locked_until_time_point) > now) // if the time hasnt passed yet
+                    // success at reading...
+
+                    // this->locked_until_time_point = reinterpret_cast<Clock::time_point *>(buffer);
+                    if ((*locked_until_time_point) > system_clock.now()) // if the locked time hasnt passed yet
                     {
                         this->unlocking_allowed = false;
                         this->_lock();
@@ -52,56 +60,25 @@ bool Lock::begin()
                         this->unlocking_allowed = true;
                     }
                 }
-
-                // delete[] buffer;
             }
             else
             {
                 Serial.println(F("no locked_until_time_point saved in system_clock"));
             }
         }
-
-        /*
-        // reading the last memory-sector of the RTC to look up if a lock-time-point is stored in the memory
-        if (static_cast<bool>(system_clock.GetMemory(SYSTEM_CLOCK_MEMORY_LENGTH)))
-        {
-            uint8_t *buffer = new uint8_t[sizeof(RtcDateTime)];
-            // we save the timepoint from pos 0
-            uint8_t num_read_bytes = system_clock.GetMemory(buffer, sizeof(RtcDateTime));
-            if (num_read_bytes < sizeof(RtcDateTime))
-            {
-                logger.log(F("LOCK: Failed to read locked_until_timepoint from the system_clock"), Log::log_level::L_WARNING);
-            }
-            locked_until_time_point = reinterpret_cast<RtcDateTime *>(buffer); // RtcDateTime is exactly 6*sizeof(uint8_t)=48 bits
-            RtcDateTime now = system_clock.GetDateTime();
-
-            if ((*locked_until_time_point) > now)
-            {
-                this->unlocking_allowed = false;
-                _lock();
-            }
-            else
-            {
-                DEBUG_PRINT(F("unlocking is allowed"))
-            }
-            DEBUG_PRINT(F("read locked_until_time_point"))
-        }
-        else
-        {
-            DEBUG_PRINT(F("no locked_until_time_point saved in system_clock"))
-        }
-        */
     }
     else
     {
         logger.log(F("LOCK: RTC-Module lost power - locked_until_time_point will not be read - replace battary"), Log::log_level::L_WARNING);
         /*
             writing to the clock module that there is no locked_unitl time_point - could be that now the random data
-            is true and if we change the battary it could lock the lock to a random time_point
+            is true and if we change the battary it could lock the lock to a random time_point - so overwrite it!
         */
         uint8_t buffer = static_cast<uint8_t>(false);
         system_clock_eeprom.eeprom_write(SYSTEM_CLOCK_EEPROM_LAST_ADRESS, buffer);
+        this->unlocking_allowed = true;
     }
+
     if (!this->unlocking_allowed)
     {
         Serial.print(F("unlocking is forbidden until "));
@@ -130,7 +107,7 @@ void Lock::Lock::report_unauthorized_unlock_try()
 {
     if (this->unlocking_allowed)
     {
-        DEBUG_PRINT(F("Unauthorized unlock_object..."))
+        DEBUG_PRINTLN(F("Unauthorized unlock_object..."))
         // count the unauthorized unlock tries and after a defined amount of tries lock the lock for a specific time
         ++this->unauthorized_unlock_try_counter;
         if (this->unauthorized_unlock_try_counter >= allowed_unauthorized_unlock_tries)
@@ -144,7 +121,7 @@ void Lock::Lock::report_unauthorized_unlock_try()
                 locked_until_time_point = new Clock::time_point();
             }
             *locked_until_time_point = system_clock.now();
-            *locked_until_time_point += locking_period;
+            *locked_until_time_point += Clock::duration(locking_period); // adding in seconds
 
             if (!_save_locked_until_time_point())
             {
@@ -154,26 +131,20 @@ void Lock::Lock::report_unauthorized_unlock_try()
             this->unlocking_allowed = false;
             _lock();
             this->unauthorized_unlock_try_counter = 0;
+
+            Serial.print("time point now: ");
+            Serial.println(system_clock.now().to_string());
+            Serial.print(F("unlocking is forbidden until "));
+            Serial.println(this->locked_until_time_point->to_string());
         }
     }
     else
     {
-        Serial.print(F("unlocking is forbidden until "));
-        Serial.println(this->locked_until_time_point->to_string());
-        /*
-        msg += this->locked_until_time_point->Day();
-        msg += '/';
-        msg += this->locked_until_time_point->Month();
-        msg += '/';
-        msg += this->locked_until_time_point->Year();
-        msg += ' ';
-        msg += this->locked_until_time_point->Hour();
-        msg += ':';
-        msg += this->locked_until_time_point->Minute();
-        msg += ':';
-        msg += this->locked_until_time_point->Second();
-        DEBUG_PRINTLN(msg)
-        */
+        if (this->locked_until_time_point != nullptr)
+        {
+            Serial.print(F("unlocking is forbidden until "));
+            Serial.println(this->locked_until_time_point->to_string());
+        }
     }
 }
 
@@ -214,28 +185,21 @@ bool Lock::_save_locked_until_time_point()
     if (locked_until_time_point == nullptr)
         return false;
 
-    if (!system_clock_eeprom.eeprom_write(SYSTEM_CLOCK_EEPROM_LAST_ADRESS, static_cast<uint8_t>(true)))
+    // delete the flag that a locked until time point is stored
+    if (!system_clock_eeprom.eeprom_write(LOCKED_UNTIL_TIME_POINT_STORED, static_cast<uint8_t>(true)))
         return false; // if writing failed
+
     if (system_clock_eeprom.eeprom_write(0, reinterpret_cast<uint8_t *>(locked_until_time_point), sizeof(Clock::time_point)))
         return false; // if writing failed
 
-    /*
-    system_clock.SetMemory(SYSTEM_CLOCK_MEMORY_LENGTH, static_cast<uint8_t>(true)); // setting the flag that we have saved a time_point in the memory
-    uint8_t num_written_bytes = system_clock.SetMemory(reinterpret_cast<uint8_t *>(locked_until_time_point), sizeof(RtcDateTime));
-    if (num_written_bytes < sizeof(RtcDateTime))
-    {
-        return false;
-    }
-    */
     return true; // writing was successful
 }
 bool Lock::_delete_locked_until_time_point()
 {
     // returns true if wirting was successful
-    return system_clock_eeprom.eeprom_write(SYSTEM_CLOCK_EEPROM_LAST_ADRESS, static_cast<uint8_t>(false));
 
-    // system_clock.SetMemory(SYSTEM_CLOCK_MEMORY_LENGTH, static_cast<uint8_t>(false));
-    // return true;
+    // delete the flag that a locked until time point is stored
+    return system_clock_eeprom.eeprom_write(LOCKED_UNTIL_TIME_POINT_STORED, static_cast<uint8_t>(false));
 }
 
 bool Lock::request_unlock()
@@ -296,11 +260,11 @@ void Lock::loop()
     // unlocking not allowed due to too many tries - locked_until_time_point is set
     if (this->locked_until_time_point != nullptr)
     {
-        if (now > *locked_until_time_point)
+        if (now > *locked_until_time_point) // locked until time point passed - reset the locked until time point
         {
             DEBUG_PRINTLN(F("unlocking is now allowed"))
             this->unlocking_allowed = true;
-            _delete_locked_until_time_point();
+            _delete_locked_until_time_point(); // delete the locked until time point in the system clock memory
             delete locked_until_time_point;
             locked_until_time_point = nullptr;
         }

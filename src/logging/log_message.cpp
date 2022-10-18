@@ -1,5 +1,5 @@
 #include "logging/Log.hpp"
-#include "system_clock.hpp"
+#include "system_clock/system_clock.hpp"
 
 extern Clock::Clock system_clock;
 
@@ -7,14 +7,18 @@ Log::log_message::log_message() : msg(), level(log_level::L_DEBUG)
 {
 }
 
-Log::log_message::log_message(const char *_msg, byte _LogLevel) : msg(_msg), level(_LogLevel), tm_point(system_clock.now()) {}
+Log::log_message::log_message(const char *_msg, byte _LogLevel) : msg(_msg), level(_LogLevel), tm_point(system_clock.now())
+{
+}
 
-Log::log_message::log_message(const String &_msg, byte _LogLevel) : msg(_msg), level(_LogLevel), tm_point(system_clock.now()) {}
+Log::log_message::log_message(const String &_msg, byte _LogLevel) : msg(_msg), level(_LogLevel), tm_point(system_clock.now())
+{
+}
 Log::log_message &Log::log_message::operator=(const log_message &_lm)
 {
     this->msg = _lm.message();
     this->level = _lm.Level();
-    this->tm_point = system_clock.now();
+    this->tm_point = _lm.time_point();
     return *this;
 }
 Log::log_message::~log_message() {}
@@ -37,6 +41,7 @@ Log::log_message::log_message(const log_message &_msg)
 {
     this->msg = _msg.message();
     this->level = _msg.Level();
+    this->tm_point = _msg.time_point();
 }
 bool Log::log_message::operator>(const log_message &_l_msg) const
 {

@@ -116,14 +116,14 @@ void FGUI::MainWindow::loop()
         if (this->_check_in_display(touch_data))
         {
             this->last_interact_time_pt = millis();
-            this->_wake_up();
+            this->_wake_up(); // wake up the display if it was in sleep mode
 
             if (this->active_window != nullptr)
             {
                 // call the on_touch func
                 Widget *clicked_widget = this->active_window->handle_touch_clicked(touch_data);
 
-                if (!this->is_focus_frozen()) // if focus isnt frozen do not change the focused_widget
+                if (!this->is_focus_frozen()) // if focus is frozen do not change the focused_widget
                 {
                     if (this->focused_widget != clicked_widget) // focused widget change
                     {
@@ -210,6 +210,10 @@ void FGUI::MainWindow::_wake_up()
         this->display->lcdOn();
         this->get_active_window()->_redraw_window();
         this->in_sleep_mode = false;
+
+        // call the callback function for the user for wake up
+        if (this->on_wake_up != nullptr)
+            this->on_wake_up();
     }
 }
 
@@ -220,5 +224,9 @@ void FGUI::MainWindow::_send_sleep()
         this->display->clrScr();
         this->display->lcdOff();
         this->in_sleep_mode = true;
+
+        // call the callback function for the user for fall asleep
+        if (this->on_fall_asleep != nullptr)
+            this->on_fall_asleep();
     }
 }
