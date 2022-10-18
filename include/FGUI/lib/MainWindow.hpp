@@ -119,6 +119,16 @@ namespace FGUI
          * @return true if in sleep_mode - if the display will fall asleep after x seconds of no touch or input send
          */
         inline bool get_in_sleep_mode() const { return this->in_sleep_mode; }
+        /**
+         * @brief function pionter that will be called if the display changes from sleep mode
+         * to woken up status or if the display is manually waked up by the user.
+         */
+        void (*on_wake_up)(void) = nullptr;
+        /**
+         * @brief function pionter that will be called if the display falls asleep(if the fall
+         * asleep timer has passed since the last touch) or if its sent manually to sleep by the user
+         */
+        void (*on_fall_asleep)(void) = nullptr;
 
         /**
          * @note !! need to be called continuously in the main loop of the application
