@@ -26,6 +26,7 @@ void setup()
     RUN_TEST(singly_linked_list_erase);
     RUN_TEST(singly_linked_list_length);
     RUN_TEST(singly_linked_list_change_values);
+    RUN_TEST(singly_linked_list_search);
 
     TEST_MESSAGE("Testing Doubly Linked List");
 
@@ -41,6 +42,7 @@ void setup()
     RUN_TEST(doubly_linked_list_length);
     RUN_TEST(doubly_linked_list_change_values);
     RUN_TEST(doubly_linked_list_at);
+    RUN_TEST(doubly_linked_list_search);
     UNITY_END();
 }
 

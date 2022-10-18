@@ -220,3 +220,31 @@ void singly_linked_list_change_values()
         TEST_ASSERT_TRUE(list[i] == tmp);
     }
 }
+
+void singly_linked_list_search()
+{
+    // test the const and normal version of at()
+
+    SinglyLinkedList<TESTING_TYPE> list;
+    for (unsigned short i = 0; i < max_list_size; ++i)
+    {
+        TESTING_TYPE tmp;
+        if (i % 2 == 0) // assign every second number with list_default_testing_value
+        {
+            tmp = list_default_testing_value;
+        }
+        else
+        {
+            tmp = list_2default_testing_value;
+        }
+        list.push_back(tmp);
+    }
+
+    for (unsigned short i = 0; i < max_list_size; ++i)
+    {
+        // on every value list_default_testing_value we expecting a position divideable by 2 - we set the data set like this
+        decltype(list_default_testing_value) search_value = i % 2 == 0 ? list_default_testing_value : list_2default_testing_value;
+
+        TEST_ASSERT_TRUE((list.search(search_value) % 2) == (i % 2));
+    }
+}
