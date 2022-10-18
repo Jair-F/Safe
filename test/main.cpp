@@ -40,6 +40,7 @@ void setup()
     RUN_TEST(doubly_linked_list_erase);
     RUN_TEST(doubly_linked_list_length);
     RUN_TEST(doubly_linked_list_change_values);
+    RUN_TEST(doubly_linked_list_at);
     UNITY_END();
 }
 

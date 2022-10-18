@@ -220,3 +220,41 @@ void doubly_linked_list_change_values()
         TEST_ASSERT_TRUE(list[i] == tmp);
     }
 }
+
+void doubly_linked_list_at()
+{
+    // test the const and normal version of at()
+
+    DoublyLinkedList<TESTING_TYPE> list(max_list_size, list_default_testing_value);
+    for (unsigned short i = 0; i < max_list_size; ++i)
+    {
+        TESTING_TYPE tmp;
+        if (i % 2 == 0) // assign every second number with list_default_testing_value
+        {
+            tmp = list_default_testing_value;
+        }
+        else
+        {
+            tmp = list_2default_testing_value;
+        }
+        list[i] = tmp;
+        TEST_ASSERT_TRUE(list[i] == tmp);
+    }
+
+    for (unsigned short i = 0; i < max_list_size; ++i)
+    {
+        // trigger the const version
+        const auto value = list[i];
+        decltype(list_default_testing_value) expected_value = i % 2 == 0 ? list_default_testing_value : list_2default_testing_value;
+
+        TEST_ASSERT_TRUE(value == expected_value);
+    }
+
+    for (unsigned short i = 0; i < max_list_size; ++i)
+    {
+        // normal version
+        decltype(list_default_testing_value) expected_value = i % 2 == 0 ? list_default_testing_value : list_2default_testing_value;
+
+        TEST_ASSERT_TRUE(list[i] == expected_value);
+    }
+}
