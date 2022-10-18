@@ -284,4 +284,7 @@ void doubly_linked_list_search()
 
         TEST_ASSERT_TRUE((list.search(search_value) % 2) == (i % 2));
     }
+
+    // check that a value that is not in the list returns -1
+    TEST_ASSERT((list.search(list_default_testing_value + list_2default_testing_value) % 2) == -1);
 }
