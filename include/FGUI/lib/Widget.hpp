@@ -23,28 +23,12 @@ namespace FGUI
      * The _draw_content function has to be reimplemented by derived classes!
      *
      * @note the class holds the colors for the widget and also some TouchWidget functions to be able to call them at the Touch Widgets,
-     * but here the do nothing.
+     *       but here the do nothing.
      *
      * @{
      */
     class Widget
     {
-    private:
-        /**
-         * if true, the widget will not be shown on the display if the window is shown. if the widget is hidden
-         * it also cant be touched.
-         */
-        bool hidden = false;
-
-        /**
-         * if true the border of the widget will be drawn.
-         */
-        bool draw_border = true;
-        /**
-         * the borderweight in pixels of the widget
-         */
-        uint8_t border_weight;
-
     public:
         /**
          * @brief widget_status -
@@ -331,6 +315,22 @@ namespace FGUI
          * @param _st whether to draw the status disabled, touched or released
          */
         virtual void _draw_background(w_status _st);
+
+    private:
+        /**
+         * if true, the widget will not be shown on the display if the window is shown. if the widget is hidden
+         * it also cant be touched.
+         */
+        bool hidden = false;
+
+        /**
+         * if true the border of the widget will be drawn.
+         */
+        bool draw_border = true;
+        /**
+         * the borderweight in pixels of the widget
+         */
+        uint8_t border_weight;
     };
 
     /** @} */
