@@ -15,10 +15,11 @@ class DoublyListNodeIterator
      */
 
 public:
-    DoublyListNodeIterator(DoublyListNode<T> *_ln) : _node(_ln) {}
-    DoublyListNodeIterator(DoublyListNode<T> &_ln) : _node(&_ln) {}
-    // DoublyListNodeIterator(DoublyListNodeIterator<T> &_it) : _node(_it.node()) {}
-    // DoublyListNodeIterator(DoublyListNodeIterator<T> *_it) : _node(_it->node()) {}
+    DoublyListNodeIterator(const DoublyListNode<T> *_ln) : _node(const_cast<DoublyListNode<T> *>(_ln)) {}
+    DoublyListNodeIterator(const DoublyListNode<T> &_ln) : _node(const_cast<DoublyListNode<T> *>(&_ln)) {}
+
+    DoublyListNodeIterator(const DoublyListNodeIterator<T> &_it) : _node(_it.node()) {}
+    DoublyListNodeIterator<T> operator=(const DoublyListNodeIterator<T> &_it) { this->_node = _it.node(); }
 
     /**
      * @brief post increment-operator(a++) - return the current data - before the switch
