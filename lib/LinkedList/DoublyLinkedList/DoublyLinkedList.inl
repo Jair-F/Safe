@@ -188,18 +188,35 @@ void DoublyLinkedList<T>::insert(unsigned long _position, T _data)
     else
     {
         DoublyListNodeIterator<T> iterator(this->begin());
-        unsigned long counter = 0;
-        while (counter < _position - 1) // hold on one element before position and insert there the element so the element will be element no _positoin
+        if (this->size() / 2 > _position) // if the element is in the first half of the list - begin from begin_ptr
         {
-            ++iterator;
-            ++counter;
+            // default value of the iterator is the begin...
+            unsigned long counter = 0;
+            while (counter < _position - 1) // hold on one element before position and insert there the element so the element will be element _positoin
+            {
+                ++iterator;
+                ++counter;
+            }
         }
+        else
+        {
+            // DoublyListNodeIterator<T> iterator(this->end());
+            iterator = this->end();
+            unsigned long e_pos_to_insert = this->size() - _position; // element pos to delete counting from back
+            unsigned long counter = 0;
+            while (counter < e_pos_to_insert + 1) // hold on one element before position and insert there the element so the element will be element _position
+            {
+                --iterator;
+                ++counter;
+            }
+        }
+
+        // the iterator stops on the element before the insert pos
         DoublyListNode<T> *element_to_insert = new DoublyListNode<T>(_data, iterator.node(), iterator.next());
         DoublyListNode<T> *element_after = iterator.next(); // element after the element we want to insert
 
         iterator.node()->next = element_to_insert; // set the element before
-
-        element_after->prev = element_to_insert; // set the prev pointer of the element after
+        element_after->prev = element_to_insert;   // set the prev pointer of the element after
 
         ++this->_size;
     }
@@ -208,6 +225,7 @@ void DoublyLinkedList<T>::insert(unsigned long _position, T _data)
 template <typename T>
 T DoublyLinkedList<T>::pop_back()
 {
+    assert(this->size() > 0);
     if (this->size() > 0)
     {
         DoublyListNode<T> *element_to_delete = &this->last();
@@ -228,6 +246,7 @@ T DoublyLinkedList<T>::pop_back()
 template <typename T>
 T DoublyLinkedList<T>::pop_front()
 {
+    assert(this->size() > 0);
     if (this->size() > 0)
     {
         return this->erase(0);
@@ -252,25 +271,25 @@ T DoublyLinkedList<T>::erase(unsigned long _position)
         }
         else
         {
-            // if (this->size() / 2 > _position)
-            //{
-            DoublyListNodeIterator<T> iterator(this->begin()); // one element before the element_to_delete
-            unsigned long counter = 0;
-            while (counter < _position - 1) // holding one element before the element to delete
+            if (this->size() / 2 > _position) // if the element is in the first half of the list - begin from begin_ptr
             {
-                ++iterator;
-                ++counter;
+                DoublyListNodeIterator<T> iterator(this->begin()); // one element before the element_to_delete
+                unsigned long counter = 0;
+                while (counter < _position - 1) // holding one element before the element to delete
+                {
+                    ++iterator;
+                    ++counter;
+                }
+                element_to_delete = iterator.next();
+                iterator.node()->next = element_to_delete->next; // the element before element_to_delete
+                element_to_delete->next->prev = iterator.node(); // element after element_to_delete
             }
-            element_to_delete = iterator.next();
-            iterator.node()->next = element_to_delete->next; // the element before element_to_delete
-            element_to_delete->next->prev = iterator.node(); // element after element_to_delete
-            /*
-            }
-            else
+            else // element is in the second half of the list - begin from back
             {
-                DoublyListNodeIterator<T> iterator(this->_end); // one element before the element_to_delete
-                unsigned long counter = this->size() - 1;
-                while (counter > _position - 1) // holding one element before the element to delete
+                DoublyListNodeIterator<T> iterator(this->end());      // one element before the element_to_delete
+                unsigned long e_to_delete = this->size() - _position; // element pos to delete counting from back
+                unsigned long counter = 0;
+                while (counter < e_to_delete + 1) // holding one element before the element to delete
                 {
                     --iterator;
                     ++counter;
@@ -279,9 +298,8 @@ T DoublyLinkedList<T>::erase(unsigned long _position)
                 iterator.node()->next = element_to_delete->next; // the element before element_to_delete
                 element_to_delete->next->prev = iterator.node(); // element after element_to_delete
             }
-            */
         }
-        data_backup = element_to_delete->data;
+        data_backup = *(element_to_delete->data);
         delete element_to_delete;
         --this->_size;
         return data_backup;
@@ -313,31 +331,29 @@ T &DoublyLinkedList<T>::at(unsigned long _index)
 {
     assert(_index < this->size());
 
-    // if element is in the first half of the list
-    // if (this->size() / 2 > _index)
-    //{
-    DoublyListNodeIterator<T> iterator(this->begin());
-    unsigned long counter = 0;
-    while (counter < _index) // after this while the iterator is on the requested position
+    if (this->size() / 2 > _index) // if the element is in the first half of the list - begin from begin_ptr
     {
-        ++iterator;
-        ++counter;
+        DoublyListNodeIterator<T> iterator(this->begin());
+        unsigned long counter = 0;
+        while (counter < _index) // after this while the iterator is on the requested position
+        {
+            ++iterator;
+            ++counter;
+        }
+        return iterator.data();
     }
-    return iterator.data();
-    /*
-}
-else
-{
-    DoublyListNodeIterator<T> iterator(this->_end);
-    unsigned long counter = this->size() - 1;
-    while (counter > _index)
+    else // element is in the second half of the list - begin from back
     {
-        --iterator;
-        --counter;
+        DoublyListNodeIterator<T> iterator(this->_end);
+        unsigned long wantent_element = this->size() - _index; // element pos to return counting from back
+        unsigned long counter = 0;
+        while (counter < wantent_element)
+        {
+            --iterator;
+            ++counter;
+        }
+        return *(iterator.node()->data);
     }
-    return iterator.node()->data;
-}
-*/
 }
 
 template <typename T>
@@ -345,29 +361,27 @@ const T &DoublyLinkedList<T>::at(unsigned long _index) const
 {
     assert(_index < this->size());
 
-    // if element is in the first half of the list
-    // if (this->size() / 2 > _index)
-    //{
-    DoublyListNodeIterator<T> iterator(this->begin());
-    unsigned long counter = 0;
-    while (counter < _index) // after this while the iterator is on the requested position
+    if (this->size() / 2 > _index) // if the element is in the first half of the list - begin from begin_ptr
     {
-        ++iterator;
-        ++counter;
+        DoublyListNodeIterator<T> iterator(this->begin());
+        unsigned long counter = 0;
+        while (counter < _index) // after this while the iterator is on the requested position
+        {
+            ++iterator;
+            ++counter;
+        }
+        return iterator.data();
     }
-    return iterator.data();
-    /*
-}
-else
-{
-    DoublyListNodeIterator<T> iterator(this->_end);
-    unsigned long counter = this->size() - 1;
-    while (counter < _index)
+    else // element is in the second half of the list - begin from back
     {
-        --iterator;
-        --counter;
+        DoublyListNodeIterator<T> iterator(this->_end);
+        unsigned long wantent_element = this->size() - _index; // element pos to return counting from back
+        unsigned long counter = 0;
+        while (counter < wantent_element)
+        {
+            --iterator;
+            ++counter;
+        }
+        return *(iterator.node()->data);
     }
-    return iterator.node()->data;
-}
-*/
 }
