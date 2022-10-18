@@ -9,6 +9,7 @@
 #include "lib/Button.hpp"
 #include "lib/CloseButtons.hpp"
 #include "lib/BitMapButton.hpp"
+#include "lib/Bitmap.hpp"
 #include "lib/TextLabel.hpp"
 #include "lib/CheckBox.hpp"
 #include "lib/InputField.hpp"
@@ -48,5 +49,6 @@
  * - \subpage ButtonBase
  * - \subpage Button
  * - \subpage BitmapButton
+ * - \subpage Bitmap
  * - \subpage DisplayGeometryFunctions
  */
