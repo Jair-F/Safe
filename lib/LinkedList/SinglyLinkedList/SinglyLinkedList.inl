@@ -62,6 +62,12 @@ public:
     // void sort();
 
     /**
+     * @return the position of the first occourence of _data if present.
+     *         -1 if not present in the list
+     */
+    long long search(const T &_data) const;
+
+    /**
      * @return the deleted element - undefined return value if there isn't any more elements in the list
      */
     T pop_back();
@@ -331,6 +337,17 @@ const T &SinglyLinkedList<T>::at(unsigned long _index) const
         ++counter;
     }
     return iterator.data();
+}
+
+template <typename T>
+long long SinglyLinkedList<T>::search(const T &_data) const
+{
+    for (unsigned long i = 0; i < this->size(); ++i)
+    {
+        if (this->at(i) == _data)
+            return i;
+    }
+    return -1;
 }
 
 /*
