@@ -206,9 +206,8 @@ void DoublyLinkedList<T>::insert(unsigned long _position, T _data)
         }
         else
         {
-            // DoublyListNodeIterator<T> iterator(this->end());
-            iterator = this->end();
-            unsigned long e_pos_to_insert = this->size() - _position; // element pos to delete counting from back
+            iterator = this->last();
+            unsigned long e_pos_to_insert = this->size() - 1 - _position; // element pos to delete counting from back
             unsigned long counter = 0;
             while (counter < e_pos_to_insert + 1) // hold on one element before position and insert there the element so the element will be element _position
             {
@@ -292,8 +291,8 @@ T DoublyLinkedList<T>::erase(unsigned long _position)
             }
             else // element is in the second half of the list - begin from back
             {
-                DoublyListNodeIterator<T> iterator(this->end());      // one element before the element_to_delete
-                unsigned long e_to_delete = this->size() - _position; // element pos to delete counting from back
+                DoublyListNodeIterator<T> iterator(this->last());         // one element before the element_to_delete
+                unsigned long e_to_delete = this->size() - 1 - _position; // element pos to delete counting from back
                 unsigned long counter = 0;
                 while (counter < e_to_delete + 1) // holding one element before the element to delete
                 {
@@ -350,8 +349,8 @@ T &DoublyLinkedList<T>::at(unsigned long _index)
     }
     else // element is in the second half of the list - begin from back
     {
-        DoublyListNodeIterator<T> iterator(this->_end);
-        unsigned long wantent_element = this->size() - _index; // element pos to return counting from back
+        DoublyListNodeIterator<T> iterator(this->last());
+        unsigned long wantent_element = this->size() - 1 - _index; // element pos to return counting from back
         unsigned long counter = 0;
         while (counter < wantent_element)
         {
@@ -380,8 +379,8 @@ const T &DoublyLinkedList<T>::at(unsigned long _index) const
     }
     else // element is in the second half of the list - begin from back
     {
-        DoublyListNodeIterator<T> iterator(this->_end);
-        unsigned long wantent_element = this->size() - _index; // element pos to return counting from back
+        DoublyListNodeIterator<T> iterator(this->last());
+        unsigned long wantent_element = this->size() - 1 - _index; // element pos to return counting from back
         unsigned long counter = 0;
         while (counter < wantent_element)
         {
