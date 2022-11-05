@@ -110,7 +110,7 @@ void FGUI::BitmapButton<CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
     {
         this->display->drawBitmap(this->upper_left.x_pos + this->get_border_weight() + this->border_to_bitmap_gap,
                                   this->upper_left.y_pos + this->get_border_weight() + this->border_to_bitmap_gap,
-                                  this->get_bitmap_width(), this->get_bitmap_height(),
+                                  this->get_bitmaps_width(), this->get_bitmaps_height(),
                                   bitmap_to_draw, 1);
     }
 }
