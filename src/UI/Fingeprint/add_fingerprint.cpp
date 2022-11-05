@@ -27,7 +27,7 @@ add_fingerprint::add_fingerprint(FGUI::WindowBase *_parent_window) : FGUI::Windo
                                                                      window_title_div(this, {0, 32}, this->get_content_width(), 3, FGUI::Divider::d_alignment::AL_HORIZONTAL, VGA_BLUE),
                                                                      id_input_field_label(this, {30, 40}, 150, "fingerprint ID: ", Retro8x16),
                                                                      id(this, {190, 40}, TAG_ID_INPUT_FIELD_WIDTH, 35, this, FGUI::InputField<3, add_fingerprint>::IN_INPUT_TYPE::IN_TEXT),
-                                                                     status_label(this, {0 + this->get_border_weight(), 100},
+                                                                     status_label(this, {(uint16_t)0 + this->get_border_weight(), 100},
                                                                                   this->get_content_width() - this->get_border_weight(), "insert fingperint id", Retro8x16),
                                                                      cancel_btn(this, {46, 180}, CANCLE_ADD_BUTTON_WIDTH, CANCLE_ADD_BUTTON_HEIGHT, this),
                                                                      add_btn(this, {46, 180}, CANCLE_ADD_BUTTON_WIDTH, CANCLE_ADD_BUTTON_HEIGHT, this),
