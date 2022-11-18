@@ -193,10 +193,22 @@ namespace FGUI
         void hide();
 
         /**
-         * @details unsets the hidden flag and shows the widget in not hidden state.
+         * @details marks the widget as hidden but doesnt changes the current state - means
+         * if the widget is currently shown it leaves it - but next time it will be hidden
+         */
+        inline void mark_hidden() { this->hidden = true; }
+
+        /**
+         * @details marks the widget as shown and shows the widget.
          * @note the widget will be redrawn with this function call
          */
         void show();
+
+        /**
+         * @details marks the widget as shown but doesnt changes the current state - means
+         * if the widget is currently hidden it leaves it - but next time it will be shown
+         */
+        inline void mark_shown() { this->hidden = false; }
 
         /**
          * @details loop function that will be called by the active window if the widget is shown/visible/not hidden
