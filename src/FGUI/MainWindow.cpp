@@ -100,7 +100,8 @@ void FGUI::MainWindow::set_active_window(WindowBase *_win)
 
     this->unfreeze_focus(); // at every window change the focus will be reseted
     this->active_window = _win;
-    this->active_window->show();
+    if (!this->get_in_sleep_mode())
+        this->active_window->show();
 }
 
 void FGUI::MainWindow::loop()
