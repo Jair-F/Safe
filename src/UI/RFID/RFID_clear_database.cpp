@@ -37,4 +37,7 @@ void RFID_clear_database::_clear_database(FGUI::Touch_Widget<RFID_clear_database
     // rfid.clear_database();
     this->status_label.released_text_color = VGA_GREEN;
     this->status_label.set_text("Database was cleared");
+
+    // the old text was still at the corner...
+    this->_get_parent_window()->_redraw_window();
 }

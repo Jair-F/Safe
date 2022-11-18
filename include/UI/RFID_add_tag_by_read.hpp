@@ -18,7 +18,7 @@ protected:
 
 private:
     FGUI::TextLabel window_title;
-    FGUI::Divider window_title_div;
+    // FGUI::Divider window_title_div;
     FGUI::TextLabel tag_id_input_field_label;
     FGUI::InputField<2, RFID_add_tag_window> tag_id;
     FGUI::TextLabel status_label;

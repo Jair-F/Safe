@@ -16,7 +16,7 @@ protected:
 
 private:
     FGUI::TextLabel window_title;
-    FGUI::Divider window_title_div;
+    // FGUI::Divider window_title_div;
     FGUI::TextLabel id_input_field_label;
     FGUI::InputField<3, add_fingerprint> id;
     FGUI::TextLabel status_label;
