@@ -57,6 +57,7 @@ URTouch myTouch(6, 5, 4, 3, 2);
 #include "UI/Settings.hpp"
 
 FGUI::MainWindow m_window(&myGLCD, &myTouch, {0, 0}, {320 - 1, 240 - 1}); // "{320 - 1, 240 - 1}" --> we begin to count the pixels at 0,0
+FGUI::WindowBase *home_window = nullptr;								  // the window to which the system returns after falling asleep
 // lock_screen *l_screen;
 
 key_board::key_board<FGUI::MainWindow> k_pad(&m_window);
@@ -77,6 +78,11 @@ RFID::RFID *rfid;
 StaticJsonDocument<1024> config;
 
 // Fase::Fase fase;
+
+void fall_asleep_handler()
+{
+	m_window.set_active_window(home_window);
+}
 
 void setup()
 {
@@ -171,10 +177,12 @@ void setup()
 	Serial.println(')');
 
 	// l_screen = new lock_screen(&m_window);
-	// Settings_window settings_window(&m_window);
+	Settings_window settings_window(&m_window);
+	home_window = &settings_window;
 
 	Serial.println("Created lock_screen...");
-	// m_window.set_active_window(&settings_window);
+	m_window.set_active_window(&settings_window);
+	m_window.on_fall_asleep = &fall_asleep_handler;
 	Serial.println("set active_window");
 
 	/*
@@ -354,8 +362,8 @@ void setup()
 		*/
 
 		k_pad.loop();
-		// m_window.loop();
-		lock.loop();
+		m_window.loop();
+		// lock.loop();
 		// fase.loop();
 	}
 }
