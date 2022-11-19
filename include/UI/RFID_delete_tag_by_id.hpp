@@ -19,6 +19,7 @@ protected:
 
 private:
     FGUI::TextLabel window_title;
+    FGUI::TextLabel tag_id_label;
     FGUI::InputField<2, RFID_delete_tag_by_id> tag_id_to_remove;
     FGUI::TextLabel status_label;
     FGUI::Button<RFID_delete_tag_by_id> delete_btn;
