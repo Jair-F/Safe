@@ -176,6 +176,20 @@ namespace FGUI
         void enable() override;
 
         /**
+         * @details marks the widget as disabled but does not manually redraws the widget
+         * to let the changes take affect. The widget cant be touched as this flag is set
+         * until mark_enabled() or enable() is called but leaves the old status on the display
+         * until the widget is redrawn.
+         */
+        inline void mark_disabled() { this->disabled = true; }
+        /**
+         * @details marks the widget as enabled but does not manually redraws the widget
+         * to let the changes take affect. The widget can be touched as this flag is set.
+         * It leaves the old status on the display until the widget is redrawn.
+         */
+        inline void mark_enabled() { this->disabled = false; }
+
+        /**
          * @return true if the widget is touched at the time
          */
         inline bool is_touched() const { return this->touched; }

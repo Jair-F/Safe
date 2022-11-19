@@ -166,7 +166,7 @@ namespace FGUI
          * @brief the oposite of disable
          * @details the widget will be redrawn automatically with disabled colors
          * if a widget is disabled it cant be touched
-         * @note only here to make it possible to be called on a touche widget - not available for this widget
+         * @note only here to make it possible to be called on a touch widget - not available for this widget
          */
         virtual void enable() {}
 
