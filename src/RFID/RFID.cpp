@@ -3,7 +3,6 @@
 
 RFID::RFID::RFID(byte ss, byte rst, Lock *_lock, bool _enabled) : Unlock_Object(_lock, _enabled), rfid(ss, rst)
 {
-    // SPI.begin();
     for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
     {
         this->allowed_tags[i].clear();
@@ -12,7 +11,6 @@ RFID::RFID::RFID(byte ss, byte rst, Lock *_lock, bool _enabled) : Unlock_Object(
 
 bool RFID::RFID::begin()
 {
-    // SPI.begin();
     this->rfid.PCD_Init();
     this->rfid.PCD_DumpVersionToSerial();
     if (this->rfid.PCD_PerformSelfTest())
@@ -25,6 +23,20 @@ bool RFID::RFID::begin()
     }
     this->rfid.PCD_Init(); // initialize the rfid again - after the test it wont work
     this->rfid.PCD_SoftPowerUp();
+}
+
+bool RFID::RFID::authorized_unob_database_empty()
+{
+    bool least_one_set = false;
+    for (unsigned short i = 0; i < NUM_OF_TAGS; ++i)
+    {
+        if (this->allowed_tags[i].is_set())
+        {
+            least_one_set = true;
+            break;
+        }
+    }
+    return least_one_set;
 }
 
 Unlock_Object::unlock_authentication_reports RFID::RFID::read()
@@ -108,6 +120,7 @@ void RFID::RFID::remove_tag(unsigned short id)
     {
         DEBUG_PRINTLN(F("id is out of range"));
         // throw an error
+        return;
     }
     this->allowed_tags[id].clear();
 }

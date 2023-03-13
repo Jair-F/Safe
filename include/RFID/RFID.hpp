@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 #include <MFRC522.h>
-#include "../Unlock_Object.hpp"
+#include "../Lock/Unlock_Object.hpp"
 #include "../Helper.hpp"
 #include "UID.hpp"
 #include "logging/Log.hpp"
@@ -95,10 +95,16 @@ namespace RFID
          */
         unlock_authentication_reports read() override;
 
+        bool authorized_unob_database_empty() override;
+
         /**
          * @return pointer to the begin of the allowed_tags array. size of the array is RFID::NUM_OF_TAGS
          */
-        inline UID *_get_allowed_tags() { return this->allowed_tags; }
+        inline UID *
+        _get_allowed_tags()
+        {
+            return this->allowed_tags;
+        }
 
     private:
         MFRC522 rfid;

@@ -4,10 +4,10 @@
 #include "UI/RFID_clear_database.hpp"
 #include "UI/RFID_delete_tag_by_id.hpp"
 
-extern const unsigned short white_repicthousebase_1484336388[];
+extern const unsigned short settings_icon[];
 class lock_screen;
 extern lock_screen *l_screen;
-extern Settings_window *settings_wnd;
+extern Settings_window *settings_window;
 extern RFID_add_tag_window *rfid_add_tag_wnd;
 extern RFID_delete_tag_by_id *rfid_remove_tag_by_id;
 extern uint8_t TinyFont[];
@@ -35,7 +35,7 @@ RFID_settings_window::RFID_settings_window(FGUI::WindowBase *_parent_window) : F
                                                                                                     BUTTON_WIDTH, BUTTON_HEIGHT, this),
                                                                                clear_database_btn(this, {70, delete_tag_by_id_btn.get_lower_right_pos().y_pos + GAP_BETWEEN_BUTTONS},
                                                                                                   BUTTON_WIDTH, BUTTON_HEIGHT, this),
-                                                                               home_btn(this, {283, 203}, 30, 30, this, white_repicthousebase_1484336388, white_repicthousebase_1484336388, white_repicthousebase_1484336388, 3, 0),
+                                                                               home_btn(this, {283, 203}, 30, 30, this, settings_icon, settings_icon, settings_icon, 3, 0),
                                                                                rfid_add_tag_wnd(this),
                                                                                rfid_delete_tag_by_id(this),
                                                                                clear_database_p_wnd(this)

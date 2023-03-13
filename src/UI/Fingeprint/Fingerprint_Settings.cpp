@@ -3,10 +3,12 @@
 #include "UI/Settings.hpp"
 #include "Fingerprint.hpp"
 
-extern const unsigned short white_repicthousebase_1484336388[];
 extern Fingerprint::Fingerprint *fingerprint;
 extern lock_screen *l_screen;
-extern Settings_window *settings_wnd;
+extern Settings_window *settings_window;
+
+extern const unsigned short settings_icon[];
+extern const unsigned short info_icon[];
 
 namespace
 {
@@ -26,7 +28,7 @@ Fingerprint_settings_window::Fingerprint_settings_window(FGUI::WindowBase *_pare
                                                                                                                      BUTTON_WIDTH, BUTTON_HEIGHT, this),
                                                                                              clear_database_btn(this, {50, delete_finger_by_id_btn.get_lower_right_pos().y_pos + GAP_BETWEEN_BUTTONS},
                                                                                                                 BUTTON_WIDTH, BUTTON_HEIGHT, this),
-                                                                                             home_btn(this, {283, 203}, 30, 30, this, white_repicthousebase_1484336388, white_repicthousebase_1484336388, white_repicthousebase_1484336388, 3, 0),
+                                                                                             home_btn(this, {283, 203}, 30, 30, this, settings_icon, settings_icon, settings_icon, 3, 0),
 
                                                                                              add_finger_by_read(this)
 {

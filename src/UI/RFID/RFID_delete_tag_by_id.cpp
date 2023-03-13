@@ -4,7 +4,6 @@
 
 extern RFID::RFID rfid;
 extern RFID_settings_window *rfid_settings_wnd;
-extern uint8_t Retro8x16[]; // font...
 
 RFID_delete_tag_by_id::RFID_delete_tag_by_id(FGUI::WindowBase *_parent_window) : Window(_parent_window),
                                                                                  window_title(this, {0, 0}, this->get_content_width(), "delete tag by id", BigFont),

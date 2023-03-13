@@ -17,11 +17,6 @@ namespace
 
 extern Fingerprint::Fingerprint *fingerprint;
 
-extern uint8_t mykefont2[];
-extern uint8_t Retro8x16[];
-extern uint8_t Sinclair_Inverted_S[];
-extern uint8_t TinyFont[];
-
 add_fingerprint::add_fingerprint(FGUI::WindowBase *_parent_window) : FGUI::Window(_parent_window),
                                                                      window_title(this, {0, 0}, this->get_content_width(), "add fingerprint", BigFont),
                                                                      // window_title_div(this, {0, 32}, this->get_content_width(), 3, FGUI::Divider::d_alignment::AL_HORIZONTAL, VGA_BLUE),

@@ -2,10 +2,6 @@
 #include "RFID/RFID.hpp"
 
 // extern RFID::RFID rfid;
-extern uint8_t mykefont2[];
-extern uint8_t Retro8x16[];
-extern uint8_t Sinclair_Inverted_S[];
-extern uint8_t TinyFont[];
 
 RFID_clear_database::RFID_clear_database(FGUI::WindowBase *_parent) : PopUp_Window(_parent, 240, 170, 3, false),
                                                                       status_label(this, {0, 0}, this->get_content_width() - 10, "do you really want to clear the database??", BigFont),

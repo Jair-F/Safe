@@ -45,7 +45,7 @@ namespace FGUI
                      const unsigned short *_on_touch_bitmap, const unsigned short *_on_release_bitmap,
                      const unsigned short *_on_disabled_bitmap,
                      uint8_t _border_weight = 3,
-                     uint8_t _border_to_bitmap_gap = 0) : ButtonBase<CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _bitmap_width - 1 + _border_weight * 2 + _border_to_bitmap_gap * 2, _upper_left.y_pos + _bitmap_height - 1 + _border_weight * 2 + _border_to_bitmap_gap * 2}, _call_object, _border_weight), // -1 we start counting the pixels at 0...
+                     uint8_t _border_to_bitmap_gap = 0) : ButtonBase<CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _bitmap_width + _border_weight * 2 + _border_to_bitmap_gap * 2, _upper_left.y_pos + _bitmap_height + _border_weight * 2 + _border_to_bitmap_gap * 2}, _call_object, _border_weight),
                                                           on_touch_bitmap(_on_touch_bitmap), on_release_bitmap(_on_release_bitmap), on_disabled_bitmap(_on_disabled_bitmap), border_to_bitmap_gap(_border_to_bitmap_gap)
         {
             // -1 we start counting the pixels at 0...
@@ -73,7 +73,7 @@ namespace FGUI
         const unsigned short *on_release_bitmap;
         const unsigned short *on_disabled_bitmap;
 
-        uint8_t border_to_bitmap_gap; // in pixels
+        uint8_t border_to_bitmap_gap = 0; // in pixels
     };
 
     /** @} */
@@ -121,7 +121,7 @@ uint16_t FGUI::BitmapButton<CALL_OBJECT_TYPE>::get_bitmaps_height() const
     /*
         if we subtract the border_weight and the gap between the bitmap and the border we get the bitmap size...
     */
-    return this->height() - this->get_border_weight() * 2 - this->border_to_bitmap_gap * 2 + 1; // +1 we start count the pixels at 0 in the upper_left and lower_right - here not...
+    return this->height() - this->get_border_weight() * 2 - this->border_to_bitmap_gap * 2; // +1 we start count the pixels at 0 in the upper_left and lower_right - here not...
 }
 template <typename CALL_OBJECT_TYPE>
 uint16_t FGUI::BitmapButton<CALL_OBJECT_TYPE>::get_bitmaps_width() const
@@ -129,5 +129,5 @@ uint16_t FGUI::BitmapButton<CALL_OBJECT_TYPE>::get_bitmaps_width() const
     /*
         if we subtract the border_weight and the gap between the bitmap and the border we get the bitmap size...
     */
-    return this->width() - this->get_border_weight() * 2 - this->border_to_bitmap_gap * 2 + 1; // +1 we start count the pixels at 0 in the upper_left and lower_right - here not...
+    return this->width() - this->get_border_weight() * 2 - this->border_to_bitmap_gap * 2; // +1 we start count the pixels at 0 in the upper_left and lower_right - here not...
 }

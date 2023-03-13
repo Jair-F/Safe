@@ -3,8 +3,6 @@
 #include "RFID/RFID.hpp"
 
 extern RFID::RFID rfid;
-extern uint8_t Retro8x16[];
-extern uint8_t mykefont2[];
 
 #define CANCLE_ADD_BUTTON_HEIGHT 35
 #define CANCLE_ADD_BUTTON_WIDTH 100

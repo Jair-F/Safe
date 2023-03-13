@@ -61,6 +61,11 @@ namespace FGUI
         void set_text(String _text);
 
         /**
+         * @return the text which is in the text_label buffer
+         */
+        String get_text() const { return this->text; }
+
+        /**
          * @param _text_alignment enum value of TextLabel::text_alignment to define the alignment of the
          * text(CENTERED, LEFT, RIGHT).
          */

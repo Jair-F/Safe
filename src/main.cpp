@@ -10,16 +10,18 @@
 #include "Helper.hpp"
 #include "Fingerprint.hpp"
 #include "RFID/RFID.hpp"
-//#include "Fase.hpp"
+// #include "Fase.hpp"
 #include "Keypad.hpp"
 #include "system_clock/system_clock.hpp"
 #include "logging/Log.hpp"
 #include "Config.hpp"
-//#define DEBUG
+#include "Lock/Lock.hpp"
+#include "Lock/UNOB_handler.hpp"
+// #define DEBUG
 
 #ifdef DEBUG
-//#include "avr8-stub.h"
-//#include "app_api.h" // only needed with flash breakpoints
+// #include "avr8-stub.h"
+// #include "app_api.h" // only needed with flash breakpoints
 #endif // SERIAL_DEBUG
 
 #include "FGUI/FGUI.hpp"
@@ -42,9 +44,6 @@ uEEPROMLib system_clock_eeprom(0x57); // 0x57 is the default I2C address for the
 #define filesystem_CARD_SELECTION_PIN 10
 SDClass filesystem;
 
-extern uint8_t SmallFont[];
-extern uint8_t BigFont[];
-
 UTFT myGLCD(ILI9341_16, 38, 39, 40, 41);
 URTouch myTouch(6, 5, 4, 3, 2);
 
@@ -55,25 +54,23 @@ URTouch myTouch(6, 5, 4, 3, 2);
 #include "UI/RFID_delete_tag_by_id.hpp"
 #include "UI/Fingerprint/Fingerprint_Settings.hpp"
 #include "UI/Settings.hpp"
+#include "UI/boot_screen.hpp"
 
 FGUI::MainWindow m_window(&myGLCD, &myTouch, {0, 0}, {320 - 1, 240 - 1}); // "{320 - 1, 240 - 1}" --> we begin to count the pixels at 0,0
 FGUI::WindowBase *home_window = nullptr;								  // the window to which the system returns after falling asleep
-// lock_screen *l_screen;
+lock_screen *l_screen = nullptr;
+Settings_window *settings_window = nullptr;
 
 key_board::key_board<FGUI::MainWindow> k_pad(&m_window);
-extern const unsigned short settings_white[];
-extern const unsigned short back_sign_white[];
 
 Lock lock(10); // connection to the physical lock and handeling the unlock objects
 const byte LOGGING_LEVEL = Log::log_level::L_DEBUG;
 Log::Log logger(LOGGING_LEVEL);
 
-#define RFID_SS (8)
-#define RFID_RST (9) // Not connected by default on the NFC Shield
-					 // the other 2 pins are connected to the MEGA-filesystemA(20) and MEAGE-SCL(21)
-
 Fingerprint::Fingerprint *fingerprint;
 RFID::RFID *rfid;
+
+UNOB_handler unob_handler; // unlock object handler
 
 StaticJsonDocument<1024> config;
 
@@ -97,7 +94,7 @@ void setup()
 	// Wire.begin(); // I2C
 	delay(500);
 
-	pinMode(12, OUTPUT);
+	pinMode(12, OUTPUT); // pull down pin for SD-Card for ground
 	digitalWrite(12, LOW);
 
 	if (!system_clock.begin())
@@ -128,9 +125,6 @@ void setup()
 		Serial.print(system_clock_eeprom.eeprom_read(i));
 	}
 	Serial.println();
-
-	rfid = new RFID::RFID(RFID_SS, RFID_RST, &lock);
-	rfid->begin();
 
 	if (filesystem.begin(filesystem_CARD_SELECTION_PIN))
 	{
@@ -176,12 +170,17 @@ void setup()
 	Serial.print(myGLCD.getDisplayYSize());
 	Serial.println(')');
 
-	// l_screen = new lock_screen(&m_window);
-	Settings_window settings_window(&m_window);
-	home_window = &settings_window;
+	boot_screen b_screen(&m_window);
+
+	l_screen = new lock_screen(&m_window);
+	settings_window = new Settings_window(&m_window);
+	home_window = l_screen;
+
+	// m_window.set_active_window(l_screen);
+	// m_window.loop();
 
 	Serial.println("Created lock_screen...");
-	m_window.set_active_window(&settings_window);
+	// m_window.set_active_window(l_screen);
 	m_window.on_fall_asleep = &fall_asleep_handler;
 	Serial.println("set active_window");
 
@@ -259,6 +258,12 @@ void setup()
 	// Adafruit_Fingerprint finger(&Serial3);
 	fingerprint = new Fingerprint::Fingerprint(&Serial3, &lock);
 	fingerprint->begin();
+
+	rfid = new RFID::RFID(RFID_SS, RFID_RST, &lock);
+	rfid->begin();
+
+	unob_handler.add_unob(fingerprint);
+	unob_handler.add_unob(rfid);
 
 	/*
 	Serial.println("waiting for tag");
@@ -363,7 +368,7 @@ void setup()
 
 		k_pad.loop();
 		m_window.loop();
-		// lock.loop();
+		lock.loop();
 		// fase.loop();
 	}
 }

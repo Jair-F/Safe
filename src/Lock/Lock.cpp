@@ -1,4 +1,4 @@
-#include "Lock.hpp"
+#include "Lock/Lock.hpp"
 #include "logging/Log.hpp"
 #include "system_clock/system_clock.hpp"
 #include <uEEPROMLib.h>
