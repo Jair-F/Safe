@@ -47,6 +47,6 @@ namespace Clock
     if the battery is removed the data will be lost.
     - the indexes of the memory are 0-30 each a uint8_t=char
 */
-#define SYSTEM_CLOCK_EEPROM_LAST_ADRESS 4095 // 0-4095 addresses - every address is one byte
+#define SYSTEM_CLOCK_EEPROM_LAST_ADRESS 4095 // 0-4095 addresses - every address is one byte/8-bits
     // String time_string(const RtcDateTime &tm);
 }
