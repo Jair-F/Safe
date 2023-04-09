@@ -47,6 +47,7 @@ RFID_settings_window::RFID_settings_window(FGUI::WindowBase *_parent_window) : F
     this->window_title.set_border_weight(2);
     this->window_title.released_border_color = VGA_BLUE;
     this->window_title.set_text("RFID Settings");
+    this->window_title.released_background_color = VGA_OLIVE;
 
     this->add_tag_btn.setText("add tag");
     this->add_tag_btn.touched_background_color = VGA_GRAY;

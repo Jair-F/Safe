@@ -9,12 +9,15 @@ public:
 
     void loop() override;
     void send_input(char _input_data) override;
-    void send_enter() override;
+    // void send_enter() override;
     void send_backspace() override;
 
 protected:
-    void _open_settings(FGUI::Touch_Widget<lock_screen> *_widget);
+    void _request_open_settings(FGUI::Touch_Widget<lock_screen> *_widget);
     void _open_info(FGUI::Touch_Widget<lock_screen> *_widget);
+
+    // show the input buffer of the PIN on the status label
+    void _show_pin_input();
 
 private:
     FGUI::TextLabel window_title;
