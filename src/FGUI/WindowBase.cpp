@@ -60,7 +60,9 @@ FGUI::Widget *FGUI::WindowBase::handle_touch_clicked(const position &_touch_data
         auto widget_iterator = this->registered_widgets.begin();
         while (widget_iterator != this->registered_widgets.end())
         {
-            if (!widget_iterator->is_hidden() && !widget_iterator->is_disabled())
+            if (widget_iterator->_is_touch_widget() && // consider only real touch_widgets
+                !widget_iterator->is_hidden() &&
+                !widget_iterator->is_disabled())
             {
                 if (widget_iterator->_check_pos(_touch_data)) // check if the touch is in the widget
                 {
@@ -68,7 +70,6 @@ FGUI::Widget *FGUI::WindowBase::handle_touch_clicked(const position &_touch_data
                     // touch-data is on the widget - clicked
                     widget_iterator->_touch(_touch_data);
                     return widget_iterator.data(); // return the touched widget
-                    break;
                 }
             }
             ++widget_iterator;

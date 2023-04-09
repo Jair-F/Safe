@@ -213,6 +213,12 @@ namespace FGUI
          * @return true if the widget is touched at the time
          */
         inline bool is_touched() const { return this->touched; }
+
+        /**
+         * @details for checking at the window class if the widget is a touch widget to send a handle_touch
+         * @return true if the widget is a touch_widget
+         */
+        bool _is_touch_widget() const override { return true; }
     };
 
     /** @} */
