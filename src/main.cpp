@@ -2,7 +2,6 @@
 #include <SPI.h>
 #include <stdlib.h>
 #include <ArduinoJson.h>
-#include <SD.h>
 #include <RTCLib.h>
 #include <uEEPROMLib.h>
 
@@ -10,6 +9,7 @@
 #include "Helper.hpp"
 #include "Fingerprint.hpp"
 #include "RFID/RFID.hpp"
+#include "Pin.hpp"
 // #include "Fase.hpp"
 #include "Keypad.hpp"
 #include "system_clock/system_clock.hpp"
@@ -42,7 +42,7 @@ Clock::Clock system_clock;
 uEEPROMLib system_clock_eeprom(0x57); // 0x57 is the default I2C address for the DS3231 EEPROM
 
 #define filesystem_CARD_SELECTION_PIN 10
-SDClass filesystem;
+// SDClass filesystem;
 
 UTFT myGLCD(ILI9341_16, 38, 39, 40, 41);
 URTouch myTouch(6, 5, 4, 3, 2);
@@ -55,11 +55,15 @@ URTouch myTouch(6, 5, 4, 3, 2);
 #include "UI/Fingerprint/Fingerprint_Settings.hpp"
 #include "UI/Settings.hpp"
 #include "UI/boot_screen.hpp"
+#include "UI/info_screen.hpp"
+
+#include "UI/try_window.hpp"
 
 FGUI::MainWindow m_window(&myGLCD, &myTouch, {0, 0}, {320 - 1, 240 - 1}); // "{320 - 1, 240 - 1}" --> we begin to count the pixels at 0,0
 FGUI::WindowBase *home_window = nullptr;								  // the window to which the system returns after falling asleep
 lock_screen *l_screen = nullptr;
 Settings_window *settings_window = nullptr;
+Info_Screen *info_screen = nullptr;
 
 key_board::key_board<FGUI::MainWindow> k_pad(&m_window);
 
@@ -69,6 +73,7 @@ Log::Log logger(LOGGING_LEVEL);
 
 Fingerprint::Fingerprint *fingerprint;
 RFID::RFID *rfid;
+Pin pin(&lock, true, 8);
 
 UNOB_handler unob_handler; // unlock object handler
 
@@ -79,6 +84,7 @@ StaticJsonDocument<1024> config;
 void fall_asleep_handler()
 {
 	m_window.set_active_window(home_window);
+	fingerprint->led_control(Fingerprint::Fingerprint::led_modes::LED_OFF);
 }
 
 void setup()
@@ -125,36 +131,6 @@ void setup()
 		Serial.print(system_clock_eeprom.eeprom_read(i));
 	}
 	Serial.println();
-
-	if (filesystem.begin(filesystem_CARD_SELECTION_PIN))
-	{
-		Serial.println("Initialized filesystem card");
-		if (!filesystem.exists("log.log"))
-		{
-			auto file = filesystem.open("log.log");
-			if (!file.available())
-			{
-				Serial.println("error while creating/opening log.log");
-			}
-			file.close();
-		}
-		else
-		{
-			Serial.println("log.log exists");
-		}
-
-		if (filesystem.exists("config"))
-		{
-			Serial.println("config file exists");
-		}
-		else
-			Serial.println("config doesnt exists");
-	}
-	else
-	{
-		Serial.println("ERROR while initializing filesystem card");
-	}
-
 	Serial.println("Startup...");
 
 	myGLCD.InitLCD(DISPLAY_ORIENTATION);
@@ -173,16 +149,20 @@ void setup()
 	boot_screen b_screen(&m_window);
 
 	l_screen = new lock_screen(&m_window);
-	settings_window = new Settings_window(&m_window);
+	settings_window = new Settings_window(l_screen);
+	info_screen = new Info_Screen(l_screen);
 	home_window = l_screen;
 
-	// m_window.set_active_window(l_screen);
+	m_window.set_active_window(l_screen);
 	// m_window.loop();
 
 	Serial.println("Created lock_screen...");
-	// m_window.set_active_window(l_screen);
+	m_window.set_active_window(l_screen);
 	m_window.on_fall_asleep = &fall_asleep_handler;
 	Serial.println("set active_window");
+
+	try_window t_window(&m_window);
+	m_window.set_active_window(&t_window);
 
 	/*
 	system_clock.Begin();
@@ -262,113 +242,19 @@ void setup()
 	rfid = new RFID::RFID(RFID_SS, RFID_RST, &lock);
 	rfid->begin();
 
-	unob_handler.add_unob(fingerprint);
-	unob_handler.add_unob(rfid);
+	pin.set_pin("12345678");
 
-	/*
-	Serial.println("waiting for tag");
-	while (!rfid->tag_present())
-	{
-		Serial.print('.');
-		delay(500);
-	}
-	Serial.print("tag present: ");
-	auto uid = rfid->read_tag_UID();
-	Serial.println(uid.to_string());
-	*/
-
-	/*
-	Serial.println("adding finger to sensor");
-	while (!fingerprint->add_finger(1))
-	{
-		delay(1000);
-		Serial.println('.');
-	}
-	*/
-
-	auto config_file = filesystem.open(F("config"), O_READ);
-	if (!Config::read_config(config_file))
-	{
-		logger.log(F("Error while reading the config file"), Log::log_level::L_CRITICAL);
-	}
-	else
-	{
-		logger.log(F("read config file"), Log::log_level::L_DEBUG);
-	}
+	// unob_handler.add_unob(fingerprint);
+	// unob_handler.add_unob(rfid);
+	unob_handler.add_unob(&pin);
 
 	logger.serial_dump();
 
 	while (true)
 	{
-		/*
-		if (Serial.available() > 0)
-		{
-			char input;
-			Serial.readBytes(&input, 1);
-			Serial.println(input);
-			if (input == 's')
-			{
-				digitalWrite(12, HIGH);
-				delay(100);
-				rfid->begin();
-				if (filesystem.begin())
-				{
-					Serial.println("success filesystem...");
-				}
-				else
-				{
-					Serial.println("error filesystem");
-				}
-			}
-			else if (input == 'o')
-			{
-				digitalWrite(12, LOW);
-				delay(100);
-				if (filesystem.begin())
-				{
-					Serial.println("success filesystem...");
-					if (!filesystem.exists("log.log"))
-					{
-						// auto file = filesystem.open("log.log");
-						// file.close();
-						Serial.println("log.log doesnt exists");
-					}
-					else
-					{
-						Serial.println("log.log exists");
-					}
-				}
-				else
-				{
-					Serial.println("error filesystem");
-				}
-			}
-		}
-		*/
-
-		/*
-		if (fingerprint->finger_on_sensor())
-		{
-			Serial.println("finger on sensor");
-			auto err_code = fingerprint->read();
-			if (err_code == Unlock_Object::unlock_authentication_reports::AUTHORIZED_UNLOCK_OBJECT)
-			{
-				Serial.println("read valid finger");
-			}
-			else if (err_code == Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR)
-			{
-				Serial.println("error while reading the finger");
-			}
-			else
-			{
-				Serial.println("unauthorized finger");
-			}
-		}
-		*/
-
 		k_pad.loop();
 		m_window.loop();
-		lock.loop();
+		// lock.loop();
 		// fase.loop();
 	}
 }

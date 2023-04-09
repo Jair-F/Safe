@@ -109,17 +109,6 @@ protected:
     // switches the state and calls the requred functions to perform the state-switch !!! doesnt check if unlocking is alowed !!!
     void _unlock();
 
-    /*
-        save the locked_until_time_point on the system_clock memory
-        @return true on success
-    */
-    bool _save_locked_until_time_point();
-    /*
-        delete the locked_until_time_point from the system_clock memory
-        @return true on successful
-    */
-    bool _delete_locked_until_time_point();
-
 private:
     SinglyLinkedList<uint16_t> unlock_object_ids;
     SinglyLinkedList<Unlock_Object *> unlock_objects;
