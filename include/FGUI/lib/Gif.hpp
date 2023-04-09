@@ -26,8 +26,12 @@ namespace FGUI
          * @param num_of_bitmaps number of bitmaps you gonna pass to the constructor
          * @param ... the bitmaps in the order they should be displayed afterwards on the display. type of the bitmap is unsigned short*
          */
-        Giff(WindowBase *_parent, position _upper_left, uint16_t _bitmap_width, uint16_t _bitmap_height,
-             uint8_t _border_weight, uint8_t _border_to_bitmap_gap, uint16_t _change_speed,
+        Giff(WindowBase *_parent,
+             position _upper_left,
+             uint16_t _bitmap_width, uint16_t _bitmap_height,
+             uint8_t _border_weight,
+             uint8_t _border_to_bitmap_gap,
+             uint16_t _change_speed,
              uint8_t num_of_bitmaps, ...);
         ~Giff() {}
 
@@ -61,7 +65,6 @@ namespace FGUI
         void _draw_content(Widget::w_status _st) override;
 
     private:
-        uint8_t border_to_bitmap_gap;
         SinglyLinkedList<unsigned short *> bitmaps;              ///< @brief list of bitmaps in the order they are displayed.
         SinglyListNodeIterator<unsigned short *> current_bitmap; ///< @brief iterator or the current bitmap.
         uint16_t bitmap_change_speed;                            ///< @brief change speed of the bitmaps in milliseconds.

@@ -3,8 +3,6 @@
 #include "RFID/RFID.hpp"
 
 extern RFID::RFID rfid;
-extern uint8_t Retro8x16[];
-extern uint8_t mykefont2[];
 
 #define CANCLE_ADD_BUTTON_HEIGHT 35
 #define CANCLE_ADD_BUTTON_WIDTH 100
@@ -14,7 +12,7 @@ extern RFID_settings_window *rfid_settings_wnd;
 
 RFID_add_tag_window::RFID_add_tag_window(FGUI::WindowBase *_parent_window) : FGUI::Window(_parent_window),
                                                                              window_title(this, {0, 0}, this->get_content_width(), "add tag by read", BigFont),
-                                                                             window_title_div(this, {0, 32}, this->get_content_width(), 3, FGUI::Divider::d_alignment::AL_HORIZONTAL, VGA_BLUE),
+                                                                             // window_title_div(this, {0, 32}, this->get_content_width(), 3, FGUI::Divider::d_alignment::AL_HORIZONTAL, VGA_BLUE),
                                                                              tag_id_input_field_label(this, {30, 40}, 150, "tag ID: ", BigFont),
                                                                              tag_id(this, {190, 40}, TAG_ID_INPUT_FIELD_WIDTH, 35, this, FGUI::InputField<2, RFID_add_tag_window>::IN_INPUT_TYPE::IN_TEXT),
                                                                              status_label(this, {0 + this->get_border_weight(), 100},
@@ -26,10 +24,10 @@ RFID_add_tag_window::RFID_add_tag_window(FGUI::WindowBase *_parent_window) : FGU
     // this->set_background_color(0x41e8); // gray like
     this->set_border_color(VGA_BLUE);
 
-    this->window_title.set_draw_border(false);
+    this->window_title.set_draw_border(true);
     this->window_title.set_border_weight(3);
     this->window_title.released_border_color = VGA_BLUE;
-    this->window_title.show();
+    this->window_title.mark_shown();
 
     this->tag_id_input_field_label.set_draw_border(false);
 

@@ -76,6 +76,7 @@ bool RFID::UID::is_set() const
 void RFID::UID::clear()
 {
     this->uid_length = 0;
-    delete[] this->uid;
+    if (this->uid != nullptr)
+        delete[] this->uid;
     this->uid = nullptr;
 }

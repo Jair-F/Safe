@@ -71,8 +71,10 @@ namespace FGUI
          * @param _border_weight size of the border in pixels
          * @note if _call_object nullptr the programm will crash due a assertion!
          */
-        InputField(WindowBase *_parent, const position _upper_left, const position _lower_right,
-                   CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type,
+        InputField(WindowBase *_parent,
+                   const position _upper_left, const position _lower_right,
+                   CALL_OBJECT_TYPE *_call_object,
+                   IN_INPUT_TYPE _input_type,
                    uint8_t _border_weight = 3);
         /**
          * @param _parent the parent window to which the widget will register to
@@ -84,8 +86,11 @@ namespace FGUI
          * @param _border_weight size of the border in pixels
          * @note if _call_object nullptr the programm will crash due a assertion!
          */
-        InputField(WindowBase *_parent, const position _upper_left, uint16_t _width, uint16_t _height,
-                   CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type,
+        InputField(WindowBase *_parent,
+                   const position _upper_left,
+                   uint16_t _width, uint16_t _height,
+                   CALL_OBJECT_TYPE *_call_object,
+                   IN_INPUT_TYPE _input_type,
                    uint8_t _border_weight = 3);
 
         virtual ~InputField() {}
@@ -128,19 +133,6 @@ namespace FGUI
         uint8_t *get_font() const { return this->_text_font; }
 
     protected:
-        /**
-         * @details draw the text and cursor of the input_field(the content) in touched state.
-         */
-        void _draw_touched_content();
-        /**
-         * @details draw the text the input_field(the content) in released state.
-         */
-        void _draw_released_content();
-        /**
-         * @details draw the text the input_field(the content) in disabled state.
-         */
-        void _draw_disabled_content();
-
         void _draw_widget() override;
         void _draw_content(Widget::w_status _st) override;
 
@@ -168,9 +160,14 @@ namespace FGUI
 // ------------- template implementation -------------
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(WindowBase *_parent, const position _upper_left, const position _lower_right,
-                                                                 CALL_OBJECT_TYPE *_call_object, IN_INPUT_TYPE _input_type,
-                                                                 uint8_t _border_weight) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right, _call_object, _border_weight),
+FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(WindowBase *_parent,
+                                                                 const position _upper_left, const position _lower_right,
+                                                                 CALL_OBJECT_TYPE *_call_object,
+                                                                 IN_INPUT_TYPE _input_type,
+                                                                 uint8_t _border_weight) : Touch_Widget<CALL_OBJECT_TYPE>(_parent,
+                                                                                                                          _upper_left, _lower_right,
+                                                                                                                          _call_object,
+                                                                                                                          _border_weight, 0),
                                                                                            input_type(_input_type)
 {
     assert(MAX_NUM_OF_CHARS > 0);
@@ -188,10 +185,18 @@ FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(WindowBase *_pa
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(WindowBase *_parent, const position _upper_left, uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
+FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::InputField(WindowBase *_parent,
+                                                                 const position _upper_left,
+                                                                 uint16_t _width, uint16_t _height,
+                                                                 CALL_OBJECT_TYPE *_call_object,
                                                                  IN_INPUT_TYPE _input_type,
-                                                                 uint8_t _border_weight) : InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>(_parent, _upper_left, {_upper_left.x_pos + _width, _upper_left.y_pos + _height},
-                                                                                                                                          _call_object, _input_type, _border_weight)
+                                                                 uint8_t _border_weight) : InputField<MAX_NUM_OF_CHARS,
+                                                                                                      CALL_OBJECT_TYPE>(_parent,
+                                                                                                                        _upper_left,
+                                                                                                                        {_upper_left.x_pos + _width, _upper_left.y_pos + _height},
+                                                                                                                        _call_object,
+                                                                                                                        _input_type,
+                                                                                                                        _border_weight)
 {
 }
 
@@ -293,101 +298,7 @@ bool FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::buffer_is_empty()
 }
 
 template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_disabled_content()
-{
-    // print the print the text in the InputField if there is text in the buffer
-    if (!this->buffer_is_empty())
-    {
-        this->display->setFont(this->_text_font);
-        uint8_t font_height = this->display->getFontYsize();
-        uint8_t font_width = this->display->getFontXsize();
-
-        this->display->setBackColor(this->disabled_background_color);
-        this->display->setColor(this->disabled_text_color);
-
-        // calculate the num of chars to print in the field - in case there is more input than the widget ca display
-        uint8_t input_buffer_size = strlen(this->input_buffer);
-
-        uint8_t space_for_text = (this->width() - this->_text_gap * 2); // in pixels
-        uint8_t num_of_chars_to_print = space_for_text / font_width;    // num of characters we can print in the widget
-        String text_to_print;
-
-        if (input_buffer_size < num_of_chars_to_print) // if the field isnt filled up entirely print out the text just like normal
-        {
-            text_to_print = this->input_buffer;
-        }
-        else
-        {
-            for (int16_t i = num_of_chars_to_print; i > 0; --i)
-            {
-                text_to_print += this->input_buffer[input_buffer_size - i];
-            }
-        }
-
-        // if the input-field is a password-input-field display only *
-        if (this->input_type == IN_INPUT_TYPE::IN_PASSWORD)
-        {
-            for (uint8_t i = 0; i < text_to_print.length(); ++i)
-            {
-                text_to_print[i] = '*';
-            }
-        }
-
-        // center the text horizontally in the widget
-        this->display->print(text_to_print, this->upper_left.x_pos + this->_text_gap + this->get_border_weight(),
-                             this->upper_left.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
-    }
-}
-
-template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_released_content()
-{
-    // print the print the text in the InputField if there is text in the buffer
-    if (!this->buffer_is_empty())
-    {
-        this->display->setFont(this->_text_font);
-        uint8_t font_height = this->display->getFontYsize();
-        uint8_t font_width = this->display->getFontXsize();
-
-        this->display->setBackColor(this->released_background_color);
-        this->display->setColor(this->released_text_color);
-
-        // calculate the num of chars to print in the field - in case there is more input than the widget ca display
-        uint8_t input_buffer_size = strlen(this->input_buffer);
-
-        uint8_t space_for_text = (this->width() - this->_text_gap * 2); // in pixels
-        uint8_t num_of_chars_to_print = space_for_text / font_width;    // num of characters we can print in the widget
-        String text_to_print;
-
-        if (input_buffer_size < num_of_chars_to_print) // if the field isnt filled up entirely print out the text just like normal
-        {
-            text_to_print = this->input_buffer;
-        }
-        else
-        {
-            for (int16_t i = num_of_chars_to_print; i > 0; --i)
-            {
-                text_to_print += this->input_buffer[input_buffer_size - i];
-            }
-        }
-
-        // if the input-field is a password-input-field display only *
-        if (this->input_type == IN_INPUT_TYPE::IN_PASSWORD)
-        {
-            for (uint8_t i = 0; i < text_to_print.length(); ++i)
-            {
-                text_to_print[i] = '*';
-            }
-        }
-
-        // center the text horizontally in the widget
-        this->display->print(text_to_print, this->upper_left.x_pos + this->_text_gap + this->get_border_weight(),
-                             this->upper_left.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
-    }
-}
-
-template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_touched_content()
+void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
 {
     this->display->setFont(this->_text_font);
     uint8_t font_height = this->display->getFontYsize();
@@ -398,8 +309,27 @@ void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_touched_content
     // print the print the text in the InputField if there is text in the buffer
     if (!this->buffer_is_empty())
     {
-        this->display->setBackColor(this->touched_background_color);
-        this->display->setColor(this->touched_text_color);
+        switch (_st)
+        {
+        case Widget::w_status::S_DISABLED:
+        {
+            this->display->setBackColor(this->disabled_background_color);
+            this->display->setColor(this->disabled_text_color);
+            break;
+        }
+        case Widget::w_status::S_TOUCHED:
+        {
+            this->display->setBackColor(this->touched_background_color);
+            this->display->setColor(this->touched_text_color);
+            break;
+        }
+        case Widget::w_status::S_RELEASED:
+        {
+            this->display->setBackColor(this->released_background_color);
+            this->display->setColor(this->released_text_color);
+            break;
+        }
+        }
 
         // calculate the num of chars to print in the field - in case there is more input than the widget ca display
         uint8_t input_buffer_size = strlen(this->input_buffer);
@@ -432,36 +362,13 @@ void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_touched_content
         this->display->print(text_to_print, this->get_content_upper_left().x_pos + this->_text_gap,
                              this->upper_left.y_pos + (this->height() / 2) - font_height / 2); // this->INPUT_UNSET_VALUE is '\0' - end of text...
     }
-    // draw the cursor
-    this->display->setColor(this->touched_cursor_color);
-    this->display->drawVLine(this->get_content_upper_left().x_pos + this->_text_gap + font_width * text_to_print.length(),
-                             this->upper_left.y_pos + (this->height() / 2) - font_height / 2, font_height); // height of the curser is the font-height and the upper-pos is the upper-pos of the text
-}
 
-template <uint8_t MAX_NUM_OF_CHARS, typename CALL_OBJECT_TYPE>
-void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
-{
-    switch (_st)
+    // draw the cursor
+    if (!this->is_disabled() && _st == Widget::w_status::S_TOUCHED)
     {
-    case Widget::w_status::S_DISABLED:
-    {
-        this->_draw_disabled_content();
-        break;
-    }
-    case Widget::w_status::S_TOUCHED:
-    {
-        this->_draw_touched_content();
-        break;
-    }
-    case Widget::w_status::S_RELEASED:
-    {
-        this->_draw_released_content();
-        break;
-    }
-    default:
-    {
-        break;
-    }
+        this->display->setColor(this->touched_cursor_color);
+        this->display->drawVLine(this->get_content_upper_left().x_pos + this->_text_gap + font_width * text_to_print.length(),
+                                 this->upper_left.y_pos + (this->height() / 2) - font_height / 2, font_height); // height of the curser is the font-height and the upper-pos is the upper-pos of the text
     }
 }
 
@@ -483,6 +390,9 @@ void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_widget()
             {
                 this->_draw_border(Widget::w_status::S_DISABLED);
             }
+            else
+                this->_clear_border_space();
+
             this->_draw_background(Widget::w_status::S_DISABLED);
             this->_draw_content(Widget::w_status::S_DISABLED);
         }
@@ -492,6 +402,9 @@ void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_widget()
             {
                 this->_draw_border(Widget::w_status::S_TOUCHED);
             }
+            else
+                this->_clear_border_space();
+
             this->_draw_background(Widget::w_status::S_TOUCHED);
             this->_draw_content(Widget::w_status::S_TOUCHED);
         }
@@ -501,6 +414,9 @@ void FGUI::InputField<MAX_NUM_OF_CHARS, CALL_OBJECT_TYPE>::_draw_widget()
             {
                 this->_draw_border(Widget::w_status::S_RELEASED);
             }
+            else
+                this->_clear_border_space();
+
             this->_draw_background(Widget::w_status::S_RELEASED);
             this->_draw_content(Widget::w_status::S_RELEASED);
         }

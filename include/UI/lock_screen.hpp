@@ -7,40 +7,24 @@ public:
     lock_screen(FGUI::MainWindow *_main_window);
     virtual ~lock_screen() {}
 
-    friend void func();
+    void loop() override;
+    void send_input(char _input_data) override;
+    // void send_enter() override;
+    void send_backspace() override;
 
 protected:
-    void uncheck_check_box_pop_up(FGUI::Touch_Widget<lock_screen> *_widget);
-    void update_status_bar(FGUI::Touch_Widget<lock_screen> *_widget);
+    void _request_open_settings(FGUI::Touch_Widget<lock_screen> *_widget);
+    void _open_info(FGUI::Touch_Widget<lock_screen> *_widget);
 
-    void button_print_clicked(FGUI::Touch_Widget<lock_screen> *_widget);
-
-    void button_print_released(FGUI::Touch_Widget<lock_screen> *_widget);
-
-    void _handle_check_box(FGUI::Touch_Widget<lock_screen> *_widget);
-
-    void restart_system(FGUI::Touch_Widget<lock_screen> *_widget);
-
-    void update_window_label(FGUI::Touch_Widget<lock_screen> *_widget);
-
-    void input_field_adjust(FGUI::Touch_Widget<lock_screen> *_widget, const char *_input_buffer);
+    // show the input buffer of the PIN on the status label
+    void _show_pin_input();
 
 private:
-    FGUI::Button<lock_screen> _button;
-    FGUI::Button<lock_screen> _button2;
-    FGUI::TextLabel text_feld;
-    FGUI::CheckBox<lock_screen> ch_box;
-    FGUI::InputField<20, lock_screen> input_field;
-    FGUI::PopUp_Window pop_up_window;
+    FGUI::TextLabel window_title;
+    FGUI::Divider window_title_div;
 
-    FGUI::TextLabel status_bar;
+    FGUI::TextLabel status_label;
 
-    FGUI::BitmapButton<lock_screen> b_button;
-    FGUI::Divider div;
-    FGUI::ProgressBar progressBar;
-
-    FGUI::Giff u_giff;
-
-    FGUI::Button<lock_screen> p_button;
-    FGUI::SingleSelectionMenu<lock_screen> selction_menu;
+    FGUI::BitmapButton<lock_screen> settings_btn;
+    FGUI::BitmapButton<lock_screen> info_btn;
 };

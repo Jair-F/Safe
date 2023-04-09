@@ -3,8 +3,8 @@
 #include <Arduino.h>
 #include <Adafruit_Fingerprint.h>
 #include "GlobalConstants.hpp"
-#include "Unlock_Object.hpp"
-#include "Lock.hpp"
+#include "Lock/Unlock_Object.hpp"
+#include "Lock/Lock.hpp"
 
 /*
 Fingerprint:
@@ -104,6 +104,8 @@ namespace Fingerprint
          * @return Unlock_Object::unlock_authentication_reports
          */
         unlock_authentication_reports read() override;
+
+        bool authorized_unob_database_empty() override;
 
         /**
          * @brief error code for the client which is set by serval operations to get more

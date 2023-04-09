@@ -33,7 +33,9 @@ namespace FGUI
             @param _lower_right the lower right position of the window rectangle - absolute position
             @param _parent_window pointer which pionts to the parent window - nullptr if the window doesnt have one
         */
-        WindowBase(const position &_upper_left, const position &_lower_right, WindowBase *_parent_window = nullptr, uint8_t _border_weight = 0);
+        WindowBase(const position &_upper_left, const position &_lower_right,
+                   WindowBase *_parent_window = nullptr,
+                   uint8_t _border_weight = 0);
         virtual ~WindowBase() {}
 
         // functions which derived classes need to implement with their pointer to the parent_window
@@ -94,6 +96,30 @@ namespace FGUI
             @note This function will be called from the main_window-loop - so be shure to call the main_window loop in a loop!
         */
         virtual void loop();
+
+        /**
+         * @details handle the input of the keyboard/keypad
+         */
+        virtual void send_input(char _input_data) {}
+
+        /**
+         * @details handle the input of the keyboard/keypad
+         */
+        virtual void send_enter() {}
+
+        /**
+         * @details handle the input of the keyboard/keypad
+         */
+        virtual void send_backspace() {}
+
+        /*!
+            @details this function will be called by the MainWindow one step before the
+            window is shown on the display, directly after its set to the active window.
+            its to make things ready before appearing on the display.
+            @note this function is called only once per set_active_window() call - not every
+            time the show function is called!!
+        */
+        virtual void _pre_show(){};
 
         /*!
             @details a pop up window is not shown by setting it the the active window in the main window. it must to be set with this function

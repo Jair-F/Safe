@@ -17,17 +17,12 @@ namespace
 
 extern Fingerprint::Fingerprint *fingerprint;
 
-extern uint8_t mykefont2[];
-extern uint8_t Retro8x16[];
-extern uint8_t Sinclair_Inverted_S[];
-extern uint8_t TinyFont[];
-
 add_fingerprint::add_fingerprint(FGUI::WindowBase *_parent_window) : FGUI::Window(_parent_window),
                                                                      window_title(this, {0, 0}, this->get_content_width(), "add fingerprint", BigFont),
-                                                                     window_title_div(this, {0, 32}, this->get_content_width(), 3, FGUI::Divider::d_alignment::AL_HORIZONTAL, VGA_BLUE),
+                                                                     // window_title_div(this, {0, 32}, this->get_content_width(), 3, FGUI::Divider::d_alignment::AL_HORIZONTAL, VGA_BLUE),
                                                                      id_input_field_label(this, {30, 40}, 150, "fingerprint ID: ", Retro8x16),
                                                                      id(this, {190, 40}, TAG_ID_INPUT_FIELD_WIDTH, 35, this, FGUI::InputField<3, add_fingerprint>::IN_INPUT_TYPE::IN_TEXT),
-                                                                     status_label(this, {0 + this->get_border_weight(), 100},
+                                                                     status_label(this, {(uint16_t)0 + this->get_border_weight(), 100},
                                                                                   this->get_content_width() - this->get_border_weight(), "insert fingperint id", Retro8x16),
                                                                      cancel_btn(this, {46, 180}, CANCLE_ADD_BUTTON_WIDTH, CANCLE_ADD_BUTTON_HEIGHT, this),
                                                                      add_btn(this, {46, 180}, CANCLE_ADD_BUTTON_WIDTH, CANCLE_ADD_BUTTON_HEIGHT, this),
@@ -36,10 +31,10 @@ add_fingerprint::add_fingerprint(FGUI::WindowBase *_parent_window) : FGUI::Windo
     // this->set_background_color(0x41e8); // gray like
     this->set_border_color(VGA_BLUE);
 
-    this->window_title.set_draw_border(false);
+    this->window_title.set_draw_border(true);
     this->window_title.set_border_weight(3);
     this->window_title.released_border_color = VGA_BLUE;
-    this->window_title.show();
+    this->window_title.mark_shown();
 
     this->id_input_field_label.set_draw_border(false);
 
@@ -77,7 +72,7 @@ void add_fingerprint::_on_type_tag_id_check(FGUI::Touch_Widget<add_fingerprint> 
     if (tag_id > 120)
     {
         this->status_label.released_text_color = VGA_RED;
-        this->status_label.set_text("tag ID needs to be between 0 and 50");
+        this->status_label.set_text("fingerprint ID needs to be between 0 and 50");
     }
     else
     {
@@ -110,7 +105,7 @@ void add_fingerprint::_add_fingerprint(FGUI::Touch_Widget<add_fingerprint> *_wid
         this->cancel_btn.show();
         this->id.disable();
         this->status_label.released_text_color = VGA_WHITE;
-        this->status_label.set_text("add tag to reader");
+        this->status_label.set_text("add finger to reader");
         this->waiting_for_fingerprint_to_add = true;
     }
     else
@@ -133,7 +128,7 @@ void add_fingerprint::loop()
 {
     if (this->waiting_for_fingerprint_to_add)
     {
-        // fingerprint->add_finger(this->add_fingerprint_id);
+        fingerprint->add_finger(this->add_fingerprint_id);
     }
 
     WindowBase::loop();

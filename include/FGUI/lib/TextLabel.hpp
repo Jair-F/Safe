@@ -34,14 +34,18 @@ namespace FGUI
         /**
          * @param _parent parent window to which the widget will register to.
          * @param _upper_left_pos upper left corner in relation to the parent window zero point.
-         * @param _width width of the text label
+         * @param _width width of the text label - including border and gap...
          * @param _text text to display
          * @param _font pointer to font array for the text.
+         * @param _border_weight weight of the border
+         * @param _border_to_text_gap gap between the border and the start of the text
+         *                            on all sides
          *
          * @note the widget adjusts its height atomatically based on the text and the newlines in the text.
          * The height can be read with Widget::height().
          */
-        TextLabel(WindowBase *_parent, const position _upper_left, uint16_t _width, String _text = "", uint8_t *_font = SmallFont);
+        TextLabel(WindowBase *_parent, const position _upper_left, uint16_t _width, String _text = "",
+                  uint8_t *_font = SmallFont, uint8_t _border_weight = 0, uint8_t _border_to_text_gap = 1);
         virtual ~TextLabel() {}
 
         /**
@@ -61,6 +65,11 @@ namespace FGUI
         void set_text(String _text);
 
         /**
+         * @return the text which is in the text_label buffer
+         */
+        String get_text() const { return this->text; }
+
+        /**
          * @param _text_alignment enum value of TextLabel::text_alignment to define the alignment of the
          * text(CENTERED, LEFT, RIGHT).
          */
@@ -69,6 +78,15 @@ namespace FGUI
          * @return the alignment of the text(CENTERED, LEFT, RIGHT).
          */
         inline text_alignment get_text_alignment() const { return this->text_align; }
+
+        void set_border_weight(uint8_t _border_weight) override;
+        void set_content_border_gap(uint8_t _border_content_gap) override;
+
+        /**
+         * @param _line_spacing spacing between the lines of the label in pixels
+         *                      default spacing is 50% of the font size
+         */
+        void set_line_spacing(uint8_t _line_spacing);
 
         /**
          * @brief the color values are RGB-565 values(16-bit value).
@@ -96,11 +114,7 @@ namespace FGUI
         /**
          * @brief gap between lines each printed line of text in pixels
          */
-        uint8_t text_gap_height;
-        /**
-         * @brief gap between the begin of the widget and begin of the text and end of the widget and end of the text in pixels
-         */
-        uint8_t text_gap_length;
+        uint8_t line_spacing;
         /**
          * @brief max number of characters which can be printed in one line according to the widget widht and text font.
          */
@@ -109,6 +123,13 @@ namespace FGUI
          * @brief number of text lines the actual text string will need to print the text with the set text font.
          */
         uint8_t text_lines;
+
+        /**
+         * @brief gap between the begin of the widget and begin of the text and end of the widget and end of the text in pixels
+         */
+        // this->get_content_border_gap()
+
+        bool need_recalculate = true; // true if it need a recalculate before drawing
     };
 
     /** @} */

@@ -149,6 +149,20 @@ Unlock_Object::unlock_authentication_reports Fingerprint::Fingerprint::read()
     }
 }
 
+bool Fingerprint::Fingerprint::authorized_unob_database_empty()
+{
+    bool least_one_set = false;
+    for (uint16_t i = 0; i <= 127; ++i)
+    {
+        if (this->check_id_used(i))
+        {
+            least_one_set = true;
+            break;
+        }
+    }
+    return least_one_set;
+}
+
 bool Fingerprint::Fingerprint::check_id_used(uint16_t id)
 {
     // source: https://forum.arduino.cc/t/adafruit-fingerprint-sensor-library-detecting-empty-id/535181

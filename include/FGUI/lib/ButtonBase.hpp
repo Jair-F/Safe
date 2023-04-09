@@ -30,8 +30,38 @@ namespace FGUI
          * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
          * @param _border_weight size of the border in pixels.
          */
-        ButtonBase(WindowBase *parent, position _upper_left, position _lower_right,
-                   CALL_OBJECT_TYPE *_call_object, uint8_t _border_weight = 1) : Touch_Widget<CALL_OBJECT_TYPE>(parent, _upper_left, _lower_right, _call_object, _border_weight) {}
+        ButtonBase(WindowBase *parent,
+                   position &_upper_left, position &_lower_right,
+                   CALL_OBJECT_TYPE *_call_object,
+                   uint8_t _border_weight = 1,
+                   uint8_t _border_content_gap = 0) : Touch_Widget<CALL_OBJECT_TYPE>(parent,
+                                                                                     _upper_left, _lower_right,
+                                                                                     _call_object,
+                                                                                     _border_weight, _border_content_gap) {}
+
+        ButtonBase(WindowBase *parent,
+                   position &_upper_left,
+                   uint16_t _content_width, uint16_t _content_height,
+                   CALL_OBJECT_TYPE *_call_object,
+                   uint8_t _border_weight = 1,
+                   uint8_t _border_content_gap = 0) : Touch_Widget<CALL_OBJECT_TYPE>(parent,
+                                                                                     _upper_left,
+                                                                                     _content_width, _content_height,
+                                                                                     _call_object,
+                                                                                     _border_weight, _border_content_gap) {}
+
+        ButtonBase(WindowBase *parent,
+                   uint16_t _content_width, uint16_t _content_height,
+                   position &_lower_right,
+                   CALL_OBJECT_TYPE *_call_object,
+                   uint8_t _border_weight = 1,
+                   uint8_t _border_content_gap = 0) : Touch_Widget<CALL_OBJECT_TYPE>(parent,
+                                                                                     _content_width, _content_height,
+                                                                                     _lower_right,
+                                                                                     _call_object,
+                                                                                     _border_weight, _border_content_gap)
+        {
+        }
 
         virtual ~ButtonBase() {}
 

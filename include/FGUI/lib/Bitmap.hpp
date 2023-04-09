@@ -28,7 +28,7 @@ namespace FGUI
          * @details the bitmap gets its height and widht from the bitmap size, border_weight and border_to_bitmap_gap.
          */
         Bitmap(WindowBase *_parent, position _upper_left, uint16_t _bitmap_width, uint16_t _bitmap_height,
-               unsigned short *_bitmap = nullptr, uint8_t border_weight = 3, uint8_t _border_to_bitmap_gap = 0);
+               const unsigned short *_bitmap = nullptr, uint8_t border_weight = 3, uint8_t _border_to_bitmap_gap = 0);
         /**
          * @param _parent the parent window to which the widget will register to
          * @param _upper_left upper left corner in relation to the parent window zero point
@@ -57,7 +57,6 @@ namespace FGUI
         void _draw_content(Widget::w_status _st) override;
 
     private:
-        uint8_t border_to_bitmap_gap; // in pixels
         unsigned short *bitmap = nullptr;
     };
 

@@ -55,6 +55,7 @@ void FGUI::MainWindow::send_input(char _input_data)
     if (this->focused_widget != nullptr)
     {
         this->focused_widget->send_input(_input_data);
+        this->active_window->send_input(_input_data);
     }
 }
 
@@ -66,6 +67,7 @@ void FGUI::MainWindow::send_backspace()
     if (this->focused_widget != nullptr)
     {
         this->focused_widget->send_backspace();
+        this->active_window->send_backspace();
     }
 }
 
@@ -77,6 +79,7 @@ void FGUI::MainWindow::send_enter()
     if (this->focused_widget != nullptr)
     {
         this->focused_widget->send_enter();
+        this->active_window->send_enter();
     }
 }
 
@@ -100,7 +103,11 @@ void FGUI::MainWindow::set_active_window(WindowBase *_win)
 
     this->unfreeze_focus(); // at every window change the focus will be reseted
     this->active_window = _win;
-    this->active_window->show();
+    if (!this->get_in_sleep_mode())
+    {
+        this->active_window->_pre_show();
+        this->active_window->show();
+    }
 }
 
 void FGUI::MainWindow::loop()

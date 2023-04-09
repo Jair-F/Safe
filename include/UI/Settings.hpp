@@ -7,7 +7,8 @@
 class Settings_window : public FGUI::Window
 {
 public:
-    Settings_window(FGUI::MainWindow *_main_window);
+    Settings_window(FGUI::WindowBase *_parent_window);
+    virtual ~Settings_window(){};
 
 protected:
     void _go_to_lockscreen(FGUI::Touch_Widget<Settings_window> *_widget);
@@ -20,9 +21,11 @@ protected:
 
 private:
     FGUI::TextLabel window_title;
+    FGUI::Divider div;
+    FGUI::BitmapButton<Settings_window> back_btn; // lock_screen
 
-    FGUI::Button<Settings_window> fingerprint_settings_btn;
     FGUI::Button<Settings_window> rfid_settings_btn;
+    FGUI::Button<Settings_window> fingerprint_settings_btn;
     FGUI::Button<Settings_window> pin_settings_btn;
     FGUI::Button<Settings_window> lock_settings_btn;
     FGUI::Button<Settings_window> system_settings_btn;

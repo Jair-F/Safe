@@ -25,7 +25,11 @@ namespace FGUI
          * @param _size height and width in pixels
          * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
          */
-        CheckBox(WindowBase *_parent, position _upper_left, uint16_t _size, CALL_OBJECT_TYPE *_call_object);
+        CheckBox(WindowBase *_parent,
+                 position _upper_left,
+                 uint16_t _size,
+                 CALL_OBJECT_TYPE *_call_object,
+                 uint8_t _border_weight = 2);
 
         virtual ~CheckBox() {}
 
@@ -73,7 +77,14 @@ namespace FGUI
 
 template <typename CALL_OBJECT_TYPE>
 FGUI::CheckBox<CALL_OBJECT_TYPE>::CheckBox(WindowBase *_parent, const position _upper_left,
-                                           uint16_t _size, CALL_OBJECT_TYPE *_call_object) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _size, _size, _call_object), checked(false)
+                                           uint16_t _size, CALL_OBJECT_TYPE *_call_object,
+                                           uint8_t _border_weight) : Touch_Widget<CALL_OBJECT_TYPE>(_parent,
+                                                                                                    _upper_left,
+                                                                                                    _size, _size,
+                                                                                                    _call_object,
+                                                                                                    _border_weight,
+                                                                                                    _size * 0.035714),
+                                                                     checked(false)
 {
 }
 
@@ -103,87 +114,24 @@ void FGUI::CheckBox<CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
     }
     }
 
-    uint8_t gap_from_box = round(this->width() * 0.035714); // the gap minimal between the box and the begin of the check mark
-
-    // upper_left and lower_right of the widget - calculated border_weight out
     position content_upper_left = this->get_content_upper_left();
     position content_lower_right = this->get_content_lower_right();
-    content_upper_left.x_pos = content_upper_left.x_pos + gap_from_box;
-    content_upper_left.y_pos = content_upper_left.y_pos + gap_from_box;
-    content_lower_right.x_pos = content_lower_right.x_pos - gap_from_box;
-    content_lower_right.y_pos = content_lower_right.y_pos - gap_from_box;
 
-    double content_height = content_lower_right.x_pos - content_upper_left.x_pos; // content width/height - square
+    uint16_t content_height = this->get_content_height();
     uint8_t check_sign_weight = round(content_height * 0.15);
 
     double small_check_length = content_height * 0.45195; // length of the small check sign
-    double long_check_length = content_height * 1.03413;  // length of the long check sign
+    double long_check_length = content_height * 0.82;  // length of the long check sign
     double center_gap = content_height * 0.05;            // gap in order to center the check mark in the content space
 
-    position small_check_middle_pos,
-        long_check_middle_pos;
-    small_check_middle_pos.x_pos = round(content_upper_left.x_pos + content_height * 0.223);
-    small_check_middle_pos.y_pos = round(content_lower_right.y_pos - center_gap - content_height * 0.2934);
-    long_check_middle_pos.x_pos = round(content_lower_right.x_pos - content_height * 0.38239);
-    long_check_middle_pos.y_pos = round(content_lower_right.y_pos - center_gap - content_height * 0.45);
+    position small_check_center_pos, long_check_center_pos;
+    small_check_center_pos.x_pos = round((double)content_upper_left.x_pos + (double)content_height * 0.223);
+    small_check_center_pos.y_pos = round((double)content_lower_right.y_pos - center_gap - (double)content_height * 0.2934);
+    long_check_center_pos.x_pos = round((double)content_lower_right.x_pos - (double)content_height * 0.4);
+    long_check_center_pos.y_pos = round((double)content_lower_right.y_pos - center_gap - (double)content_height * 0.45);
 
-    /*
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    */
-    fill_rect(this->display, long_check_middle_pos, long_check_length, check_sign_weight, 51);
-    fill_rect(this->display, small_check_middle_pos, small_check_length, check_sign_weight, 123);
-
-    return;
-
-    // content_upper_left.y_pos = content_upper_left.y_pos + check_sign_weight / 2;
-    // content_lower_right.y_pos = content_lower_right.y_pos + check_sign_weight / 2;
-
-    FGUI::position c_m_lower_peak, // c_m - check_mark
-        c_m_s_line_upper_peak,     // short line...
-        c_m_l_line_upper_peak;     // long line...
-
-    c_m_lower_peak.x_pos = content_upper_left.x_pos + (this->get_content_width() - gap_from_box * 2) * 0.3; // end of small check line is 30 % of the content width
-    c_m_lower_peak.y_pos = content_lower_right.y_pos;
-    c_m_s_line_upper_peak.x_pos = content_upper_left.x_pos;
-    c_m_s_line_upper_peak.y_pos = content_upper_left.y_pos + (this->get_content_height() - gap_from_box * 2) * 0.4; // small check_line is  20 % of the content height
-    c_m_l_line_upper_peak.x_pos = content_lower_right.x_pos;
-    c_m_l_line_upper_peak.y_pos = content_upper_left.y_pos;
-
-    // short line
-    uint16_t width, height;
-    height = c_m_lower_peak.y_pos - c_m_s_line_upper_peak.y_pos;
-    width = c_m_lower_peak.x_pos - c_m_s_line_upper_peak.x_pos;
-
-    for (unsigned short i = 0; i < check_sign_weight; ++i)
-    {
-        // check-mark - short line
-        this->display->drawLine(content_upper_left.x_pos + gap_from_box,
-                                (content_upper_left.y_pos + gap_from_box + this->get_content_height() * 0.4) - i,
-                                (content_upper_left.x_pos + gap_from_box + this->get_content_width() * 0.3),
-                                content_lower_right.y_pos - gap_from_box - i);
-
-        // check-mark - long line
-        this->display->drawLine((content_upper_left.x_pos + gap_from_box + this->get_content_width() * 0.3),
-                                content_lower_right.y_pos - gap_from_box - i,
-                                content_lower_right.x_pos - gap_from_box,
-                                content_upper_left.y_pos + gap_from_box - i);
-    }
+    fill_rect(this->display, long_check_center_pos, long_check_length, check_sign_weight, 49);
+    fill_rect(this->display, small_check_center_pos, small_check_length, check_sign_weight, 137);
 }
 
 template <typename CALL_OBJECT_TYPE>
@@ -197,6 +145,10 @@ void FGUI::CheckBox<CALL_OBJECT_TYPE>::_draw_widget()
             {
                 this->_draw_border(Widget::w_status::S_DISABLED);
             }
+            else
+            {
+                this->_clear_border_space();
+            }
             this->_draw_background(Widget::w_status::S_DISABLED);
             if (this->is_checked())
                 this->_draw_content(Widget::w_status::S_DISABLED);
@@ -208,6 +160,10 @@ void FGUI::CheckBox<CALL_OBJECT_TYPE>::_draw_widget()
             {
                 this->_draw_border(Widget::w_status::S_TOUCHED);
             }
+            else
+            {
+                this->_clear_border_space();
+            }
             this->_draw_background(Widget::w_status::S_TOUCHED);
             this->_draw_content(Widget::w_status::S_TOUCHED);
         }
@@ -216,6 +172,10 @@ void FGUI::CheckBox<CALL_OBJECT_TYPE>::_draw_widget()
             if (this->get_draw_border())
             {
                 this->_draw_border(Widget::w_status::S_RELEASED);
+            }
+            else
+            {
+                this->_clear_border_space();
             }
             this->_draw_background(Widget::w_status::S_RELEASED);
             // this->_draw_content(Widget::w_status::S_RELEASED);

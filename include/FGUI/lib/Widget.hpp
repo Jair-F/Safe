@@ -48,18 +48,32 @@ namespace FGUI
          * @param _upper_left_pos upper left corner in relation to the parent window zero point
          * @param _lower_right lower right corner in relation to the parent window zero point
          * @param _border_weight size of the border in pixels
+         * @param _border_content_gap gap between the border and the content, filled with background color
          */
         Widget(WindowBase *_parent, const position &_upper_left, const position &_lower_right,
-               uint8_t _border_weight = 1);
+               uint8_t _border_weight = 1, uint8_t _border_content_gap = 0);
         /**
          * @param _parent the parent window to which the widget will register to
          * @param _upper_left_pos upper left corner in relation to the parent window zero point
-         * @param _width the width of the widget in pixels
-         * @param _height the height of the widget in pixels
+         * @param _content_width the width of the content in the widget in pixels
+         * @param _content_height the height of the content in the widget in pixels
          * @param _border_weight size of the border in pixels
+         * @param _border_content_gap gap between the border and the content, filled with background color
+         * @details the lower_right pos will be calculated with the content_width, content_height, gap
          */
-        Widget(WindowBase *_parent, const position &_upper_left, uint16_t _width, uint16_t _height,
-               uint8_t _border_weight = 1);
+        Widget(WindowBase *_parent, const position &_upper_left, uint16_t _content_width, uint16_t _content_height,
+               uint8_t _border_weight = 1, uint8_t _border_content_gap = 0);
+        /**
+         * @param _parent the parent window to which the widget will register to
+         * @param _lower_right lower right corner in relation to the parent window zero point
+         * @param _content_width the width of the content in the widget in pixels
+         * @param _content_height the height of the widget in pixels
+         * @param _border_weight the height of the content in the widget in pixels
+         * @param _border_content_gap gap between the border and the content, filled with background color
+         * @details calculates the _upper_left with the content_width, content_height, gap
+         */
+        Widget(WindowBase *_parent, uint16_t _content_width, uint16_t _content_height, const position &_lower_right,
+               uint8_t _border_weight = 1, uint8_t _border_content_gap = 0);
         virtual ~Widget();
 
         /**
@@ -73,56 +87,59 @@ namespace FGUI
         /** @} */
 
         /**
-         * @return the width of the widget in pixels
+         * @return the width of the widget including border,gap in pixels
          */
-        inline uint16_t width() const { return lower_right.x_pos - upper_left.x_pos; }
+        inline uint16_t width() const { return lower_right.x_pos - upper_left.x_pos + 1; }
         /**
-         * @return the height of the widget in pixels
+         * @return the height of the widget including border,gap in pixels
          */
-        inline uint16_t height() const { return lower_right.y_pos - upper_left.y_pos; }
-
-        /**
-         * @brief resizes the widget to the new height and width
-         * @note this shifts the lower_right pos. the upper_left is not changed!
-         * @note the widget isnt update until the show_function is called again!
-         */
-        void set_size(uint16_t _width, uint16_t _height);
+        inline uint16_t height() const { return lower_right.y_pos - upper_left.y_pos + 1; }
 
         /**
          * set border weight in pixels
+         * @details shifts the upper_left pos and lower_right pos equally
+         *          if needed.
          * @note the widget will not be redrawn - you need to redraw it manually to see the change
          */
-        void set_border_weight(uint8_t _border_weight);
+        virtual void set_border_weight(uint8_t _border_weight);
         /**
          * @return the border weight in pixels
          */
         inline uint8_t get_border_weight() const { return this->border_weight; }
 
         /**
-         * @return get the upper_left position of the content - calculated the border_weight out
-         * but only if draw_border is set. If draw_border is not set it returns the same as get_upper_left
+         * shifts the upper_left and lower_right corner equally
+         * @param _border_content_gap the new gap between the border and the content in pixels
+         */
+        virtual void set_content_border_gap(uint8_t _border_content_gap);
+
+        /**
+         * @return the gap between the border and the widget content in pixels
+         */
+        uint8_t get_content_border_gap() const { return this->border_content_gap; }
+
+        /**
+         * @return get the upper_left position of the content - calculated the border_weight and gap out
          * @note !! absolute position!!!
          */
         position get_content_upper_left() const;
         /**
-         * @return get the lower_right position of the content - calculated the border_weight out
-         * but only if draw_border is set. If draw_border is not set it returns the same as lower_right
+         * @return get the lower_right position of the content - calculated the border_weight and gap out
          * @note !! absolute position!!!
          */
         position get_content_lower_right() const;
         /**
-         * @return get the content_width - calculated the border_weight out
-         * but only if draw_border is set. If draw_border is not set it returns the same as width()
+         * @return get the content_width - calculated the border_weight and gap out
          */
         uint16_t get_content_width() const;
         /**
-         * @return get the content_height - calculated the border_weight out
-         * but only if draw_border is set. If draw_border is not set it returns the same as height()
+         * @return get the content_height - calculated the border_weight and gap out
          */
         uint16_t get_content_height() const;
 
         /**
          * @param _draw_border true if the button should have a border - false if not
+         * @note the widget pos does not change by changing the set_draw_border
          */
         void set_draw_border(bool _draw_border) { this->draw_border = _draw_border; }
         /**
@@ -166,7 +183,7 @@ namespace FGUI
          * @brief the oposite of disable
          * @details the widget will be redrawn automatically with disabled colors
          * if a widget is disabled it cant be touched
-         * @note only here to make it possible to be called on a touche widget - not available for this widget
+         * @note only here to make it possible to be called on a touch widget - not available for this widget
          */
         virtual void enable() {}
 
@@ -193,10 +210,22 @@ namespace FGUI
         void hide();
 
         /**
-         * @details unsets the hidden flag and shows the widget in not hidden state.
+         * @details marks the widget as hidden but doesnt changes the current state - means
+         * if the widget is currently shown it leaves it - but next time it will be hidden
+         */
+        inline void mark_hidden() { this->hidden = true; }
+
+        /**
+         * @details marks the widget as shown and shows the widget.
          * @note the widget will be redrawn with this function call
          */
         void show();
+
+        /**
+         * @details marks the widget as shown but doesnt changes the current state - means
+         * if the widget is currently hidden it leaves it - but next time it will be shown
+         */
+        inline void mark_shown() { this->hidden = false; }
 
         /**
          * @details loop function that will be called by the active window if the widget is shown/visible/not hidden
@@ -288,6 +317,31 @@ namespace FGUI
         /** @} */
 
         /**
+         * @brief resizes the widget to the new height and width
+         * @note this shifts the lower_right pos and the upper_left equally.
+         *       first upper_left, then lower_right.
+         * @note the widget isnt update until the show_function is called again!
+         * @note its not checked that the border_weight and content_border gap fits
+         */
+        void set_size_shift_equally(uint16_t _width, uint16_t _height);
+
+        /**
+         * @brief resizes the widget to the new height and width
+         * @note this shifts only the upper_left pos to adjust the size
+         * @note the widget isnt update until the show_function is called again!
+         * @note its not checked that the border_weight and content_border gap fits
+         */
+        void set_size_shift_upper_left(uint16_t _width, uint16_t _height);
+
+        /**
+         * @brief resizes the widget to the new height and width
+         * @note this shifts only the lower_right pos to adjust the size
+         * @note the widget isnt update until the show_function is called again!
+         * @note its not checked that the border_weight and content_border gap fits
+         */
+        void set_size_shift_lower_right(uint16_t _width, uint16_t _height);
+
+        /**
          * @details draws the content of the widget according to the passed status - touched, released
          * or disabled...
          * @param _st whether to draw the status disabled, touched or released
@@ -304,6 +358,17 @@ namespace FGUI
             clears the space with the background color of the parent window
         */
         virtual void _clear_widget_space();
+
+        /**
+         * @details clears only the space of the border with background color from the
+         *          parent window
+         */
+        void _clear_border_space();
+
+        /**
+         * @details clears only the space of the the with background color of the widget
+         */
+        void clear_content_space();
 
         /**
          * @details draws the border of the widget according to the passed status.
@@ -331,6 +396,10 @@ namespace FGUI
          * the borderweight in pixels of the widget
          */
         uint8_t border_weight;
+        /**
+         * the gap between the border and the content of the widget
+         */
+        uint8_t border_content_gap;
     };
 
     /** @} */

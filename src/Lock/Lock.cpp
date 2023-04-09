@@ -1,6 +1,7 @@
-#include "Lock.hpp"
+#include "Lock/Lock.hpp"
 #include "logging/Log.hpp"
 #include "system_clock/system_clock.hpp"
+#include "Config.hpp"
 #include <uEEPROMLib.h>
 
 extern Log::Log logger;
@@ -24,52 +25,29 @@ Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state) : unl
 
 bool Lock::begin()
 {
-    if (!system_clock.lost_power()) // if system_clock lost power the data we will read isnt valid - skipp
+    if (!Config::locked_until_tm_pt_stored()) // if system_clock lost power the data we will read isnt valid - skipp
     {
-        if (!static_cast<bool>(system_clock_eeprom.eeprom_read(0)))
+
+        this->locked_until_time_point = new Clock::time_point;
+        if (!Config::read_locked_until_tm_pt(this->locked_until_time_point))
         {
-            // error with eeprom reading - abort the read of the locked_until time point
+            // on error delete straight the locked_until_time_point
+            delete this->locked_until_time_point;
+            this->locked_until_time_point = nullptr;
         }
         else
         {
-            // reading the last memory-sector of the RTC which is the indicator if a lock-time-point is stored in the memory
-            if (static_cast<bool>(system_clock_eeprom.eeprom_read(LOCKED_UNTIL_TIME_POINT_STORED)))
-            {
-                this->locked_until_time_point = new Clock::time_point;
-                if (!system_clock_eeprom.eeprom_read(0, reinterpret_cast<byte *>(locked_until_time_point), sizeof(Clock::time_point)))
-                {
-                    // error while reading...
+            logger.log("LOCK: SUCCESSFUL read locked_until_time_point from system_clock_eeprom", Log::log_level::L_INFO);
+            Serial.print("read locked until time_point: ");
+            Serial.println(this->locked_until_time_point->to_string());
 
-                    delete this->locked_until_time_point;
-                    this->locked_until_time_point = nullptr;
-                    // print error while reading the the locked_until_time_point
-                }
-                else
-                {
-                    // success at reading...
-
-                    // this->locked_until_time_point = reinterpret_cast<Clock::time_point *>(buffer);
-                    if ((*locked_until_time_point) > system_clock.now()) // if the locked time hasnt passed yet
-                    {
-                        this->unlocking_allowed = false;
-                        this->_lock();
-                    }
-                    else
-                    {
-                        // unlocking is allowed
-                        this->unlocking_allowed = true;
-                    }
-                }
-            }
-            else
-            {
-                Serial.println(F("no locked_until_time_point saved in system_clock"));
-            }
+            if (*(this->locked_until_time_point) > system_clock.now())
+                this->unlocking_allowed = false;
         }
     }
     else
     {
-        logger.log(F("LOCK: RTC-Module lost power - locked_until_time_point will not be read - replace battary"), Log::log_level::L_WARNING);
+        logger.log(F("LOCK: RTC-Module lost power or no locked_until_time_point saved in system_clock"), Log::log_level::L_WARNING);
         /*
             writing to the clock module that there is no locked_unitl time_point - could be that now the random data
             is true and if we change the battary it could lock the lock to a random time_point - so overwrite it!
@@ -123,10 +101,15 @@ void Lock::Lock::report_unauthorized_unlock_try()
             *locked_until_time_point = system_clock.now();
             *locked_until_time_point += Clock::duration(locking_period); // adding in seconds
 
-            if (!_save_locked_until_time_point())
+            if (!Config::store_locked_until_tm_pt(*locked_until_time_point))
             {
                 logger.log(F("LOCK: Failed to write locked_until_time_point to the system_clock"), Log::log_level::L_ERROR);
             }
+            else
+            {
+                logger.log(F("LOCK: SUCESSFULLY wrote locked_until_time_piont to system_clock"), Log::log_level::L_INFO);
+            }
+            logger.serial_dump();
 
             this->unlocking_allowed = false;
             _lock();
@@ -144,6 +127,8 @@ void Lock::Lock::report_unauthorized_unlock_try()
         {
             Serial.print(F("unlocking is forbidden until "));
             Serial.println(this->locked_until_time_point->to_string());
+            Serial.print("Time now: ");
+            Serial.println(system_clock.now().to_string());
         }
     }
 }
@@ -178,28 +163,6 @@ void Lock::_unlock()
         this->unlock_time_point = system_clock.now();
         this->state = lock_state::UNLOCKED;
     }
-}
-
-bool Lock::_save_locked_until_time_point()
-{
-    if (locked_until_time_point == nullptr)
-        return false;
-
-    // delete the flag that a locked until time point is stored
-    if (!system_clock_eeprom.eeprom_write(LOCKED_UNTIL_TIME_POINT_STORED, static_cast<uint8_t>(true)))
-        return false; // if writing failed
-
-    if (system_clock_eeprom.eeprom_write(0, reinterpret_cast<uint8_t *>(locked_until_time_point), sizeof(Clock::time_point)))
-        return false; // if writing failed
-
-    return true; // writing was successful
-}
-bool Lock::_delete_locked_until_time_point()
-{
-    // returns true if wirting was successful
-
-    // delete the flag that a locked until time point is stored
-    return system_clock_eeprom.eeprom_write(LOCKED_UNTIL_TIME_POINT_STORED, static_cast<uint8_t>(false));
 }
 
 bool Lock::request_unlock()
@@ -264,57 +227,56 @@ void Lock::loop()
         {
             DEBUG_PRINTLN(F("unlocking is now allowed"))
             this->unlocking_allowed = true;
-            _delete_locked_until_time_point(); // delete the locked until time point in the system clock memory
+            Config::clear_locked_until_tm_pt(); // delete the locked until time point in the system clock memory
             delete locked_until_time_point;
             locked_until_time_point = nullptr;
         }
     }
-    else // unlocking allowed
-    {
-        SinglyListNodeIterator<Unlock_Object *> iterator = this->unlock_objects.begin();
-        while (iterator != this->unlock_objects.end())
-        {
-            if (iterator.data()->is_enabled())
-            {
-                // DEBUG_PRINT(F("Reading Unlock Object with ID: "))
-                // DEBUG_PRINTLN(iterator.data()->get_unlock_object_id())
 
-                Unlock_Object::unlock_authentication_reports unlock_object_report = iterator.data()->read();
-                switch (unlock_object_report)
-                {
-                case Unlock_Object::unlock_authentication_reports::AUTHORIZED_UNLOCK_OBJECT:
-                {
-                    this->request_unlock();
-                    break;
-                }
-                case Unlock_Object::unlock_authentication_reports::UNAUTHORIZED_UNLOCK_OBJECT:
-                {
-                    this->report_unauthorized_unlock_try();
-                    break;
-                }
-                case Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_DISABLED:
-                {
-                    // DEBUG_PRINTLN()
-                    // logger.log("Unlock_Object is disabled", Log::log_level::L_DEBUG);
-                    break;
-                }
-                case Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR:
-                {
-                    DEBUG_PRINTLN("Error while reading Unlock_Object!!!!")
-                    // logger.log("Error while reading Unlock_Object!!!!", Log::log_level::L_WARNING);
-                    break;
-                }
-                case Unlock_Object::unlock_authentication_reports::NO_UNLOCK_OBJECT_PRESENT:
-                {
-                    // DEBUG_PRINTLN("No Unlock_Object available")
-                    //  logger.log("No Unlock_Object available", Log::log_level::L_DEBUG);
-                    break;
-                }
-                default:
-                    break;
-                }
+    // iterate over the unlock_objects
+    SinglyListNodeIterator<Unlock_Object *> iterator = this->unlock_objects.begin();
+    while (iterator != this->unlock_objects.end())
+    {
+        if (iterator.data()->is_enabled())
+        {
+            // DEBUG_PRINT(F("Reading Unlock Object with ID: "))
+            // DEBUG_PRINTLN(iterator.data()->get_unlock_object_id())
+
+            Unlock_Object::unlock_authentication_reports unlock_object_report = iterator.data()->read();
+            switch (unlock_object_report)
+            {
+            case Unlock_Object::unlock_authentication_reports::AUTHORIZED_UNLOCK_OBJECT:
+            {
+                this->request_unlock();
+                break;
             }
-            ++iterator;
+            case Unlock_Object::unlock_authentication_reports::UNAUTHORIZED_UNLOCK_OBJECT:
+            {
+                this->report_unauthorized_unlock_try();
+                break;
+            }
+            case Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_DISABLED:
+            {
+                // DEBUG_PRINTLN()
+                // logger.log("Unlock_Object is disabled", Log::log_level::L_DEBUG);
+                break;
+            }
+            case Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR:
+            {
+                DEBUG_PRINTLN("Error while reading Unlock_Object!!!!")
+                // logger.log("Error while reading Unlock_Object!!!!", Log::log_level::L_WARNING);
+                break;
+            }
+            case Unlock_Object::unlock_authentication_reports::NO_UNLOCK_OBJECT_PRESENT:
+            {
+                // DEBUG_PRINTLN("No Unlock_Object available")
+                //  logger.log("No Unlock_Object available", Log::log_level::L_DEBUG);
+                break;
+            }
+            default:
+                break;
+            }
         }
+        ++iterator;
     }
 }

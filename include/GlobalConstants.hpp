@@ -9,8 +9,11 @@
 #define FINGERPRINT_POWER_PIN A0
 
 // RFID
-#define MFRC522_RST_PIN A5 // RST_PIN
-#define MFRC522_SS_PIN A4  // SDA_PIN
+// #define MFRC522_RST_PIN A5 // RST_PIN
+// #define MFRC522_SS_PIN A4  // SDA_PIN
+#define RFID_SS (A4)
+#define RFID_RST (A5) // Not connected by default on the NFC Shield
+                      // the other 2 pins are connected to the MEGA-filesystemA(20) and MEAGE-SCL(21)
 
 // Keypad-Pins
 
@@ -19,11 +22,11 @@
 #define PIN_R3 A10
 #define PIN_R4 A11
 #define PIN_C1 DAC0
-//#define PIN_C1 A12
+// #define PIN_C1 A12
 #define PIN_C2 DAC1
-//#define PIN_C2 A13
+// #define PIN_C2 A13
 #define PIN_C3 CANRX
-//#define PIN_C3 A14
+// #define PIN_C3 A14
 
 /*
 #define PIN_R1 A0

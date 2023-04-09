@@ -1,5 +1,7 @@
 #pragma once
 
+#define fontdatatype uint8_t
+
 #include "lib/position.hpp"
 #include "lib/PopUp_Window.hpp"
 #include "lib/MainWindow.hpp"
@@ -17,6 +19,17 @@
 #include "lib/ProgressBar.hpp"
 #include "lib/Gif.hpp"
 #include "lib/SingleSelectionMenu.hpp"
+
+// fonts
+extern fontdatatype SmallFont[];
+extern fontdatatype BigFont[];
+extern fontdatatype arial_bold[];
+extern fontdatatype arial_normal[];
+extern fontdatatype mykefont2[];
+extern fontdatatype Retro8x16[];
+extern fontdatatype Sinclair_S[];
+extern fontdatatype TinyFont[];
+extern fontdatatype various_symbols[];
 
 // the index documentation page for the doxygen documentation!!
 
