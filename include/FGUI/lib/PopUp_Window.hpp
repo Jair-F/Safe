@@ -57,7 +57,7 @@ namespace FGUI
 
         /**
          * @return the size of the close button
-         * @details the close button is a quadrat...
+         * @details the close button is a square...
          */
         uint16_t _get_close_button_size() const { return this->close_button.width(); }
 

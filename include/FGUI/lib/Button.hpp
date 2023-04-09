@@ -32,8 +32,14 @@ namespace FGUI
          * @param _lower_right lower right corner in relation to the parent window zero point
          * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
          */
-        Button(WindowBase *parent, position _upper_left, position _lower_right,
-               CALL_OBJECT_TYPE *_call_object) : ButtonBase<CALL_OBJECT_TYPE>(parent, _upper_left, _lower_right, _call_object) {}
+        Button(WindowBase *parent,
+               position _upper_left, position _lower_right,
+               CALL_OBJECT_TYPE *_call_object,
+               uint8_t _border_weight = 1,
+               uint8_t _border_content_gap = 0) : ButtonBase<CALL_OBJECT_TYPE>(parent,
+                                                                               _upper_left, _lower_right,
+                                                                               _call_object,
+                                                                               _border_weight, _border_content_gap) {}
         /**
          * @param _parent the parent window to which the widget will register to
          * @param _upper_left upper left corner in relation to the parent window zero point
@@ -41,10 +47,26 @@ namespace FGUI
          * @param _height the height of the button in pixels.
          * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
          */
-        Button(WindowBase *parent, position _upper_left, uint16_t _width, uint16_t _height,
-               CALL_OBJECT_TYPE *_call_object) : ButtonBase<CALL_OBJECT_TYPE>(parent, _upper_left,
-                                                                              {_upper_left.x_pos + _width, _upper_left.y_pos + _height},
-                                                                              _call_object) {}
+        Button(WindowBase *parent,
+               position _upper_left,
+               uint16_t _width, uint16_t _height,
+               CALL_OBJECT_TYPE *_call_object,
+               uint8_t _border_weight = 1,
+               uint8_t _border_content_gap = 0) : ButtonBase<CALL_OBJECT_TYPE>(parent, _upper_left,
+                                                                               _width, _height,
+                                                                               _call_object,
+                                                                               _border_weight, _border_content_gap) {}
+
+        Button(WindowBase *parent,
+               uint16_t _content_width, uint16_t _content_height,
+               position _lower_right,
+               CALL_OBJECT_TYPE *_call_object,
+               uint8_t _border_weight = 1,
+               uint8_t _border_content_gap = 0) : ButtonBase<CALL_OBJECT_TYPE>(parent,
+                                                                               _content_width, _content_height,
+                                                                               _lower_right,
+                                                                               _call_object,
+                                                                               _border_weight, _border_content_gap) {}
 
         virtual ~Button() {}
 

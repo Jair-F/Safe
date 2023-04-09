@@ -28,8 +28,14 @@ namespace FGUI
          * @param _width_height close_button is a square - height and width are equal...
          * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
          */
-        CloseButton(WindowBase *parent, position _upper_left, uint16_t _width_height,
-                    CALL_OBJECT_TYPE *_call_object) : ButtonBase<CALL_OBJECT_TYPE>(parent, _upper_left, {_upper_left.x_pos + _width_height, _upper_left.y_pos + _width_height}, _call_object)
+        CloseButton(WindowBase *parent,
+                    position _upper_left,
+                    uint16_t _width_height,
+                    CALL_OBJECT_TYPE *_call_object) : ButtonBase<CALL_OBJECT_TYPE>(parent,
+                                                                                   _upper_left,
+                                                                                   _width_height, _width_height,
+                                                                                   _call_object,
+                                                                                   1, 0)
         {
             this->released_border_color = VGA_WHITE;
             this->released_background_color = VGA_BLACK;

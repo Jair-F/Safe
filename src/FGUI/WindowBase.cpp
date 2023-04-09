@@ -62,7 +62,7 @@ FGUI::Widget *FGUI::WindowBase::handle_touch_clicked(const position &_touch_data
         {
             if (!widget_iterator->is_hidden() && !widget_iterator->is_disabled())
             {
-                if (widget_iterator->_check_pos(_touch_data))
+                if (widget_iterator->_check_pos(_touch_data)) // check if the touch is in the widget
                 {
                     this->last_focused_widget = widget_iterator.data();
                     // touch-data is on the widget - clicked

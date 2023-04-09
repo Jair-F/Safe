@@ -24,7 +24,8 @@ namespace FGUI
          * @param _border_weight size of the border in pixels
          */
         ProgressBar(WindowBase *_parent, position _upper_left,
-                    position _lower_right, uint8_t _border_weight);
+                    position _lower_right,
+                    uint8_t _border_weight, uint8_t _border_to_bar_gap = 3);
         ~ProgressBar() {}
 
         /**
@@ -39,21 +40,20 @@ namespace FGUI
         /**
          * @param _border_to_bar_gap gap between the bar and the border in pixels.
          */
-        void set_border_to_bar_gap(uint8_t _border_to_bar_gap) { this->border_to_bar_gap = _border_to_bar_gap; }
+        void set_border_to_bar_gap(uint8_t _border_to_bar_gap) { this->set_content_border_gap(_border_to_bar_gap); }
         /**
          * @return gap between the bar and the border in pixels.
          */
-        inline uint8_t get_border_to_bar_gap() const { return this->border_to_bar_gap; }
+        inline uint8_t get_border_to_bar_gap() const { return this->get_content_border_gap(); }
 
         unsigned int bar_color = VGA_GREEN;
 
     protected:
         void _draw_content(Widget::w_status _st) override;
-        void _draw_widget() override { this->_draw_content(Widget::w_status::S_RELEASED); }
 
     private:
-        uint8_t progress;              ///< @brief progress of the progress bar in precent(0-100)
-        uint8_t border_to_bar_gap = 3; ///< @brief gap between the border and the progress bar in pixels
+        uint8_t progress; ///< @brief progress of the progress bar in precent(0-100)
+        // uint8_t border_to_bar_gap = 3; ///< @brief gap between the border and the progress bar in pixels
     };
 
     /** @} */

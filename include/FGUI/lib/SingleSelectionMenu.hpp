@@ -34,11 +34,14 @@ namespace FGUI
          * @param _lower_right lower right corner in relation to the parent window zero point
          * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
          * @param _border_weight size of the border in pixels
+         * @param _border_text_gap gap between the border and the text on all sides in pixels
          * @note if _call_object nullptr the programm will crash due a assertion!
          */
-        SingleSelectionMenu(WindowBase *_parent, const position _upper_left,
-                            const position _lower_right, CALL_OBJECT_TYPE *_call_object,
-                            uint8_t _border_weight = 1);
+        SingleSelectionMenu(WindowBase *_parent,
+                            const position _upper_left, const position _lower_right,
+                            CALL_OBJECT_TYPE *_call_object,
+                            uint8_t _border_weight = 1,
+                            uint8_t _border_text_gap = 0);
         virtual ~SingleSelectionMenu();
 
         /**
@@ -89,7 +92,6 @@ namespace FGUI
          * a matching key was found in the scroll forward or backward list.
          */
         void send_input(char _input_data) override;
-        void send_enter() override {}
 
         /**
          * @brief set the font for the selection text printing.
@@ -145,12 +147,16 @@ namespace FGUI
 // Implementations
 
 template <typename CALL_OBJECT_TYPE>
-FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::SingleSelectionMenu(WindowBase *_parent, const position _upper_left,
-                                                                 const position _lower_right, CALL_OBJECT_TYPE *_call_object,
-                                                                 uint8_t _border_weight) : Touch_Widget<CALL_OBJECT_TYPE>(_parent, _upper_left, _lower_right,
-                                                                                                                          _call_object, _border_weight),
-                                                                                           entrys(), actual_entry(nullptr),
-                                                                                           scroll_back_keys(), scroll_forward_keys()
+FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::SingleSelectionMenu(WindowBase *_parent,
+                                                                 const position _upper_left, const position _lower_right,
+                                                                 CALL_OBJECT_TYPE *_call_object,
+                                                                 uint8_t _border_weight,
+                                                                 uint8_t _border_text_gap) : Touch_Widget<CALL_OBJECT_TYPE>(_parent,
+                                                                                                                            _upper_left, _lower_right,
+                                                                                                                            _call_object,
+                                                                                                                            _border_weight, _border_text_gap),
+                                                                                             entrys(), actual_entry(nullptr),
+                                                                                             scroll_back_keys(), scroll_forward_keys()
 {
 }
 
@@ -167,15 +173,15 @@ FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::~SingleSelectionMenu()
 template <typename CALL_OBJECT_TYPE>
 void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_scroll_forward_key(char _key)
 {
-    if (this->scroll_forward_keys.search(_key) != -1) // add only if not already in the list
-        this->scroll_forward_keys.push_back(_key);
+    // if (this->scroll_forward_keys.search(_key) != -1) // add only if not already in the listW
+    this->scroll_forward_keys.push_back(_key);
 }
 
 template <typename CALL_OBJECT_TYPE>
 void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_scroll_backward_key(char _key)
 {
-    if (this->scroll_back_keys.search(_key) != -1) // add only if not already in the list
-        this->scroll_back_keys.push_back(_key);
+    // if (this->scroll_back_keys.search(_key) != -1) // add only if not already in the list
+    this->scroll_back_keys.push_back(_key);
 }
 
 template <typename CALL_OBJECT_TYPE>
@@ -200,9 +206,9 @@ void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::add_entrys(uint8_t num_of_entr
         this->entrys.push_back(va_arg(arguments, String));
     }
     va_end(arguments);
-    //#error "implement sort and unique functions for linked list"
-    // this->entrys.sort();
-    // this->entrys.unique();
+    // #error "implement sort and unique functions for linked list"
+    //  this->entrys.sort();
+    //  this->entrys.unique();
 }
 
 template <typename CALL_OBJECT_TYPE>
@@ -341,14 +347,15 @@ void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_content(Widget::w_status
 
         uint16_t text_pixel_length = this->actual_entry->data().length() * font_width;
 
-        uint16_t absolute_text_starting_x_pos = this->pos().x_pos +
-                                                this->width() / 2 - text_pixel_length / 2;
-        uint16_t absolute_text_starting_y_pos = this->pos().y_pos +
-                                                this->height() / 2 - font_height / 2; // the upper begin_pos of the text
+        uint16_t absolute_text_starting_x_pos = this->get_content_upper_left().x_pos +
+                                                this->get_content_width() / 2 - text_pixel_length / 2;
+        uint16_t absolute_text_starting_y_pos = this->get_content_upper_left().y_pos +
+                                                this->get_content_height() / 2 - font_height / 2;
 
         this->display->setBackColor(*background_color);
         this->display->setColor(*text_color);
-        this->display->print(this->actual_entry->data(), absolute_text_starting_x_pos,
+        this->display->print(this->actual_entry->data(),
+                             absolute_text_starting_x_pos,
                              absolute_text_starting_y_pos);
     }
 }
@@ -358,6 +365,9 @@ void FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {
+        if (!this->get_draw_border())
+            this->_clear_border_space();
+
         if (this->is_disabled())
         {
             if (this->get_draw_border())

@@ -69,27 +69,47 @@ namespace FGUI
          * @note if _call_object nullptr the programm will crash due a assertion!
          */
         Touch_Widget(WindowBase *_parent, const position &_upper_left,
-                     const position &_lower_right, CALL_OBJECT_TYPE *_call_object,
-                     uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _lower_right, _border_weight),
-                                                   focused(false),
-                                                   touched(false),
-                                                   call_object(_call_object)
+                     const position &_lower_right,
+                     CALL_OBJECT_TYPE *_call_object,
+                     uint8_t _border_weight = 1,
+                     uint8_t _border_content_gap = 0) : Widget(_parent, _upper_left, _lower_right,
+                                                               _border_weight, _border_content_gap),
+                                                        focused(false),
+                                                        touched(false),
+                                                        call_object(_call_object)
         {
             assert(this->call_object != nullptr);
         }
         /**
          * @param _parent the parent window to which the widget will register to
          * @param _upper_left_pos upper left corner in relation to the parent window zero point
-         * @param _width the width of the widget.
-         * @param _height the height of the widget.
+         * @param _content_width the width of the widget.
+         * @param _content_height the height of the widget.
          * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
          * @param _border_weight size of the border in pixels
          * @note if _call_object nullptr the programm will crash due a assertion!
          */
         Touch_Widget(WindowBase *_parent, const position &_upper_left,
-                     uint16_t _width, uint16_t _height, CALL_OBJECT_TYPE *_call_object,
-                     uint8_t _border_weight = 1) : Widget(_parent, _upper_left, _width, _height, _border_weight),
-                                                   focused(false), touched(false), call_object(_call_object)
+                     uint16_t _content_width, uint16_t _content_height,
+                     CALL_OBJECT_TYPE *_call_object,
+                     uint8_t _border_weight = 1,
+                     uint8_t _border_content_gap = 0) : Widget(_parent, _upper_left, _content_width, _content_height,
+                                                               _border_weight, _border_content_gap),
+                                                        focused(false), touched(false),
+                                                        call_object(_call_object)
+        {
+            assert(this->call_object != nullptr);
+        }
+
+        Touch_Widget(WindowBase *_parent,
+                     uint16_t _content_width, uint16_t _content_height,
+                     const position &_lower_right,
+                     CALL_OBJECT_TYPE *_call_object,
+                     uint8_t _border_weight = 1,
+                     uint8_t _border_content_gap = 0) : Widget(_parent, _content_width, _content_height,
+                                                               _lower_right, _border_weight, _border_content_gap),
+                                                        focused(false), touched(false),
+                                                        call_object(_call_object)
         {
             assert(this->call_object != nullptr);
         }
@@ -276,8 +296,10 @@ void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_border(Widget::w_status _st)
 template <typename CALL_OBJECT_TYPE>
 void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_background(Widget::w_status _st)
 {
-    position background_upper_left = this->get_content_upper_left();
-    position background_lower_right = this->get_content_lower_right();
+    position background_upper_left = {this->upper_left.x_pos + this->get_border_weight(),
+                                      this->upper_left.y_pos + this->get_border_weight()};
+    position background_lower_right = {this->lower_right.x_pos - this->get_border_weight(),
+                                       this->lower_right.y_pos - this->get_border_weight()};
 
     switch (_st)
     {
@@ -310,9 +332,12 @@ void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_widget()
 {
     if (!this->is_hidden())
     {
+        if (!this->get_draw_border())
+            this->_clear_border_space();
+
         if (this->is_disabled())
         {
-            if (this->get_draw_border())
+            if (this->has_border())
             {
                 this->_draw_border(Widget::w_status::S_DISABLED);
             }
@@ -321,7 +346,7 @@ void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_widget()
         }
         else if (this->is_touched())
         {
-            if (this->get_draw_border())
+            if (this->has_border())
             {
                 this->_draw_border(Widget::w_status::S_TOUCHED);
             }
@@ -330,7 +355,7 @@ void FGUI::Touch_Widget<CALL_OBJECT_TYPE>::_draw_widget()
         }
         else
         {
-            if (this->get_draw_border())
+            if (this->has_border())
             {
                 this->_draw_border(Widget::w_status::S_RELEASED);
             }

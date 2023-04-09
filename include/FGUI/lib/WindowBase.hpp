@@ -33,7 +33,9 @@ namespace FGUI
             @param _lower_right the lower right position of the window rectangle - absolute position
             @param _parent_window pointer which pionts to the parent window - nullptr if the window doesnt have one
         */
-        WindowBase(const position &_upper_left, const position &_lower_right, WindowBase *_parent_window = nullptr, uint8_t _border_weight = 0);
+        WindowBase(const position &_upper_left, const position &_lower_right,
+                   WindowBase *_parent_window = nullptr,
+                   uint8_t _border_weight = 0);
         virtual ~WindowBase() {}
 
         // functions which derived classes need to implement with their pointer to the parent_window

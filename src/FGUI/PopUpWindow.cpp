@@ -1,14 +1,19 @@
 #include "FGUI/FGUI.hpp"
 
-FGUI::PopUp_Window::PopUp_Window(WindowBase *_parent_window, uint16_t _width, uint16_t _height, uint8_t _border_weight, bool _show_close_button,
+FGUI::PopUp_Window::PopUp_Window(WindowBase *_parent_window,
+                                 uint16_t _width, uint16_t _height,
+                                 uint8_t _border_weight,
+                                 bool _show_close_button,
                                  uint16_t _close_button_size) : FGUI::WindowBase({static_cast<uint16_t>((_parent_window->_get_display()->getDisplayXSize() / 2 - _width / 2)),
                                                                                   static_cast<uint16_t>((_parent_window->_get_display()->getDisplayYSize() / 2 - _height / 2))},
-
                                                                                  {static_cast<uint16_t>((_parent_window->_get_display()->getDisplayXSize() / 2 + _width / 2)),
                                                                                   static_cast<uint16_t>((_parent_window->_get_display()->getDisplayYSize() / 2 + _height / 2))},
-                                                                                 _parent_window, _border_weight),
-                                                                close_button(this, {static_cast<uint16_t>(this->get_content_width() - _close_button_size), 0},
-                                                                             _close_button_size, this)
+                                                                                 _parent_window,
+                                                                                 _border_weight),
+                                                                close_button(this,
+                                                                             {static_cast<uint16_t>(this->get_content_width() - _close_button_size), 0},
+                                                                             _close_button_size,
+                                                                             this)
 {
     if (!_show_close_button)
         this->close_button.hide();
