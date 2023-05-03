@@ -89,11 +89,11 @@ public:
     /**
      * @brief after how much time the lock will lock itself if it is being unlocked - in seconds
      */
-    inline void set_lock_timer(unsigned short _lock_timer) { this->lock_timer = _lock_timer; }
+    inline void set_lock_timer(unsigned short _lock_timer) { this->relock_timer = _lock_timer; }
     /**
      * @brief after how much time the lock will lock itself if it is being unlocked - in seconds
      */
-    inline unsigned short get_lock_timer() const { return this->lock_timer; }
+    inline unsigned short get_relock_timer() const { return this->relock_timer; }
 
     /*
         for the unlock_object to register them at the lock when they are created
@@ -119,7 +119,7 @@ private:
     byte unauthorized_unlock_try_counter;
 
     // after how much time the lock will lock itself if it is being unlocked - in seconds
-    unsigned short lock_timer;
+    unsigned short relock_timer;
 
     /*
         allowed num of unlock_tries until the lock locks itself for a specific time

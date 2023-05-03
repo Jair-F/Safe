@@ -42,6 +42,22 @@ namespace FGUI
                             CALL_OBJECT_TYPE *_call_object,
                             uint8_t _border_weight = 1,
                             uint8_t _border_text_gap = 0);
+
+        /**
+         * @param _parent the parent window to which the widget will register to
+         * @param _upper_left_pos upper left corner in relation to the parent window zero point
+         * @param _lower_right lower right corner in relation to the parent window zero point
+         * @param _call_object a instance of the class of which the callback functions for on_touch, on_release and on_focus_loose are called with.
+         * @param _border_weight size of the border in pixels
+         * @param _border_text_gap gap between the border and the text on all sides in pixels
+         * @note if _call_object nullptr the programm will crash due a assertion!
+         */
+        SingleSelectionMenu(WindowBase *_parent,
+                            const position _upper_left,
+                            const uint8_t _width, const uint8_t _height,
+                            CALL_OBJECT_TYPE *_call_object,
+                            uint8_t _border_weight = 1,
+                            uint8_t _border_text_gap = 0);
         virtual ~SingleSelectionMenu();
 
         /**
@@ -153,6 +169,22 @@ FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::SingleSelectionMenu(WindowBase *_pa
                                                                  uint8_t _border_weight,
                                                                  uint8_t _border_text_gap) : Touch_Widget<CALL_OBJECT_TYPE>(_parent,
                                                                                                                             _upper_left, _lower_right,
+                                                                                                                            _call_object,
+                                                                                                                            _border_weight, _border_text_gap),
+                                                                                             entrys(), actual_entry(nullptr),
+                                                                                             scroll_back_keys(), scroll_forward_keys()
+{
+}
+
+template <typename CALL_OBJECT_TYPE>
+FGUI::SingleSelectionMenu<CALL_OBJECT_TYPE>::SingleSelectionMenu(WindowBase *_parent,
+                                                                 const position _upper_left,
+                                                                 const uint8_t _width, const uint8_t _height,
+                                                                 CALL_OBJECT_TYPE *_call_object,
+                                                                 uint8_t _border_weight,
+                                                                 uint8_t _border_text_gap) : Touch_Widget<CALL_OBJECT_TYPE>(_parent,
+                                                                                                                            _upper_left,
+                                                                                                                            _width, _height,
                                                                                                                             _call_object,
                                                                                                                             _border_weight, _border_text_gap),
                                                                                              entrys(), actual_entry(nullptr),

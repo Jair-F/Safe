@@ -51,7 +51,6 @@ URTouch myTouch(6, 5, 4, 3, 2);
 
 #include "UI/lock_screen.hpp"
 #include "UI/RFID_Settings.hpp"
-#include "UI/RFID_delete_tag_by_id.hpp"
 #include "UI/Fingerprint/Fingerprint_Settings.hpp"
 #include "UI/Settings.hpp"
 #include "UI/boot_screen.hpp"
@@ -73,7 +72,7 @@ Log::Log logger(LOGGING_LEVEL);
 
 Fingerprint::Fingerprint *fingerprint;
 RFID::RFID *rfid;
-Pin pin(&lock, true, 8);
+Pin pin(&lock, true);
 
 UNOB_handler unob_handler; // unlock object handler
 
@@ -147,6 +146,7 @@ void setup()
 	Serial.println(')');
 
 	boot_screen b_screen(&m_window);
+	m_window.set_active_window(&b_screen);
 
 	l_screen = new lock_screen(&m_window);
 	settings_window = new Settings_window(l_screen);
@@ -161,8 +161,8 @@ void setup()
 	m_window.on_fall_asleep = &fall_asleep_handler;
 	Serial.println("set active_window");
 
-	try_window t_window(&m_window);
-	m_window.set_active_window(&t_window);
+	// try_window t_window(&m_window);
+	m_window.set_active_window(l_screen);
 
 	/*
 	system_clock.Begin();
@@ -242,7 +242,7 @@ void setup()
 	rfid = new RFID::RFID(RFID_SS, RFID_RST, &lock);
 	rfid->begin();
 
-	pin.set_pin("12345678");
+	pin.set_pin("1");
 
 	// unob_handler.add_unob(fingerprint);
 	// unob_handler.add_unob(rfid);

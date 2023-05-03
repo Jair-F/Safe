@@ -100,8 +100,7 @@ namespace RFID
         /**
          * @return pointer to the begin of the allowed_tags array. size of the array is RFID::NUM_OF_TAGS
          */
-        inline UID *
-        _get_allowed_tags()
+        inline UID *_get_allowed_tags()
         {
             return this->allowed_tags;
         }

@@ -16,7 +16,7 @@ extern uEEPROMLib system_clock_eeprom;
 
 Lock::Lock::Lock(const unsigned short _lock_timer, lock_state _lock_state) : unlock_object_ids(), unlock_objects(),
                                                                              state(_lock_state), unlocking_allowed(true),
-                                                                             unauthorized_unlock_try_counter(0), lock_timer(_lock_timer),
+                                                                             unauthorized_unlock_try_counter(0), relock_timer(_lock_timer),
                                                                              unlock_time_point(), locked_until_time_point(nullptr)
 {
     // this->state = lock_state::UNLOCKED; // overwrite to trigger a real lock...
@@ -210,8 +210,8 @@ void Lock::loop()
     Clock::time_point now = system_clock.now();
     if (state == lock_state::UNLOCKED)
     {
-        Clock::time_point lock_time_point(this->unlock_time_point); // when this timepoint is passed the lock has to be locked (lock_time_point+lock_timer)
-        lock_time_point += this->lock_timer;                        // addition is in seconds
+        Clock::time_point lock_time_point(this->unlock_time_point); // when this timepoint is passed the lock has to be locked (lock_time_point+relock_timer)
+        lock_time_point += this->relock_timer;                      // addition is in seconds
         DEBUG_PRINT('.');
 
         if (now > lock_time_point)

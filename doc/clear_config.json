@@ -1,0 +1,18 @@
+{
+    "Fingerprint": {
+        "enabled": false
+    },
+    "PIN": {
+        "enabled": false,
+        "pin": "00000"
+    },
+    "RFID": {
+        "enabled": false,
+        "RFID_tags": []
+    },
+    "system": {
+        "allowed_unauthorized_unlock_tries": 10,
+        "locking_period": 60,
+        "sleep_timeout": 60
+    }
+}

@@ -20,13 +20,14 @@ public:
 
     /**
      * @return true if at least at one unlock_object at least one
-     *         authorized unlock_object is set in the database
+     *         authorized unlock_object is set and enabled in the database
      *         false if the authorized unlock object database of all
      *         unobs is empty
      */
     bool unob_authorized_database_set();
 
     /**
+     * @details checks the unob only if its not disabled
      * @return the first unlock_object that returns not NO_UNLOCK_OBJECT_PRESENT.
      *          if all return NO_UNLOCK_OBJECT_PRESENT return also NO_UNLOCK_OBJECT_PRESENT.
      */

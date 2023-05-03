@@ -102,7 +102,7 @@ bool RFID::RFID::tag_present()
 {
     this->unread_tag_present = this->rfid.PICC_IsNewCardPresent();
 
-    return this->unread_tag_present == true;
+    return this->unread_tag_present;
 }
 
 void RFID::RFID::add_tag(unsigned short id, UID tag_uid)
