@@ -7,7 +7,7 @@
 #include "logging/Log.hpp"
 
 extern lock_screen *l_screen;
-extern RFID_settings_window *rfid_settings_wnd;
+extern Status_Info_window *rfid_settings_wnd;
 extern Fingerprint_settings_window *fingerprint_settings_wnd;
 extern PIN_Settings *pin_settings_wnd;
 
@@ -27,11 +27,12 @@ Settings_window::Settings_window(FGUI::WindowBase *_parent_window) : FGUI::Windo
                                                                      lock_settings_btn(this, {177, 119}, 130, 45, this),
                                                                      system_settings_btn(this, {12, 184}, 130, 45, this),
                                                                      status_info_btn(this, {177, 184}, 130, 45, this),
-                                                                     fingeprint_settings(this),
                                                                      rfid_settings(this),
                                                                      pin_settings_wnd(this),
                                                                      lock_settings(this),
-                                                                     system_settings(this)
+                                                                     system_settings(this),
+                                                                     fingerprint_settings(this),
+                                                                     status_info_window(this)
 {
     this->window_title.set_text_alignment(FGUI::TextLabel::text_alignment::AL_CENTER);
     this->window_title.set_font(BigFont);
@@ -90,7 +91,7 @@ void Settings_window::_show_rfid_settings_window(FGUI::Touch_Widget<Settings_win
 
 void Settings_window::_show_fingerprint_settings_window(FGUI::Touch_Widget<Settings_window> *_widget)
 {
-    this->_get_main_window()->set_active_window(&this->fingeprint_settings);
+    this->_get_main_window()->set_active_window(&this->fingerprint_settings);
 }
 
 void Settings_window::_show_pin_settings_window(FGUI::Touch_Widget<Settings_window> *_widget)
@@ -106,6 +107,11 @@ void Settings_window::_show_lock_settings_window(FGUI::Touch_Widget<Settings_win
 void Settings_window::_show_system_settings_window(FGUI::Touch_Widget<Settings_window> *_widget)
 {
     this->_get_main_window()->set_active_window(&system_settings);
+}
+
+void Settings_window::_show_status_info_window(FGUI::Touch_Widget<Settings_window> *_widget)
+{
+    this->_get_main_window()->set_active_window(&status_info_window);
 }
 
 void Settings_window::_handle_save_config(FGUI::Touch_Widget<Settings_window> *_widget)

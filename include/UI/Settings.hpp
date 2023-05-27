@@ -6,6 +6,8 @@
 #include "UI/PIN_Settings.hpp"
 #include "UI/Lock_Settings.hpp"
 #include "UI/System_Settings.hpp"
+#include "UI/Fingerprint_Settings.hpp"
+#include "UI/Status_Info.hpp"
 
 class Settings_window : public FGUI::Window
 {
@@ -22,7 +24,7 @@ protected:
     void _show_pin_settings_window(FGUI::Touch_Widget<Settings_window> *_widget);
     void _show_lock_settings_window(FGUI::Touch_Widget<Settings_window> *_widget);
     void _show_system_settings_window(FGUI::Touch_Widget<Settings_window> *_widget);
-    void _show_status_info_window(FGUI::Touch_Widget<Settings_window> *_widget) {}
+    void _show_status_info_window(FGUI::Touch_Widget<Settings_window> *_widget);
     void _handle_save_config(FGUI::Touch_Widget<Settings_window> *_widget);
 
 private:
@@ -38,9 +40,11 @@ private:
     FGUI::Button<Settings_window> system_settings_btn;
     FGUI::Button<Settings_window> status_info_btn;
 
-    Fingerprint_settings_window fingeprint_settings;
+    // Fingerprint_settings_window fingerprint_settings;
     RFID_settings_window rfid_settings;
     PIN_Settings pin_settings_wnd;
     Lock_Setings lock_settings;
     System_Settings system_settings;
+    Fingerprint_Settings fingerprint_settings;
+    Status_Info_window status_info_window;
 };

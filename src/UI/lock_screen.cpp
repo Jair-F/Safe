@@ -10,7 +10,6 @@ extern const unsigned short settings_icon[];
 extern const unsigned short info_icon[];
 extern const unsigned short settings_big_icon[];
 
-class RFID_settings_window;
 extern RFID_settings_window *rfid_settings_wnd;
 extern Settings_window *settings_window;
 extern Info_Screen *info_screen;
