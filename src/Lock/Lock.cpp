@@ -175,7 +175,7 @@ bool Lock::request_unlock()
     }
     else
     {
-        DEBUG_PRINT(F("unloking currently not allowed - disabled"))
+        DEBUG_PRINTLN(F("unloking currently not allowed - disabled"))
     }
     return false;
 }

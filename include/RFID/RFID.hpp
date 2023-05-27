@@ -60,8 +60,9 @@ namespace RFID
         /**
          * @brief removes tag from the tag with id id from the allowed_tags
          * (throws an error if the id id is out of range)??
+         * @return true if removed, false if failed(id out of range?)
          */
-        void remove_tag(unsigned short id);
+        bool remove_tag(unsigned short id);
         /**
          * @brief removes tag from the tag with UID tag_uid from the allowed_tags
          * @return true if one or more tags where removed - else false

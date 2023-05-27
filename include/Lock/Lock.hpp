@@ -104,8 +104,7 @@ public:
 
 protected:
     // switches the state and calls the requred functions to perform the state-switch
-    void
-    _lock();
+    void _lock();
     // switches the state and calls the requred functions to perform the state-switch !!! doesnt check if unlocking is alowed !!!
     void _unlock();
 

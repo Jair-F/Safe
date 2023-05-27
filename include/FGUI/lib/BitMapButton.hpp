@@ -132,7 +132,7 @@ namespace FGUI
 template <typename CALL_OBJECT_TYPE>
 void FGUI::BitmapButton<CALL_OBJECT_TYPE>::_draw_content(Widget::w_status _st)
 {
-    unsigned short *bitmap_to_draw;
+    unsigned short *bitmap_to_draw = nullptr;
     switch (_st)
     {
     case Widget::w_status::S_DISABLED:
@@ -182,7 +182,7 @@ void FGUI::BitmapButton<CALL_OBJECT_TYPE>::set_border_weight(uint8_t _border_wei
     this->display->setFont(SmallFont);
     this->display->setBackColor(VGA_BLACK);
     this->display->setColor(VGA_RED);
-    this->display->print("changing the border weight of BitmapButton's is not allowed", 0, 0);
+    this->display->print(F("changing the border weight of BitmapButton's is not allowed"), 0, 0);
 }
 template <typename CALL_OBJECT_TYPE>
 void FGUI::BitmapButton<CALL_OBJECT_TYPE>::set_content_border_gap(uint8_t _border_content_gap)
@@ -191,5 +191,5 @@ void FGUI::BitmapButton<CALL_OBJECT_TYPE>::set_content_border_gap(uint8_t _borde
     this->display->setFont(SmallFont);
     this->display->setBackColor(VGA_BLACK);
     this->display->setColor(VGA_RED);
-    this->display->print("changing the content_border_gap of BitmapButton's is not allowed", 0, 0);
+    this->display->print(F("changing the content_border_gap of BitmapButton's is not allowed"), 0, 0);
 }
