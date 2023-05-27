@@ -13,6 +13,8 @@ FGUI::TextLabel::TextLabel(WindowBase *_parent,
                                                           text(_text), text_font(_text_font),
                                                           text_align(text_alignment::AL_LEFT), line_spacing(0),
                                                           max_chars_in_line(0), text_lines(0),
+                                                          fixed_size(false),
+                                                          lines_to_print(0),
                                                           need_recalculate(true)
 {
     this->display->setFont(text_font);
@@ -24,6 +26,26 @@ FGUI::TextLabel::TextLabel(WindowBase *_parent,
 
     // is called in set_content_border_gap
     // this->_calc_widget();
+}
+
+FGUI::TextLabel::TextLabel(WindowBase *_parent,
+                           const position _upper_left,
+                           uint16_t _width,
+                           uint16_t _height,
+                           String _text, uint8_t *_text_font,
+                           uint8_t _border_weight,
+                           uint8_t _border_to_text_gap) : Widget(_parent,
+                                                                 _upper_left,
+                                                                 _width - _border_weight * 2 - _border_to_text_gap * 2,
+                                                                 _height - _border_weight * 2 - _border_to_text_gap * 2,
+                                                                 _border_weight, _border_to_text_gap),
+                                                          text(_text), text_font(_text_font),
+                                                          text_align(text_alignment::AL_LEFT), line_spacing(0),
+                                                          max_chars_in_line(0), text_lines(0),
+                                                          fixed_size(true),
+                                                          lines_to_print(0),
+                                                          need_recalculate(true)
+{
 }
 
 void FGUI::TextLabel::_draw_widget()
@@ -48,6 +70,7 @@ void FGUI::TextLabel::_draw_widget()
         this->display->setColor(this->released_text_color);
 
         position text_starting_pos = this->get_content_upper_left();
+        uint8_t printed_line_counter = 0;
 
         // String line_to_print = this->text.substring(i * this->max_chars_in_line, (i + 1) * this->max_chars_in_line);
         String line_to_print = "";
@@ -88,6 +111,9 @@ void FGUI::TextLabel::_draw_widget()
                 text_starting_pos.y_pos = text_starting_pos.y_pos + this->display->getFontYsize() + line_spacing;
 
                 line_to_print = "";
+                ++printed_line_counter;
+                if (this->fixed_size == true && printed_line_counter >= lines_to_print)
+                    break; // hop out and stop printing if widget is fixed size
             }
         }
     }
@@ -150,12 +176,24 @@ void FGUI::TextLabel::_calc_widget()
     }
     swap(String, this->text, tmp);
 
-    uint16_t widget_height = this->text_lines * font_height +
-                             this->line_spacing * (this->text_lines - 1) + // between the lines
-                             this->get_content_border_gap() * 2 +          // top and bottom
-                             this->get_border_weight() * 2;
+    // adjust only the size of the textlabel if its not fixed size
+    if (this->fixed_size == false)
+    {
+        uint16_t widget_height = this->text_lines * font_height +
+                                 this->line_spacing * (this->text_lines - 1) + // between the lines
+                                 this->get_content_border_gap() * 2 +          // top and bottom
+                                 this->get_border_weight() * 2;
 
-    this->set_size_shift_lower_right(this->width(), widget_height); // adjust size of the widget
+        this->set_size_shift_lower_right(this->width(), widget_height); // adjust size of the widget
+    }
+    else // the num of lines to print
+    {
+        this->lines_to_print = this->get_content_height() /
+                               (font_height + this->line_spacing); // height of the line + spacing to the next line
+
+        Serial.print("lines to print: ");
+        Serial.println(this->lines_to_print);
+    }
 }
 
 void FGUI::TextLabel::set_border_weight(uint8_t _border_weight)
