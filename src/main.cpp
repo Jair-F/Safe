@@ -97,28 +97,23 @@ void setup()
 	Serial.println("Hallo");
 	SPI.begin();
 	// Wire.begin(); // I2C
-	delay(500);
-
-	pinMode(12, OUTPUT); // pull down pin for SD-Card for ground
-	digitalWrite(12, LOW);
 
 	if (!system_clock.begin())
 	{
-		Serial.println("Error finding systemclock(DS3231)");
+		Serial.println(F("Error finding systemclock(DS3231)"));
+		logger.log(F("CLOCK: Error finding systemclock(DS3231)"), Log::log_level::L_CRITICAL);
 	}
 	if (system_clock.lost_power())
 	{
-		Serial.println("RTC lost power, let's set the time!");
+		Serial.println(F("RTC lost power, setting time to compile time!"));
+		logger.log(F("CLOCK: RTC lost power - setting compile time"), Log::log_level::L_WARNING);
 		DateTime compile_time(F(__DATE__), F(__TIME__));
 		system_clock.set_date_time(Clock::time_point(compile_time));
 	}
-	{
-		Clock::time_point tmp(system_clock.now());
-		Serial.print("orginal time: ");
-		Serial.println(tmp.to_string());
-		Serial.print("subtracted time_point: ");
-		Serial.println((tmp - Clock::duration(12, 2, 2, 2, 2)).to_string());
-	}
+
+	Clock::time_point tmp(system_clock.now());
+	Serial.print("now time: ");
+	Serial.println(tmp.to_string());
 
 	lock.begin();
 
@@ -145,24 +140,21 @@ void setup()
 	Serial.print(myGLCD.getDisplayYSize());
 	Serial.println(')');
 
-	boot_screen b_screen(&m_window);
-	m_window.set_active_window(&b_screen);
+	// boot_screen b_screen(&m_window);
+	// m_window.set_active_window(&b_screen);
 
 	l_screen = new lock_screen(&m_window);
 	settings_window = new Settings_window(l_screen);
 	info_screen = new Info_Screen(l_screen);
 	home_window = l_screen;
 
-	m_window.set_active_window(l_screen);
-	// m_window.loop();
-
 	Serial.println("Created lock_screen...");
-	m_window.set_active_window(l_screen);
 	m_window.on_fall_asleep = &fall_asleep_handler;
 	Serial.println("set active_window");
 
 	// try_window t_window(&m_window);
 	m_window.set_active_window(l_screen);
+	// m_window.set_active_window(settings_window);
 
 	/*
 	system_clock.Begin();
@@ -244,8 +236,8 @@ void setup()
 
 	pin.set_pin("1");
 
-	// unob_handler.add_unob(fingerprint);
-	// unob_handler.add_unob(rfid);
+	unob_handler.add_unob(fingerprint);
+	unob_handler.add_unob(rfid);
 	unob_handler.add_unob(&pin);
 
 	logger.serial_dump();
