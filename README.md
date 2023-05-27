@@ -1,11 +1,22 @@
 
+## Used Hardware:
+- Arduino Due
+- TFT LCD Touch Screen Display 320X240 ILI9341+3.2 inch with shield for mounting
+- R503 UART fingerprint sensor
+- Estardyn 3*4 Matrix Keyboard
+- MFRC522 SPI RFID Module
+- DS3231 i2c clock module
+- single channel 3.3V-5V relay module
 
 ## Library's
-- Adafruit Keypad       - `tested version: xx.xx`
-- Adafruit Fingerprint  - `tested version: xx.xx`
-- MFRC522               - `tested version: xx.xx`
-- ArduinoJson           - `tested version: xx.xx`
-- RtcDS1302             - `tested version: xx.xx`
+- Keypad                - `version: 3.1`
+- Adafruit Fingerprint  - `version: 2.0.7`
+- MFRC522               - `version: 1.4.10`
+- ArduinoJson           - `version: 6.19.4`
+- RTClib                - `version: 2.1.1`
+- uEEPROMLib            - `version: 1.2.1`
+- UTFT                  - `version: 2.83`
+- URTouch               - `version: 2.02`
 
 
 ## Installing required Software
@@ -18,39 +29,29 @@
 ## Wiring for Arduino Mega with this Code
 <!-- Wiring not working for Arduino Mega: https://arduino.stackexchange.com/questions/60525/did-not-find-fingerprint-sensor-arduino-mega-2560-adafruit-fingerprint-sensor -->
 - RFID:
-    - SDA:  (SS)
-    - SCK: SPI header SCK
+    - SDA:  A4
+    - SCK:  SPI header SCK
     - MOSI: SPI header MOSI
     - MISO: SPI header MISO
-    - IRQ:
-    - RST: SPI header RST
+    - IRQ:  -
+    - RST:  SPI header RST / A5
     - VC:   3,3V
     - GND:  GND
 - Fingerprint:
-    - RX:  (TX3)
-    - TX:  (RX3)
-    - VC:  A0(Controled power pin for fingerprint)
-    - GND: GND
-- RTC-Module(DS1302):
-    - VCC:  5V
+    - RX:   (TX3)
+    - TX:   (RX3)
+    - VC:   A0(Controled power pin for fingerprint)
     - GND:  GND
-    - CLK:  A1
-    - DATA: A2
-    - RST:  A3
+- RTC-Module(DS3231):
+    - VCC:  3.3V
+    - GND:  GND
+    - SDA:  Due SDA pin
+    - SCL:  Due SCL pin
 - Keypad:
-    - R1: A8
-    - R2: A9
-    - R3: A10
-    - R4: A11
-    - C1: A12
-    - C2: A13
-    - C3: A14
-- SD-Card Reader:
-    - VCC: 3.3V
-    - GND: GND
-    - MOSI: DUE SPI header MOSI
-    - MISO: DUE SPI header MISO
-    - SCK: DUE SPI header SCK
-
-## Debugging
-The Arduino Mega has an onboard debugging-section. The communication between the Computer and the Arduino Board is via the UART(Serial) interface. We can specify the Hardware-UART which the sketch should use in the `avr8-stub.h` header with the Makro `AVR8_UART_NUMBER` - 0-3. For communication with Serial-Monitor and debugging we need an [UART-USB dongle](https://www.aliexpress.com/item/32962455401.html?_randl_currency=ILS&_randl_shipto=IL)
+    - R1:   A8
+    - R2:   A9
+    - R3:   A10
+    - R4:   A11
+    - C1:   A12
+    - C2:   A13
+    - C3:   A14
