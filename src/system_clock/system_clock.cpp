@@ -1,5 +1,8 @@
 #include "system_clock/system_clock.hpp"
 #include "system_clock/time_point.hpp"
+#include "logging/Log.hpp"
+
+extern Log::Log logger;
 
 Clock::Clock::Clock() : rtc(nullptr)
 {
@@ -15,7 +18,7 @@ Clock::Clock::~Clock()
 bool Clock::Clock::begin()
 {
     // Wire.begin();
-    delay(100);
+    // delay(100);
     if (this->rtc == nullptr)
     {
         this->rtc = new RTC_DS3231();
