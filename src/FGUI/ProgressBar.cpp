@@ -11,6 +11,19 @@ FGUI::ProgressBar::ProgressBar(WindowBase *_parent,
     this->released_background_color = this->parent_window->get_background_color();
 }
 
+FGUI::ProgressBar::ProgressBar(WindowBase *_parent,
+                               position _upper_left,
+                               uint8_t _width, uint8_t _height,
+                               uint8_t _border_weight,
+                               uint8_t _border_to_bar_gap) : Widget(_parent,
+                                                                    _upper_left,
+                                                                    _width, _height,
+                                                                    _border_weight, _border_to_bar_gap),
+                                                             progress(0)
+{
+    this->released_background_color = this->parent_window->get_background_color();
+}
+
 void FGUI::ProgressBar::_draw_content(Widget::w_status _st)
 {
     if (!this->is_hidden())

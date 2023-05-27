@@ -26,6 +26,9 @@ namespace FGUI
         ProgressBar(WindowBase *_parent, position _upper_left,
                     position _lower_right,
                     uint8_t _border_weight, uint8_t _border_to_bar_gap = 3);
+        ProgressBar(WindowBase *_parent, position _upper_left,
+                    uint8_t _width, uint8_t _height,
+                    uint8_t _border_weight, uint8_t _border_to_bar_gap = 3);
         ~ProgressBar() {}
 
         /**
