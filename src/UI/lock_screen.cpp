@@ -10,7 +10,6 @@ extern const unsigned short settings_icon[];
 extern const unsigned short info_icon[];
 extern const unsigned short settings_big_icon[];
 
-class RFID_settings_window;
 extern RFID_settings_window *rfid_settings_wnd;
 extern Settings_window *settings_window;
 extern Info_Screen *info_screen;
@@ -71,6 +70,7 @@ void lock_screen::_request_open_settings(FGUI::Touch_Widget<lock_screen> *_widge
     this->settings_btn.set_draw_border(!this->settings_btn.get_draw_border());
     this->settings_btn.draw();
 
+    this->status_label.released_text_color = VGA_WHITE;
     if (this->settings_btn.has_border())
     {
         this->status_label.set_text("authorize...");
@@ -79,6 +79,7 @@ void lock_screen::_request_open_settings(FGUI::Touch_Widget<lock_screen> *_widge
     {
         this->status_label.set_text("unlock...");
     }
+    this->status_label.draw();
 }
 
 void lock_screen::_open_info(FGUI::Touch_Widget<lock_screen> *_widget)
@@ -153,6 +154,7 @@ void lock_screen::loop()
         {
             this->status_label.released_text_color = VGA_RED;
             this->status_label.set_text("sorry, try again...");
+            this->status_label.draw();
             lock.report_unauthorized_unlock_try();
             pin.clear_input_buffer(); // to not report in loop
         }

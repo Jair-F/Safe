@@ -116,10 +116,17 @@ namespace FGUI
             @details this function will be called by the MainWindow one step before the
             window is shown on the display, directly after its set to the active window.
             its to make things ready before appearing on the display.
-            @note this function is called only once per set_active_window() call - not every
-            time the show function is called!!
+            @note this function is called only once per set_active_window() call - not when
+                  the show function is called!!
         */
         virtual void _pre_show(){};
+
+        /**
+         * @details this function will be called before the window will be hidden.
+         * @note this function is called only once per set_active_window() call - not when
+         *       the show function is called!!
+         */
+        virtual void _pre_hide(){};
 
         /*!
             @details a pop up window is not shown by setting it the the active window in the main window. it must to be set with this function

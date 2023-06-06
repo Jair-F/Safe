@@ -32,6 +32,19 @@ namespace Clock
          */
         String to_string() const;
         /**
+         * @return a string representation of the time point but only the date
+         *         and time - not day of week
+         */
+        String to_string_time_date() const;
+        /**
+         * @return a string representation of the time point but only the date
+         */
+        String to_string_date() const;
+        /**
+         * @return a string representation of the time point but only the time
+         */
+        String to_string_time() const;
+        /**
          * @return the hours in twelve hour format
          */
         inline uint8_t twelveHour() const;

@@ -397,3 +397,50 @@ String Clock::time_point::to_string() const
 
     return ret;
 }
+
+String Clock::time_point::to_string_time_date() const
+{
+    String ret;
+
+    ret += this->m_day;
+    ret += '/';
+    ret += this->month;
+    ret += '/';
+    ret += this->year;
+
+    ret += ' ';
+
+    ret += this->hour;
+    ret += ':';
+    ret += this->minute;
+    ret += ':';
+    ret += this->second;
+
+    return ret;
+}
+
+String Clock::time_point::to_string_time() const
+{
+    String ret;
+
+    ret += this->hour;
+    ret += ':';
+    ret += this->minute;
+    ret += ':';
+    ret += this->second;
+
+    return ret;
+}
+
+String Clock::time_point::to_string_date() const
+{
+    String ret;
+
+    ret += this->m_day;
+    ret += '/';
+    ret += this->month;
+    ret += '/';
+    ret += this->year;
+
+    return ret;
+}

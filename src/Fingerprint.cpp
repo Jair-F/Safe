@@ -9,20 +9,24 @@ Fingerprint::Fingerprint::Fingerprint(HardwareSerial *my_serial, Lock *_lock) : 
 
 void Fingerprint::Fingerprint::begin()
 {
+    bool sucess = false;
     this->fingerprint.begin(default_baudrate);
-    if (this->fingerprint.verifyPassword())
+    sucess = this->fingerprint.verifyPassword();
+    if (sucess)
     {
         // logger.log(F("FINGERPRINT: found fingerprint"), Log::log_level::L_INFO);
         Serial.println(F("FINGERPRINT: found fingerprint"));
     }
     else
     {
-        // logger.log(F("FINGERPRINT: didnt found fingerprint-sensor"), Log::log_level::L_ERROR);
+        logger.log(F("FINGERPRINT: didnt found fingerprint-sensor"), Log::log_level::L_ERROR);
         Serial.println(F("FINGERPRINT: didnt found fingerprint-sensor"));
         //  exit(-1);
     }
+    this->fingerprint.getParameters();
 
     this->enable();
+    // return sucess;
 }
 
 void Fingerprint::Fingerprint::led_control(led_modes _led_mode)
@@ -74,13 +78,15 @@ bool Fingerprint::Fingerprint::finger_on_sensor()
 
 bool Fingerprint::Fingerprint::delete_finger(uint16_t id)
 {
-    if (id > 120)
-    {
-        Serial.println("id is out of range");
+    if (id > this->fingerprint.capacity || id < 1)
         return false;
-    }
     this->error_code = this->fingerprint.deleteModel(id);
     return this->error_code == FINGERPRINT_OK;
+}
+
+bool Fingerprint::Fingerprint::clear_database()
+{
+    return this->fingerprint.emptyDatabase() == FINGERPRINT_OK;
 }
 
 Unlock_Object::unlock_authentication_reports Fingerprint::Fingerprint::read()
@@ -103,7 +109,7 @@ Unlock_Object::unlock_authentication_reports Fingerprint::Fingerprint::read()
         }
         else
         {
-            DEBUG_PRINTLN("Error reading the finger image")
+            logger.log(F("FINGERPRINT: Error reading the finger image"), Log::log_level::L_WARNING);
             return Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR;
         }
     }
@@ -137,8 +143,7 @@ Unlock_Object::unlock_authentication_reports Fingerprint::Fingerprint::read()
     else if (err_code == FINGERPRINT_PACKETRECIEVEERR) // error_handling - maybe output on display...
     {
         this->fingerprint.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_RED); // on error red fingerprint LED
-        // logger.log(F("FINGERPRINT: error converting fingerprint-image to feature template"), Log::log_level::L_DEBUG);
-        Serial.println("package recieve error");
+        logger.log(F("FINGERPRINT: package recieve error"), Log::log_level::L_ERROR);
         return Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR;
     }
     else
@@ -152,7 +157,7 @@ Unlock_Object::unlock_authentication_reports Fingerprint::Fingerprint::read()
 bool Fingerprint::Fingerprint::authorized_unob_database_empty()
 {
     bool least_one_set = false;
-    for (uint16_t i = 0; i <= 127; ++i)
+    for (uint16_t i = 0; i <= this->fingerprint.capacity; ++i)
     {
         if (this->check_id_used(i))
         {
@@ -172,6 +177,51 @@ bool Fingerprint::Fingerprint::check_id_used(uint16_t id)
         return false;
     else
         return true;
+}
+
+bool Fingerprint::Fingerprint::get_id(uint8_t &_store_id_here)
+{
+    // it searches a match in the database to the slot 1 and saves it in fingerprint.fingerID
+    if (this->fingerprint.fingerFastSearch() != FINGERPRINT_OK)
+        return false;
+
+    _store_id_here = this->fingerprint.fingerID;
+    return true;
+}
+
+bool Fingerprint::Fingerprint::read_finger(uint8_t _slot_id)
+{
+    if (_slot_id < 1 || _slot_id > 2)
+        return false;
+
+    this->error_code = FINGERPRINT_NOFINGER;
+
+    this->error_code = this->fingerprint.getImage();
+    if (this->error_code != FINGERPRINT_OK)
+        return false;
+
+    // converting the image to a slot format and storing it
+    this->error_code = this->fingerprint.image2Tz(_slot_id); // param slot for the image(exist 1 and 2) second is for verification...
+    if (this->error_code != FINGERPRINT_OK)
+        return false;
+
+    return true;
+}
+
+bool Fingerprint::Fingerprint::store_finger_model(uint8_t id)
+{
+    if (id < 1 || id > this->fingerprint.capacity)
+        return false;
+
+    this->error_code = this->fingerprint.createModel(); // creating model of the two feature templates which are created from the images
+    if (this->error_code != FINGERPRINT_OK)
+        return false;
+
+    this->error_code = this->fingerprint.storeModel(id);
+    if (this->error_code != FINGERPRINT_OK)
+        return false;
+
+    return true;
 }
 
 bool Fingerprint::Fingerprint::add_finger(uint16_t id)

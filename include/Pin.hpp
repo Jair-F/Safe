@@ -2,12 +2,13 @@
 #include <Arduino.h>
 #include "Lock/Unlock_Object.hpp"
 
+#define _MAX_PIN_LN_ 8
+
 class Pin : public Unlock_Object
 {
 public:
-    Pin(Lock *_lock, String _pin, bool enabled = true, uint8_t _max_pin_ln = 8);
+    Pin(Lock *_lock, String _pin, bool enabled = true);
     Pin(Lock *_lock, bool enabled = true);
-    Pin(Lock *_lock, bool enabled = true, uint8_t _max_pin_ln = 8);
     virtual ~Pin() {}
 
     void set_pin(String _pin);
@@ -18,8 +19,7 @@ public:
      */
     bool check_pin_set() const { return pin != ""; }
 
-    void set_max_pin_ln(uint8_t _max_pin_ln);
-    uint8_t get_max_pin_ln() const { return this->max_pin_ln; }
+    uint8_t get_max_pin_ln() const { return _MAX_PIN_LN_; }
 
     /**
      * @details appends only if input_bufferis not filled up to max_pin_ln
@@ -58,5 +58,4 @@ public:
 private:
     String pin = ""; // if pin is "" - its not set - no pin
     String input_buffer;
-    uint8_t max_pin_ln = 8;
 };

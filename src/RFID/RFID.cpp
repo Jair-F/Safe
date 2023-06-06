@@ -1,5 +1,8 @@
 #include <MFRC522.h>
 #include "RFID/RFID.hpp"
+#include "logging/Log.hpp"
+
+extern Log::Log logger;
 
 RFID::RFID::RFID(byte ss, byte rst, Lock *_lock, bool _enabled) : Unlock_Object(_lock, _enabled), rfid(ss, rst)
 {
@@ -15,11 +18,12 @@ bool RFID::RFID::begin()
     this->rfid.PCD_DumpVersionToSerial();
     if (this->rfid.PCD_PerformSelfTest())
     {
-        Serial.println("Selftest of RFID was sucessful");
+        Serial.println(F("Selftest of RFID was sucessful"));
     }
     else
     {
         Serial.println("Selftest of RFID failed");
+        logger.log(F("RFID: Selftest of RFID failed"), Log::log_level::L_WARNING);
     }
     this->rfid.PCD_Init(); // initialize the rfid again - after the test it wont work
     this->rfid.PCD_SoftPowerUp();
@@ -54,7 +58,7 @@ Unlock_Object::unlock_authentication_reports RFID::RFID::read()
     UID read_uid = this->read_tag_UID();
     if (read_uid.is_set())
     {
-        Serial.print("Read tag with UID: ");
+        Serial.print(F("Read tag with UID: "));
         Serial.println(read_uid.to_string());
 
         for (uint8_t i = 0; i < NUM_OF_TAGS; ++i)
@@ -102,7 +106,7 @@ bool RFID::RFID::tag_present()
 {
     this->unread_tag_present = this->rfid.PICC_IsNewCardPresent();
 
-    return this->unread_tag_present == true;
+    return this->unread_tag_present;
 }
 
 void RFID::RFID::add_tag(unsigned short id, UID tag_uid)
@@ -114,15 +118,16 @@ void RFID::RFID::add_tag(unsigned short id, UID tag_uid)
     this->allowed_tags[id] = tag_uid;
 }
 
-void RFID::RFID::remove_tag(unsigned short id)
+bool RFID::RFID::remove_tag(unsigned short id)
 {
     if (id > NUM_OF_TAGS - 1)
     {
         DEBUG_PRINTLN(F("id is out of range"));
         // throw an error
-        return;
+        return false;
     }
     this->allowed_tags[id].clear();
+    return true;
 }
 
 bool RFID::RFID::remove_tag(const UID &tag_uid)

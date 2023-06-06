@@ -60,8 +60,9 @@ namespace RFID
         /**
          * @brief removes tag from the tag with id id from the allowed_tags
          * (throws an error if the id id is out of range)??
+         * @return true if removed, false if failed(id out of range?)
          */
-        void remove_tag(unsigned short id);
+        bool remove_tag(unsigned short id);
         /**
          * @brief removes tag from the tag with UID tag_uid from the allowed_tags
          * @return true if one or more tags where removed - else false
@@ -100,8 +101,7 @@ namespace RFID
         /**
          * @return pointer to the begin of the allowed_tags array. size of the array is RFID::NUM_OF_TAGS
          */
-        inline UID *
-        _get_allowed_tags()
+        inline UID *_get_allowed_tags()
         {
             return this->allowed_tags;
         }

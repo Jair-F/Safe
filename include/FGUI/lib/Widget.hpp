@@ -299,6 +299,12 @@ namespace FGUI
          */
         bool _check_pos(const position &_pos) const;
 
+        /**
+         * @details for checking at the window class if the widget is a touch widget to send a handle_touch
+         * @return true if the widget is a touch_widget
+         */
+        virtual bool _is_touch_widget() const { return false; }
+
         inline WindowBase *_get_parent_window() const { return this->parent_window; }
 
     protected:

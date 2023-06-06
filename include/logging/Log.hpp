@@ -31,6 +31,14 @@ namespace Log
         SinglyListNodeIterator<log_message> begin();
         SinglyListNodeIterator<log_message> end();
 
+        byte get_logging_level() const { return this->logging_level; }
+        /**
+         * @details sets the logging level to the given level
+         * @note all previous logs stay as they are - are not removed or added - for that restart
+         * @param _loggin_level the logging level to set
+         */
+        void set_logging_level(byte _logging_level) { this->logging_level = _logging_level; }
+
     private:
         SinglyLinkedList<log_message> _log_list;
         byte logging_level;

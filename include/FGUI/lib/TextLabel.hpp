@@ -46,6 +46,25 @@ namespace FGUI
          */
         TextLabel(WindowBase *_parent, const position _upper_left, uint16_t _width, String _text = "",
                   uint8_t *_font = SmallFont, uint8_t _border_weight = 0, uint8_t _border_to_text_gap = 1);
+
+        /**
+         * @param _parent parent window to which the widget will register to.
+         * @param _upper_left_pos upper left corner in relation to the parent window zero point.
+         * @param _width width of the text label - including border and gap...
+         * @param _text text to display
+         * @param _font pointer to font array for the text.
+         * @param _border_weight weight of the border
+         * @param _border_to_text_gap gap between the border and the start of the text
+         *                            on all sides
+         *
+         * @note the widget adjusts its height atomatically based on the text and the newlines in the text.
+         * The height can be read with Widget::height().
+         */
+        TextLabel(WindowBase *_parent, const position _upper_left,
+                  uint16_t _width, uint16_t _height,
+                  String _text = "", uint8_t *_font = SmallFont,
+                  uint8_t _border_weight = 0, uint8_t _border_to_text_gap = 1);
+
         virtual ~TextLabel() {}
 
         /**
@@ -89,6 +108,14 @@ namespace FGUI
         void set_line_spacing(uint8_t _line_spacing);
 
         /**
+         * @brief sets wether the widget should adjust its size to the text length
+         *        or print only the amount of text that fits into the given size
+         * @param _fixed true for fixed, false for floating=adjusting
+         */
+        void set_fixed(bool _fixed = true) { fixed_size = _fixed; }
+        void set_floating() { fixed_size = false; }
+
+        /**
          * @brief the color values are RGB-565 values(16-bit value).
          * RGB-565 color picker: https://chrishewett.com/blog/true-rgb565-colour-picker/
          */
@@ -128,6 +155,13 @@ namespace FGUI
          * @brief gap between the begin of the widget and begin of the text and end of the widget and end of the text in pixels
          */
         // this->get_content_border_gap()
+
+        bool fixed_size = false; // true if the size of the widget is fixed - false if it changes depending on the text
+        /**
+         * num of lines we print from the text - only important if fixed_size = true
+         * otherwise we print all of the text
+         */
+        uint8_t lines_to_print = 0;
 
         bool need_recalculate = true; // true if it need a recalculate before drawing
     };

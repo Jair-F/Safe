@@ -98,6 +98,7 @@ void FGUI::MainWindow::set_active_window(WindowBase *_win)
     // clear space of previous window
     if (this->active_window != nullptr)
     {
+        this->active_window->_pre_hide();
         this->active_window->hide();
     }
 
@@ -231,6 +232,7 @@ void FGUI::MainWindow::_send_sleep()
         this->display->clrScr();
         this->display->lcdOff();
         this->in_sleep_mode = true;
+        this->focused_widget = nullptr;
 
         // call the callback function for the user for fall asleep
         if (this->on_fall_asleep != nullptr)

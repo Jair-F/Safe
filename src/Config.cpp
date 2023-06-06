@@ -1,10 +1,23 @@
 #include "Config.hpp"
 #include "system_clock/system_clock.hpp"
+#include "Lock/Lock.hpp"
+#include "Fingerprint.hpp"
+#include "RFID/RFID.hpp"
+#include "Pin.hpp"
+#include "FGUI/lib/MainWindow.hpp"
 
 #include <uEEPROMLib.h>
 
 extern uEEPROMLib system_clock_eeprom;
 extern Clock::Clock system_clock;
+
+extern Fingerprint::Fingerprint *fingerprint;
+extern RFID::RFID *rfid;
+extern Pin pin;
+extern Lock lock;
+extern StaticJsonDocument<1024> config;
+extern FGUI::MainWindow m_window;
+extern Log::Log logger;
 
 bool Config::store_locked_until_tm_pt(Clock::time_point &_tm)
 {
@@ -69,4 +82,45 @@ bool Config::write_config(String *_config_str)
 bool Config::check_config_length(const String &_config_str)
 {
     return _config_str.length() <= CONFIG_FILE_END_ADDR - CONFIG_FILE_START_ADDR;
+}
+
+String &Config::create_config_str(String &_config_str)
+{
+    auto RFID_tags_ref = config[F("RFID")][F("RFID_tags")];
+    RFID_tags_ref.clear();
+    for (uint8_t id = 0; id < RFID::NUM_OF_TAGS; ++id)
+    {
+        if (rfid->id_used(id))
+        {
+            RFID_tags_ref.add(JsonObject());
+            RFID_tags_ref[RFID_tags_ref.size() - 1][F("id")] = id;
+            auto uid = rfid->get_tag_uid(id);
+            for (uint8_t i = 0; i < uid.get_uid_length(); ++i)
+            {
+                RFID_tags_ref[RFID_tags_ref.size() - 1][F("tag_uid")].add(uid.get_uid()[i]);
+            }
+
+            // RFID_tags_ref[RFID_tags_ref.size() - 1][F("tag_uid")] = rfid->get_tag_uid(id).to_string();
+        }
+    }
+
+    config[F("PIN")][F("pin")] = pin.get_pin();
+    config[F("PIN")][F("enabled")] = pin.is_enabled();
+
+    config[F("Fingerprint")][F("enabled")] = fingerprint->is_enabled();
+
+    auto system_ref = config[F("system")];
+    system_ref[F("locking_period")] = lock.get_locking_period();
+    system_ref[F("allowed_unauthorized_unlock_tries")] = lock.get_allowed_unauthorized_unlock_tries();
+    system_ref[F("screen_timeout")] = m_window.get_fall_aspleep_timer();
+    system_ref[F("logging_level")] = logger.get_logging_level();
+
+    // creating the config string
+    serializeJson(config, _config_str);
+    return _config_str;
+}
+
+const char *Config::reset_config()
+{
+    return "{\"Fingerprint\":{\"enabled\":false},\"PIN\":{\"enabled\":false,\"pin\":\"00000\"},\"RFID\":{\"enabled\":false,\"RFID_tags\":[]},\"system\":{\"allowed_unauthorized_unlock_tries\":10,\"locking_period\":60,\"sleep_timeout\":60}}";
 }

@@ -64,6 +64,20 @@ namespace Config
      */
     bool check_config_length(const String &_config_str);
 
+    /**
+     * @param _config_str the string in which the config should be saved
+     * @return _config_str
+     * @brief creates the config string from the fingerprint, RFID, pin and system settings and
+     *        saves it as a json string
+     * @note it also saves the config in the global config object config.
+     */
+    String &create_config_str(String &_config_str);
+
+    /**
+     * @return a string of a clear resetet config
+     */
+    const char *reset_config();
+
     /*
 
 

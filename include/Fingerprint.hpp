@@ -82,6 +82,22 @@ namespace Fingerprint
         bool add_finger(uint16_t id);
 
         /**
+         * @brief reads the finger on the sensor and stores it in a slot for storing later
+         * @note valid slot id's are 1,2
+         * @param _slot_id id of the slot to store the fingerprint in - 1 or 2
+         * @return true if a finger was read, false if not
+         */
+        bool read_finger(uint8_t _slot_id);
+
+        /**
+         * @brief stores the fingerprint image of the two slots to the given id
+         * @note id is between 1-127 including
+         * @param id id to store the fingerprint model of the two slots in.
+         * @return true on success, false on fail
+         */
+        bool store_finger_model(uint8_t id);
+
+        /**
          * @brief deletes a fingerprint model from the database
          * @return true if the delete was successful
          * @note the status variable error_code will be set to get more detailed information about an error.
@@ -89,11 +105,25 @@ namespace Fingerprint
         bool delete_finger(uint16_t id);
 
         /**
+         * @brief clears the whole database of stored fingerpints
+         * @return true on success
+         */
+        bool clear_database();
+
+        /**
          * Checks if a fingerprint is stored on this id in the Database
          * @param id id in the database(1-127)
          * @return true if a fingerprint is saved on this id otherwise false
          */
         bool check_id_used(uint16_t id);
+
+        /**
+         * @brief returns the matching id to the read fingprint stored in slot 1
+         * @return true if a match was found, false if not
+         * @param _store_id_here id to matching fingerprint will be stored here, if no matching
+         *                       fingerprint was found(@return==false) it will be not changed.
+         */
+        bool get_id(uint8_t &_store_id_here);
 
         /**
          * will be called in loop by the lock. it reads the fingerprint for fingers and returns matching
@@ -112,6 +142,8 @@ namespace Fingerprint
          * information with the func error_code_message(String) about the error
          */
         uint8_t error_code;
+
+        const uint16_t _get_fingerprint_capacity() const { return this->fingerprint.capacity; }
 
     protected:
     private:

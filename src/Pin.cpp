@@ -1,17 +1,10 @@
 #include "Pin.hpp"
 
-Pin::Pin(Lock *_lock, String _pin, bool enabled, uint8_t _max_pin_ln) : Unlock_Object(_lock, enabled),
-                                                                        pin(_pin), max_pin_ln(_max_pin_ln)
+Pin::Pin(Lock *_lock, String _pin, bool enabled) : Unlock_Object(_lock, enabled), pin(_pin)
 {
 }
 
-Pin::Pin(Lock *_lock, bool enabled) : Unlock_Object(_lock, enabled),
-                                      pin("")
-{
-}
-
-Pin::Pin(Lock *_lock, bool enabled, uint8_t _max_pin_ln) : Unlock_Object(_lock, enabled),
-                                                           pin(""), max_pin_ln(_max_pin_ln)
+Pin::Pin(Lock *_lock, bool enabled) : Unlock_Object(_lock, enabled), pin("")
 {
 }
 
@@ -25,14 +18,9 @@ void Pin::clear_pin()
     this->pin = "";
 }
 
-void Pin::set_max_pin_ln(uint8_t _max_pin_ln)
-{
-    this->max_pin_ln = _max_pin_ln;
-}
-
 void Pin::append(char _input)
 {
-    if (this->input_buffer.length() < this->max_pin_ln)
+    if (this->input_buffer.length() < _MAX_PIN_LN_)
         this->input_buffer += _input;
 }
 
@@ -57,20 +45,26 @@ void Pin::clear_input_buffer()
 
 void Pin::set_input_buffer(String _in_buffer)
 {
-    if (_in_buffer.length() <= this->max_pin_ln)
+    if (_in_buffer.length() <= _MAX_PIN_LN_)
     {
         this->input_buffer = _in_buffer;
     }
     else
     {
-        this->input_buffer = _in_buffer.substring(0, this->max_pin_ln);
+        this->input_buffer = _in_buffer.substring(0, _MAX_PIN_LN_);
     }
 }
 
 Unlock_Object::unlock_authentication_reports Pin::read()
 {
+    if (!this->is_enabled())
+    {
+        return Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_DISABLED;
+    }
+
     if (this->_check_input_buffer()) // if entered correctly or if no pin is set
     {
+        this->input_buffer = ""; // resetting the buffer to not unlock in loop
         return Unlock_Object::unlock_authentication_reports::AUTHORIZED_UNLOCK_OBJECT;
     }
     else if (this->input_buffer == "" || this->input_buffer.length() < this->pin.length())
@@ -79,6 +73,7 @@ Unlock_Object::unlock_authentication_reports Pin::read()
     }
     else
     {
+        this->input_buffer = ""; // resetting the buffer to not unlock in loop
         return Unlock_Object::unlock_authentication_reports::UNAUTHORIZED_UNLOCK_OBJECT;
     }
 }
