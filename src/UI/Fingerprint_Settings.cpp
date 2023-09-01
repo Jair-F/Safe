@@ -149,7 +149,7 @@ void Fingerprint_Settings::_show_delete_by_scan(FGUI::Touch_Widget<Fingerprint_S
 
 void Fingerprint_Settings::_show_clear_database(FGUI::Touch_Widget<Fingerprint_Settings> *_widget)
 {
-    w_status = window_status::FINGER_clear_database;
+    w_status = window_status::FINGER_clear_database_waiting_confirm;
 
     this->add_btn.released_border_color = VGA_BLACK;
     this->delete_by_id_btn.released_border_color = VGA_BLACK;
@@ -169,6 +169,11 @@ void Fingerprint_Settings::_show_clear_database(FGUI::Touch_Widget<Fingerprint_S
     this->window_title.set_text("clr database");
 
     this->_redraw_chagned_window();
+}
+
+bool Fingerprint_Settings::_id_ok(uint8_t _id)
+{
+    return !(_id > fingerprint->_get_fingerprint_capacity() || _id < 1);
 }
 
 void Fingerprint_Settings::_redraw_chagned_window()
@@ -195,10 +200,19 @@ void Fingerprint_Settings::_print_id_info(FGUI::Touch_Widget<Fingerprint_Setting
     else
     {
         this->status_label.set_text("");
-        this->confirm_btn.enable();
-        this->delete_btn.enable();
+        if (this->w_status == window_status::FINGER_add_waiting_for_2)
+        {
+            this->confirm_btn.enable();
+            this->delete_btn.enable();
+        }
     }
     this->status_label.draw();
+}
+
+void Fingerprint_Settings::_pre_show()
+{
+    this->p_bar.set_progress(0);
+    this->confirm_btn.disable();
 }
 
 void Fingerprint_Settings::_handle_delete(FGUI::Touch_Widget<Fingerprint_Settings> *_widget)
@@ -215,6 +229,7 @@ void Fingerprint_Settings::_handle_delete(FGUI::Touch_Widget<Fingerprint_Setting
     }
     case window_status::FINGER_clear_database_waiting_confirm:
     {
+        this->w_status = window_status::FINGER_clear_database;
         this->status_label.set_text("press again to confirm");
         break;
     }
@@ -240,6 +255,9 @@ void Fingerprint_Settings::_handle_confirm(FGUI::Touch_Widget<Fingerprint_Settin
     switch (this->w_status)
     {
     case window_status::FINGER_add:
+        this->p_bar.set_progress(0);
+
+    case window_status::FINGER_add_waiting_for_2:
     {
         if (fingerprint->store_finger_model(String(this->id_input.get_input_buffer()).toInt()))
             this->status_label.set_text(F("finger added"));
@@ -292,35 +310,23 @@ void Fingerprint_Settings::loop()
     switch (this->w_status)
     {
     case window_status::FINGER_add:
-    case window_status::FINGER_delete_by_scan:
     {
         if (fingerprint->read_finger(1))
         {
             this->p_bar.set_progress(50);
             this->delete_btn.mark_enabled();
             this->add_btn.mark_enabled();
+            this->w_status = window_status::FINGER_add_waiting_for_2;
         }
-
-        /*
-        if (rfid->tag_present() && this->tmp_uid.is_set() == false) // scan only if tmp uid isnt set
+        break;
+    }
+    case window_status::FINGER_delete_by_scan:
+    {
+        if (fingerprint->read_finger(1))
         {
-            this->tmp_uid = rfid->read_tag_UID();
-            if (this->tmp_uid.is_set() == false)
-            {
-                this->status_label.set_text("error reading tag UID");
-                this->reset_btn.disable();
-                this->add_btn.disable();
-            }
-            else
-            {
-                this->status_label.set_text("tag uid: " + this->tmp_uid.to_string());
-                this->reset_btn.enable();
-                this->add_btn.enable();
-            }
-            this->status_label.draw();
-            this->confirm_btn.enable();
+            this->p_bar.set_progress(50);
+            this->delete_btn.enable();
         }
-        */
         break;
     }
     case window_status::FINGER_add_waiting_for_2:
@@ -330,7 +336,7 @@ void Fingerprint_Settings::loop()
             if (fingerprint->read_finger(2))
                 this->p_bar.set_progress(100);
 
-            this->add_btn.enable();
+            this->confirm_btn.enable();
         }
         break;
     }

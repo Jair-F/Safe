@@ -14,7 +14,9 @@ Unlock_Object::unlock_authentication_reports UNOB_handler::read_unobs()
         if (unob->is_enabled())
         {
             auto read_result = unob->read();
-            if (read_result != Unlock_Object::unlock_authentication_reports::NO_UNLOCK_OBJECT_PRESENT)
+            if (read_result != Unlock_Object::unlock_authentication_reports::NO_UNLOCK_OBJECT_PRESENT &&
+                // at an error keep listening - error will be ignored - handled by unob class
+                read_result != Unlock_Object::unlock_authentication_reports::UNLOCK_OBJECT_READ_ERROR)
                 return read_result;
         }
         ++unob;

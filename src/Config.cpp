@@ -39,8 +39,8 @@ Clock::time_point *Config::read_locked_until_tm_pt(Clock::time_point *_tm_pt)
 
 bool Config::locked_until_tm_pt_stored()
 {
-    return (!static_cast<bool>(system_clock_eeprom.eeprom_read(LOCKED_UNTIL_TM_PT_INDICATOR_ADDR))) &&
-           (!system_clock.lost_power());
+    return (!system_clock.lost_power()) &&
+           (!static_cast<bool>(system_clock_eeprom.eeprom_read(LOCKED_UNTIL_TM_PT_INDICATOR_ADDR)));
 }
 
 bool Config::clear_locked_until_tm_pt()
@@ -100,7 +100,7 @@ String &Config::create_config_str(String &_config_str)
                 RFID_tags_ref[RFID_tags_ref.size() - 1][F("tag_uid")].add(uid.get_uid()[i]);
             }
 
-            // RFID_tags_ref[RFID_tags_ref.size() - 1][F("tag_uid")] = rfid->get_tag_uid(id).to_string();
+            // RFID_tags_ref[RFID_tags_ref.size() - 1][F("tag_uid")] = rfid->get_tag_uid(id).to_string(); // as string we are not using
         }
     }
 

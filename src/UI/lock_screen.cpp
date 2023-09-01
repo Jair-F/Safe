@@ -99,6 +99,11 @@ void lock_screen::_show_pin_input()
     this->status_label.draw();
 }
 
+void lock_screen::_pre_hide()
+{
+    lock.lock(); // lock the lock if its not already locked...
+}
+
 /**
  * send_backspace
  * make send_enter
@@ -136,10 +141,15 @@ void lock_screen::send_enter()
 }
 */
 
+bool lock_screen::_waiting_access_settings() const
+{
+    return this->settings_btn.has_border();
+}
+
 void lock_screen::loop()
 {
     // true = the next read will be for authorizing to go to settings page
-    if (this->settings_btn.has_border())
+    if (this->_waiting_access_settings())
     {
         auto unob_read_result = unob_handler.read_unobs();
         if (unob_read_result == Unlock_Object::unlock_authentication_reports::AUTHORIZED_UNLOCK_OBJECT ||
@@ -158,9 +168,12 @@ void lock_screen::loop()
             lock.report_unauthorized_unlock_try();
             pin.clear_input_buffer(); // to not report in loop
         }
+        else if (unob_read_result == Unlock_Object::unlock_authentication_reports::NO_UNLOCK_OBJECT_PRESENT)
+        {
+        }
     }
     else
     {
-        // lock.loop();
+        lock.loop();
     }
 }

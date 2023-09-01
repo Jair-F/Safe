@@ -3,6 +3,8 @@
 
 // Hardware_Pinouts
 
+#define RELAY_PIN A0
+
 // Serial-Object (for fingerprint)
 #define SERIAL_RECEIVE_PIN 2
 #define SERIAL_TRANSMIT_PIN 3

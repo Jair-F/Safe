@@ -38,6 +38,10 @@ protected:
      */
     void _print_id_info(FGUI::Touch_Widget<Fingerprint_Settings> *_widget, const char *_input_buffer);
 
+    void _pre_show() override; // disables all buttons which needs interaction first
+
+    bool _id_ok(uint8_t _id);
+
     void _redraw_chagned_window();
 
     enum class window_status
