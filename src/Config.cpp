@@ -57,7 +57,7 @@ String *Config::read_config(String *_config_str)
     uint16_t reading_addr = CONFIG_FILE_START_ADDR;
     do
     {
-        system_clock_eeprom.eeprom_read(reading_addr);
+        _config_str += static_cast<char>(system_clock_eeprom.eeprom_read(reading_addr));
     } while (read != '\0' && reading_addr < CONFIG_FILE_END_ADDR);
     return _config_str;
 }
