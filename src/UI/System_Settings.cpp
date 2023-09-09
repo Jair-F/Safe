@@ -55,6 +55,7 @@ System_Settings::System_Settings(FGUI::WindowBase *_parent_window) : FGUI::Windo
     this->screen_timeout_input.set_input_buffer(String(m_window.get_fall_aspleep_timer()));
 
     this->reset_config_btn.setText("reset config");
+    this->reset_config_btn.on_release = &System_Settings::_handle_reset_config;
 
     auto now = system_clock.now();
     this->time_h_input.set_input_buffer(String(now.hour));
@@ -253,10 +254,27 @@ void System_Settings::_handle_on_type_wday(FGUI::Touch_Widget<System_Settings> *
     _widget->draw();
 }
 
+void System_Settings::_handle_reset_config(FGUI::Touch_Widget<System_Settings> *_widget)
+{
+    String reset_config_str = Config::reset_config();
+
+    if (Config::write_config(&reset_config_str))
+        this->reset_config_btn.released_border_color = VGA_GREEN;
+    else
+        this->reset_config_btn.released_border_color = VGA_RED;
+
+    this->reset_config_btn.draw();
+
+    /**
+     * restart the DUE - like pressing the reset button on the board
+     * https://forum.arduino.cc/t/due-software-reset/332764/11
+     */
+    rstc_start_software_reset(RSTC);
+}
+
 void System_Settings::_handle_save(FGUI::Touch_Widget<System_Settings> *_widget)
 {
     bool success = true;
-    auto config_system_ref = config[F("system")];
 
     byte logging_level;
     String loggin_level_str = this->logging_level_sslct.get_selection();
@@ -272,10 +290,9 @@ void System_Settings::_handle_save(FGUI::Touch_Widget<System_Settings> *_widget)
     else if (loggin_level_str == "WARNING")
         logging_level = Log::log_level::L_WARNING;
 
-    config_system_ref[F("logging_level")] = logging_level;
+    logger.set_logging_level(logging_level);
 
     this->_get_main_window()->set_fall_asleep_timer(String(this->screen_timeout_input.get_input_buffer()).toInt());
-    config_system_ref[F("screen_timeout")] = this->_get_main_window()->get_fall_aspleep_timer();
 
     Clock::time_point now;
     now.hour = String(this->time_h_input.get_input_buffer()).toInt();
@@ -287,12 +304,6 @@ void System_Settings::_handle_save(FGUI::Touch_Widget<System_Settings> *_widget)
     now.w_day = String(this->wday_input.get_input_buffer()).toInt();
 
     success = system_clock.set_date_time(now) == false ? false : success; // set the value only if it failed
-
-    if (_reset_config)
-    {
-        String reset_config_str = Config::reset_config();
-        success = Config::write_config(&reset_config_str) == false ? false : success; // set the value only if it failed
-    }
 
     if (success)
         save_btn.released_border_color = VGA_GREEN;
@@ -336,6 +347,9 @@ void System_Settings::_pre_show()
     this->date_y_input.set_input_buffer(String(now.year));
 
     this->wday_input.set_input_buffer(String(now.w_day));
+
+    this->reset_config_btn.released_border_color = VGA_WHITE;
+    this->save_btn.released_border_color = VGA_WHITE;
 }
 
 void System_Settings::_pre_hide()

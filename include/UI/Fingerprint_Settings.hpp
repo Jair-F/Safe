@@ -56,11 +56,6 @@ protected:
         FINGER_clear_database_waiting_confirm
     };
 
-    /**
-     * if a scan of a finger is in the slot cache to remove or add...
-     */
-    bool _set_finger_slot_cache = false;
-
 private:
     FGUI::TextLabel window_title;
     FGUI::BitmapButton<Fingerprint_Settings> back_btn;

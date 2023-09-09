@@ -131,6 +131,7 @@ void setup()
 			String config_str;
 			Config::read_config(&config_str);
 			deserializeJson(config, config_str);
+			// Serial.println(config_str);
 		}
 
 		Serial.println(F("config read - setting up devices"));
@@ -177,8 +178,11 @@ void setup()
 		/* ----- SYSTEM/LOCK ----- */
 		lock.set_locking_period(config[F("system")][F("locking_period")]);
 		lock.set_allowed_unauthorized_unlock_tries(config[F("system")][F("allowed_unauthorized_unlock_tries")]);
+		lock.set_lock_timer(config[F("system")][F("relock_timer")]);
 		m_window.set_fall_asleep_timer(config[F("system")][F("screen_timeout")]);
 		logger.set_logging_level(config[F("system")][F("logging_level")]);
+
+		// Serial.println(m_window.get_fall_aspleep_timer());
 	}
 
 	Serial.println("config set - starting everthing up...");
@@ -232,7 +236,13 @@ void setup()
 
 	logger.serial_dump();
 
-	Config::reset_config();
+	/*
+	String tmp1 = Config::reset_config();
+	if (Config::write_config(&tmp1))
+		Serial.println("config reseted...");
+	else
+		Serial.println("error writing the config.");
+	*/
 
 	while (true)
 	{
