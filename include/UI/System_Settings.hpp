@@ -26,8 +26,7 @@ protected:
     void _handle_on_type_wday(FGUI::Touch_Widget<System_Settings> *_widget, const char *_input_buffer);
 
     void _handle_save(FGUI::Touch_Widget<System_Settings> *_widget);
-
-    bool _reset_config = false;
+    void _handle_reset_config(FGUI::Touch_Widget<System_Settings> *_widget);
 
 private:
     FGUI::TextLabel window_title;

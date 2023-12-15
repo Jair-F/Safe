@@ -95,11 +95,14 @@ void FGUI::MainWindow::set_active_window(WindowBase *_win)
     }
     // assert(_win != nullptr);
 
-    // clear space of previous window
-    if (this->active_window != nullptr)
+    if (!this->get_in_sleep_mode())
     {
-        this->active_window->_pre_hide();
-        this->active_window->hide();
+        // clear space of previous window
+        if (this->active_window != nullptr)
+        {
+            this->active_window->_pre_hide();
+            this->active_window->hide();
+        }
     }
 
     this->unfreeze_focus(); // at every window change the focus will be reseted

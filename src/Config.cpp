@@ -39,8 +39,8 @@ Clock::time_point *Config::read_locked_until_tm_pt(Clock::time_point *_tm_pt)
 
 bool Config::locked_until_tm_pt_stored()
 {
-    return (!static_cast<bool>(system_clock_eeprom.eeprom_read(LOCKED_UNTIL_TM_PT_INDICATOR_ADDR))) &&
-           (!system_clock.lost_power());
+    return (!system_clock.lost_power()) &&
+           (!static_cast<bool>(system_clock_eeprom.eeprom_read(LOCKED_UNTIL_TM_PT_INDICATOR_ADDR)));
 }
 
 bool Config::clear_locked_until_tm_pt()
@@ -57,20 +57,41 @@ String *Config::read_config(String *_config_str)
     uint16_t reading_addr = CONFIG_FILE_START_ADDR;
     do
     {
-        system_clock_eeprom.eeprom_read(reading_addr);
+        read = system_clock_eeprom.eeprom_read(reading_addr);
+        (*_config_str) += static_cast<char>(read);
+        // (*_config_str) += static_cast<char>(system_clock_eeprom.eeprom_read(reading_addr));
+
+        /*
+        Serial.print("reading_addr: ");
+        Serial.print(reading_addr);
+        Serial.print(" - ");
+        Serial.println((char)read);
+        */
+
+        ++reading_addr;
     } while (read != '\0' && reading_addr < CONFIG_FILE_END_ADDR);
+
+    if (_config_str->charAt(_config_str->length() - 1) == '\0')
+        _config_str->remove(_config_str->length() - 1);
+
+    // Serial.println();
+    // Serial.println((*_config_str));
     return _config_str;
 }
 
 bool Config::write_config(String *_config_str)
 {
+    // Serial.println("writing config...");
     if (_config_str == nullptr)
         return false;
     if (!check_config_length(*_config_str))
         return false;
 
+    // Serial.println("writing following config str:");
+    // Serial.println((*_config_str));
+
     bool success = system_clock_eeprom.eeprom_write(CONFIG_FILE_START_ADDR,
-                                                    _config_str,
+                                                    const_cast<char *>(_config_str->c_str()),
                                                     _config_str->length()); // every count of length is one char/byte
 
     // adding eof if the _config_str doesnt fills the whole memory for endmarking at reading
@@ -100,7 +121,7 @@ String &Config::create_config_str(String &_config_str)
                 RFID_tags_ref[RFID_tags_ref.size() - 1][F("tag_uid")].add(uid.get_uid()[i]);
             }
 
-            // RFID_tags_ref[RFID_tags_ref.size() - 1][F("tag_uid")] = rfid->get_tag_uid(id).to_string();
+            // RFID_tags_ref[RFID_tags_ref.size() - 1][F("tag_uid")] = rfid->get_tag_uid(id).to_string(); // as string we are not using
         }
     }
 
@@ -112,6 +133,7 @@ String &Config::create_config_str(String &_config_str)
     auto system_ref = config[F("system")];
     system_ref[F("locking_period")] = lock.get_locking_period();
     system_ref[F("allowed_unauthorized_unlock_tries")] = lock.get_allowed_unauthorized_unlock_tries();
+    system_ref[F("relock_timer")] = lock.get_relock_timer();
     system_ref[F("screen_timeout")] = m_window.get_fall_aspleep_timer();
     system_ref[F("logging_level")] = logger.get_logging_level();
 
@@ -122,5 +144,5 @@ String &Config::create_config_str(String &_config_str)
 
 const char *Config::reset_config()
 {
-    return "{\"Fingerprint\":{\"enabled\":false},\"PIN\":{\"enabled\":false,\"pin\":\"00000\"},\"RFID\":{\"enabled\":false,\"RFID_tags\":[]},\"system\":{\"allowed_unauthorized_unlock_tries\":10,\"locking_period\":60,\"sleep_timeout\":60}}";
+    return "{\"Fingerprint\":{\"enabled\":false},\"PIN\":{\"enabled\":false,\"pin\":\"0\"},\"RFID\":{\"enabled\":false,\"RFID_tags\":[]},\"system\":{\"allowed_unauthorized_unlock_tries\":10,\"locking_period\":60,\"screen_timeout\":60,\"relock_timer\":10,\"logging_level\":5}}";
 }

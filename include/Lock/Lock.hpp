@@ -4,6 +4,7 @@
 #include "Helper.hpp"
 #include "Unlock_Object.hpp"
 #include "LinkedList.hpp"
+#include "GlobalConstants.hpp"
 
 class Unlock_Object;
 
@@ -147,11 +148,11 @@ private:
         @return true if locking was successful
     */
     bool (*on_locking)(void) = [](void) -> bool
-    {DEBUG_PRINTLN("locking the lock"); return true; };
+    {DEBUG_PRINTLN("locking the lock"); digitalWrite(RELAY_PIN, HIGH); return true; };
     /*
         function which will be called when lock will be unlocked
         @return true if unlocking was successful
     */
     bool (*on_unlocking)(void) = []() -> bool
-    {DEBUG_PRINTLN("unlocking the lock"); return true; };
+    {DEBUG_PRINTLN("unlocking the lock"); digitalWrite(RELAY_PIN, LOW); return true; };
 };

@@ -25,8 +25,7 @@ void Fingerprint::Fingerprint::begin()
     }
     this->fingerprint.getParameters();
 
-    this->enable();
-    // return sucess;
+    this->led_control(led_modes::LED_WAITING_FOR_FINGER);
 }
 
 void Fingerprint::Fingerprint::led_control(led_modes _led_mode)
@@ -128,14 +127,14 @@ Unlock_Object::unlock_authentication_reports Fingerprint::Fingerprint::read()
         if (err_code == FINGERPRINT_OK) // found a match
         {
             this->led_control(led_modes::LED_AUTHORIZED_FINGER);
-            delay(700);
+            delay(500);
             this->led_control(led_modes::LED_WAITING_FOR_FINGER);
             return Unlock_Object::unlock_authentication_reports::AUTHORIZED_UNLOCK_OBJECT;
         }
         else
         {
             this->led_control(led_modes::LED_UNAUTHORIZED_FINGER);
-            delay(700);
+            delay(500);
             this->led_control(led_modes::LED_WAITING_FOR_FINGER);
             return Unlock_Object::unlock_authentication_reports::UNAUTHORIZED_UNLOCK_OBJECT;
         }
@@ -172,7 +171,7 @@ bool Fingerprint::Fingerprint::check_id_used(uint16_t id)
 {
     // source: https://forum.arduino.cc/t/adafruit-fingerprint-sensor-library-detecting-empty-id/535181
     uint8_t err_code = this->fingerprint.loadModel(id);
-    Serial.println(error_code_message(err_code));
+    // Serial.println(error_code_message(err_code));
     if (err_code != FINGERPRINT_OK)
         return false;
     else
@@ -182,7 +181,7 @@ bool Fingerprint::Fingerprint::check_id_used(uint16_t id)
 bool Fingerprint::Fingerprint::get_id(uint8_t &_store_id_here)
 {
     // it searches a match in the database to the slot 1 and saves it in fingerprint.fingerID
-    if (this->fingerprint.fingerFastSearch() != FINGERPRINT_OK)
+    if (this->fingerprint.fingerSearch(1) != FINGERPRINT_OK)
         return false;
 
     _store_id_here = this->fingerprint.fingerID;

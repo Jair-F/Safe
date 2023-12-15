@@ -184,6 +184,17 @@ const FGUI::position &FGUI::WindowBase::pos() const
 
 void FGUI::WindowBase::_redraw_window()
 {
+    /**
+     * if the size of the window is not the same as its parent window - its on top of it
+     * we redraw also the parent window.
+     */
+    /*
+    if (this->_get_parent_window() != nullptr)
+        if (this->height() != this->_get_parent_window()->height() ||
+            this->width() != this->_get_parent_window()->width())
+            this->_get_parent_window()->_redraw_window();
+    */
+
     this->show();
 }
 

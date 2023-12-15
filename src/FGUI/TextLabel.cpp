@@ -54,15 +54,15 @@ void FGUI::TextLabel::_draw_widget()
     {
         if (this->need_recalculate)
         {
-            // clear the space before recalculating cause the size will change
+            // clear the space before recalculating cause the size will change if its not fixed size
             this->_clear_widget_space();
             this->_calc_widget();
             this->need_recalculate = false;
         }
         if (this->get_draw_border())
             this->_draw_border(Widget::w_status::S_RELEASED);
-        else
-            this->_clear_border_space();
+        // else
+        // this->_clear_border_space();
         this->_draw_background(Widget::w_status::S_RELEASED);
 
         this->display->setFont(text_font);
@@ -80,9 +80,12 @@ void FGUI::TextLabel::_draw_widget()
             {
                 line_to_print += this->text[str_index];
             }
-            if (this->text[str_index] == '\n' || str_index == this->text.length() - 1)
+            if (this->text[str_index] == '\n' || str_index >= this->text.length() - 1) // if newline or end of text
             {
-                //  adjusting the x_pos of the text_starting_pos to move it that it is aligned correctly
+                // remaining space at the sides if the text length and the gap at the side is considered (!! sum of the space of both sides !!)
+                uint16_t remaining_space = (this->get_content_width() - line_to_print.length() * this->display->getFontXsize());
+
+                // adjusting the x_pos of the text_starting_pos to move it that it is aligned correctly
                 switch (this->text_align)
                 {
                 case text_alignment::AL_LEFT:
@@ -92,15 +95,11 @@ void FGUI::TextLabel::_draw_widget()
                 }
                 case text_alignment::AL_CENTER:
                 {
-                    // remaining space at the sides if the text length and the gap at the side is considered (!! sum of the space of both sides !!)
-                    uint16_t remaining_space = (this->get_content_width() - line_to_print.length() * this->display->getFontXsize());
                     text_starting_pos.x_pos = this->get_content_upper_left().x_pos + remaining_space / 2;
                     break;
                 }
                 case text_alignment::AL_RIGHT:
                 {
-                    // remaining space at the sides if the text length and the gap at the side is considered (!! sum of the space of both sides !!)
-                    uint16_t remaining_space = (this->get_content_width() - line_to_print.length() * this->display->getFontXsize());
                     text_starting_pos.x_pos = this->get_content_upper_left().x_pos + remaining_space;
                     break;
                 }
@@ -112,8 +111,8 @@ void FGUI::TextLabel::_draw_widget()
 
                 line_to_print = "";
                 ++printed_line_counter;
-                if (this->fixed_size == true && printed_line_counter >= lines_to_print)
-                    break; // hop out and stop printing if widget is fixed size
+                if (this->fixed_size == true && printed_line_counter >= lines_to_print) // if we print all lines we can print in fixed_size
+                    break;                                                              // hop out and stop printing to not exceed the widget size
             }
         }
     }
@@ -153,7 +152,6 @@ void FGUI::TextLabel::_calc_widget()
     // adding newlines to text for wrapping the text to the display size - considers user defined newlines
     for (uint16_t i = 0; i < this->text.length(); ++i)
     {
-
         if (this->text[i] == '\n')
         {
             tmp += this->text[i];
@@ -161,6 +159,7 @@ void FGUI::TextLabel::_calc_widget()
             ++text_lines;
         }
         else if (present_newline_pos >= max_chars_in_line &&
+                 i < this->text.length() - 1 && // not the last char of the text
                  this->text[i + 1] != '\n')
         {
             tmp += '\n';

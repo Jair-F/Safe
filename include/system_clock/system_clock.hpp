@@ -19,7 +19,7 @@ namespace Clock
         ~Clock();
 
         /**
-         * @return false if the clock was stopped due to power loss
+         * @return true if the clock was stopped due to power lose
          */
         bool lost_power();
 

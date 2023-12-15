@@ -19,6 +19,10 @@ protected:
     // show the input buffer of the PIN on the status label
     void _show_pin_input();
 
+    void _pre_hide() override;
+
+    bool _waiting_access_settings() const; // if we wait for authorize for entering the settings window
+
 private:
     FGUI::TextLabel window_title;
     FGUI::Divider window_title_div;
