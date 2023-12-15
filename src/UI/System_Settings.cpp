@@ -300,7 +300,7 @@ void System_Settings::_handle_save(FGUI::Touch_Widget<System_Settings> *_widget)
     now.second = String(this->time_s_input.get_input_buffer()).toInt();
     now.m_day = String(this->date_d_input.get_input_buffer()).toInt();
     now.month = String(this->date_m_input.get_input_buffer()).toInt();
-    now.year = String(this->date_y_input.get_input_buffer()).toInt();
+    now.year = String(this->date_y_input.get_input_buffer()).toInt() + 2000; // eg. year = 23
     now.w_day = String(this->wday_input.get_input_buffer()).toInt();
 
     success = system_clock.set_date_time(now) == false ? false : success; // set the value only if it failed
@@ -344,7 +344,7 @@ void System_Settings::_pre_show()
 
     this->date_d_input.set_input_buffer(String(now.m_day));
     this->date_m_input.set_input_buffer(String(now.month));
-    this->date_y_input.set_input_buffer(String(now.year));
+    this->date_y_input.set_input_buffer(String(now.year).substring(2)); // eg. - 2023 -> 23
 
     this->wday_input.set_input_buffer(String(now.w_day));
 
