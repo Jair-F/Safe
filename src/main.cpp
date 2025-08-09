@@ -248,7 +248,7 @@ void setup()
 	{
 		k_pad.loop();
 		m_window.loop();
-		// lock.loop();
+		lock.loop();
 		// fase.loop();
 	}
 }
